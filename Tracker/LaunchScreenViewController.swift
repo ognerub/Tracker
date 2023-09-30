@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  LaunchScreenViewController.swift
 //  Tracker
 //
 //  Created by Admin on 9/30/23.
@@ -7,8 +7,8 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+final class LaunchScreenViewController: UIViewController {
+    
     private var practicumLogo: UIImageView = {
         let practicumLogoImage = UIImage(named: "Logo")!
         let practicumLogoImageView = UIImageView(image: practicumLogoImage)
@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .green
+        view.backgroundColor = UIColor(named: "YP Blue")
         addSubViews()
         configureConstraints()
         
@@ -36,7 +36,5 @@ class ViewController: UIViewController {
         ])
         
     }
-
-
+    
 }
-
