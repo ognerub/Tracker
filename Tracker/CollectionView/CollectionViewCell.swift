@@ -16,11 +16,11 @@ final class CollectionViewCell: UICollectionViewCell {
         return practicumLogoImageView
     }()
     
-    private let titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(named: "YP White")
         label.font = UIFont.systemFont(ofSize: 13)
-        label.text = "AAA"
+        label.textAlignment = .center
         label.backgroundColor = .blue
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -39,8 +39,8 @@ final class CollectionViewCell: UICollectionViewCell {
     }
     
     func addSubViews() {
-        addSubview(practicumLogo)
         addSubview(titleLabel)
+        addSubview(practicumLogo)
     }
     func configureConstraints() {
         NSLayoutConstraint.activate([
@@ -48,8 +48,10 @@ final class CollectionViewCell: UICollectionViewCell {
             practicumLogo.heightAnchor.constraint(equalToConstant: 94),
             practicumLogo.topAnchor.constraint(equalTo: centerYAnchor, constant: -47),
             practicumLogo.leadingAnchor.constraint(equalTo: centerXAnchor, constant: -45.5),
-            titleLabel.topAnchor.constraint(equalTo: contentView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.centerXAnchor)
+            titleLabel.widthAnchor.constraint(equalToConstant: contentView.frame.width),
+            titleLabel.heightAnchor.constraint(equalToConstant: contentView.frame.height),
+            titleLabel.topAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -contentView.frame.height/2),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.centerXAnchor, constant: -contentView.frame.width/2)
         ])
     }
 }
