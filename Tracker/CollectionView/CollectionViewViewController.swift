@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CollectionViewVC: UIViewController {
+final class CollectionViewViewController: UIViewController {
     
     private let letters = [
                 "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к",
@@ -51,24 +51,70 @@ final class CollectionViewVC: UIViewController {
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
         /// Register Footer
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
+        /// disable multiple selection
+        collectionView.allowsMultipleSelection = false
     }
 }
 
 // MARK: - CollectionViewDataSource (NumberOfItemsInSection, CellForItemAt)
-extension CollectionViewVC: UICollectionViewDataSource {
+extension CollectionViewViewController: UICollectionViewDataSource {
+    /// Return nu,ber of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return letters.count
     }
-    
+    /// Return cell for item of collectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-        cell.titleLabel.text = letters[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? CollectionViewCell
+        cell?.titleLabel.text = letters[indexPath.row]
+        guard let cell = cell else { return UICollectionViewCell()}
         return cell
     }
 }
 
-// MARK: - CollectionViewDelegate (Headed/Footer/Default switch)
-extension CollectionViewVC: UICollectionViewDelegate {
+// MARK: - CollectionViewDelegate
+extension CollectionViewViewController: UICollectionViewDelegate {
+    /// Did select cell
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+        cell?.titleLabel.backgroundColor = .black
+    }
+    /// Did deselect cell
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        cell?.titleLabel.backgroundColor = .blue
+    }
+    /// Context menu configuration
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        guard indexPaths.count > 0 else {
+            return nil
+        }
+        let indexPath = indexPaths[0]
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            return UIMenu(children: [
+                UIAction(title: "Bold") { [weak self] _ in
+                    self?.makeBold(collectionView: collectionView, indexPath: indexPath)
+                },
+                UIAction(title: "Italic") { [weak self] _ in
+                    self?.makeItalic(collectionView: collectionView, indexPath: indexPath)
+                },
+            ])
+        })
+    }
+    
+    private func makeBold(collectionView: UICollectionView, indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+    }
+
+    private func makeItalic(collectionView: UICollectionView, indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        cell?.titleLabel.font = UIFont.italicSystemFont(ofSize: 17)
+    }
+    
+    
+    /// Switch between header and footer
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         var id: String
         switch kind {
@@ -80,13 +126,13 @@ extension CollectionViewVC: UICollectionViewDelegate {
             id = ""
         }
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView
-        view.titleLabel.text = "It`s supplementaryView"
+        view.titleLabel.text = "It`s \(id)"
         return view
     }
 }
 
 // MARK: - CollectionViewDelegateFlowLayout
-extension CollectionViewVC: UICollectionViewDelegateFlowLayout {
+extension CollectionViewViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width / 2, height: 100)
@@ -99,9 +145,7 @@ extension CollectionViewVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 10
     }
-    
-    
-    
+    /// Set header size
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let indexPath = IndexPath(row: 0, section: section)
         let headerView = self.collectionView(
@@ -117,7 +161,7 @@ extension CollectionViewVC: UICollectionViewDelegateFlowLayout {
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel)
     }
-    
+    /// Set footer size
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
         let indexPath = IndexPath(row: 0, section: section)
         let footerView = self.collectionView(
