@@ -64,9 +64,8 @@ extension CollectionViewViewController: UICollectionViewDataSource {
     }
     /// Return cell for item of collectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? CollectionViewCell
-        cell?.titleLabel.text = letters[indexPath.row]
-        guard let cell = cell else { return UICollectionViewCell()}
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
+        cell.titleLabel.text = letters[indexPath.row]
         return cell
     }
 }
@@ -135,7 +134,7 @@ extension CollectionViewViewController: UICollectionViewDelegate {
 extension CollectionViewViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.bounds.width / 2, height: 100)
+        return CGSize(width: collectionView.bounds.width / 4, height: 100)
     }
     /// Set layout horizontal spacing
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
