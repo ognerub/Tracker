@@ -134,7 +134,7 @@ extension CollectionViewViewController: UICollectionViewDelegate {
 extension CollectionViewViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.bounds.width / 4, height: 100)
+        return CGSize(width: collectionView.bounds.width / 2, height: 100)
     }
     /// Set layout horizontal spacing
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

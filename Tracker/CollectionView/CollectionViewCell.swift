@@ -38,6 +38,14 @@ final class CollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        if titleLabel.backgroundColor == .black {
+            titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+            titleLabel.backgroundColor = .blue
+        }
+    }
+    
     func addSubViews() {
         addSubview(titleLabel)
         addSubview(practicumLogo)
