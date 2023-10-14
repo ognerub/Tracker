@@ -40,7 +40,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private let cellTrakerLabel: UILabel = {
+    let cellTrackerLabel: UILabel = {
        var label = UILabel()
         label.text = "Something that user printed is shown here"
         label.font = UIFont.systemFont(ofSize: 12)
@@ -54,17 +54,25 @@ final class CollectionViewCell: UICollectionViewCell {
     }()
     
     private lazy var cellPlusButton: UIButton = {
+        let resizedImage = UIImage(named: "PlusButton")!.resized(to: CGSize(width: 10, height: 10))
         let button = UIButton.systemButton(
-            with: UIImage(named: "PlusButton")!,
+            with: resizedImage,
             target: self,
-            action: nil
+            action: #selector(didTapCellPlusButton)
         )
         button.layer.cornerRadius = 21
         button.layer.masksToBounds = true
+        button.layer.borderWidth = 4
+        button.layer.borderColor = UIColor(named: "YP White")?.cgColor
         button.tintColor = UIColor(named: "YP White")
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    @objc
+    func didTapCellPlusButton() {
+        print("plus cell button pressed")
+    }
     
     private let cellDaysCounterLabel: UILabel = {
        var label = UILabel()
@@ -102,8 +110,8 @@ final class CollectionViewCell: UICollectionViewCell {
         addSubview(cellBackgroundSquare)
         addSubview(cellBackgroundRound)
         addSubview(cellEmojiLabel)
-        addSubview(cellTrakerLabel)
-        addSubview(cellPlusButton)
+        addSubview(cellTrackerLabel)
+        contentView.addSubview(cellPlusButton)
         addSubview(cellDaysCounterLabel)
     }
     func configureConstraints() {
@@ -124,9 +132,9 @@ final class CollectionViewCell: UICollectionViewCell {
             cellEmojiLabel.heightAnchor.constraint(equalToConstant: 22),
             cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -11),
             
-            cellTrakerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            cellTrakerLabel.widthAnchor.constraint(equalToConstant: contentView.frame.width - 12),
-            cellTrakerLabel.topAnchor.constraint(equalTo: cellBackgroundRound.bottomAnchor, constant: 8),
+            cellTrackerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            cellTrackerLabel.widthAnchor.constraint(equalToConstant: contentView.frame.width - 12),
+            cellTrackerLabel.topAnchor.constraint(equalTo: cellBackgroundRound.bottomAnchor, constant: 8),
             
             cellPlusButton.topAnchor.constraint(equalTo: cellBackgroundSquare.bottomAnchor, constant: 4),
             cellPlusButton.trailingAnchor.constraint(equalTo: cellBackgroundSquare.trailingAnchor, constant: -8),
