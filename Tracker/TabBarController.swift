@@ -49,7 +49,7 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
             selectedTabBar = 1
         }
         
-        print("Did select viewController: \(viewController.accessibilityLabel ?? "") ? /n selectedTabBar = \(selectedTabBar)")
+        print("Did select viewController: \(viewController.accessibilityLabel ?? "") /n selectedTabBar = \(selectedTabBar)")
     }
     
 }
