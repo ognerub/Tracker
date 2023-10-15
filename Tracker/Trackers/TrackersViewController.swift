@@ -7,10 +7,9 @@
 
 import UIKit
 
-final class TrackersViewController: UIViewController, UISearchBarDelegate {
+final class TrackersViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
-    
     private let colors: [UIColor] = [
         UIColor(named: "CC Blue")!,
         UIColor(named: "CC Green")!,
@@ -19,31 +18,22 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         UIColor(named: "CC Purple")!,
         UIColor(named: "CC Red")!
     ]
-    
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
         "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
         "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
     ]
-
     private var currentDate: Date = Date()
-    
     private var trackersArray: [Tracker] = []
-    
     private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
-    
     private var categories: [TrackerCategory] = []
-    
     private var visibleCategories: [TrackerCategory] = []
-    
     private var completedTrackers: [TrackerRecord] = []
-    
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
-    
     private let cellIdentifier = "Cell"
     private let headerIdentifier = "Header"
     //private let footerIdentifier = "Footer"
@@ -55,14 +45,12 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
     private let emptyTrackersImageView: UIImageView = {
         var image = UIImage(named: "TrackersEmpty")
         var imageView = UIImageView(image: image)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    
     private let emptyTrackersLabel: UILabel = {
         var label = UILabel()
         label.text = "What we will watch?"
@@ -81,7 +69,6 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         return datePicker
     }()
-    
     private var trackersLabel: UILabel = {
         var label = UILabel()
         label.text = "Trackers"
@@ -89,13 +76,11 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     private let navBar: UINavigationBar = {
         var bar = UINavigationBar()
         bar.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 182)
         return bar
     }()
-    
     private lazy var searchBar: UISearchBar = {
         var searchBar = UISearchBar()
         searchBar.searchBarStyle = UISearchBar.Style.default
@@ -106,21 +91,16 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
-    
     private lazy var plusButton: UIButton = {
-        let exitButton = UIButton.systemButton(
+        let button = UIButton.systemButton(
             with: UIImage(named: "PlusButton")!,
             target: self,
             action: #selector(didTapPlusButton)
         )
-        exitButton.tintColor = UIColor(named: "YP Black")
-        exitButton.translatesAutoresizingMaskIntoConstraints = false
-        return exitButton
+        button.tintColor = UIColor(named: "YP Black")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
-    
-    private var profileImageServiceObserver: NSObjectProtocol?
-    
-    static let DidChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     // MARK: - viewDidLoad
     override func viewDidLoad() {
@@ -130,77 +110,18 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         addTopBar()
         collectionViewConfig()
         showEmptyTrackersInfo()
-        
-        profileImageServiceObserver = NotificationCenter.default.addObserver(
-            forName: TrackersViewController.DidChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            guard let self = self else { return }
-            self.updateAvatarObjc(notification: notification)
-        }
-    }
-    
-    @objc
-    private func updateAvatarObjc(notification: Notification) {
-        guard
-            isViewLoaded
-        else { return }
-        if trackersArray.count == 0 {
-            showEmptyTrackersInfo()
-        }
-    }
-    
-    func addTopBar() {
-        
-        // NavBar
-        view.addSubview(navBar)
-        
-        // DatePicker
-        navBar.addSubview(datePicker)
-        NSLayoutConstraint.activate([
-            datePicker.centerYAnchor.constraint(equalTo: navBar.centerYAnchor, constant: -datePicker.frame.size.height/2),
-            datePicker.trailingAnchor.constraint(equalTo: navBar.trailingAnchor, constant: -16)
-        ])
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        
-        // SearchBar
-        view.addSubview(searchBar)
-        NSLayoutConstraint.activate([
-            searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            searchBar.bottomAnchor.constraint(equalTo: navBar.bottomAnchor, constant: -10),
-            searchBar.heightAnchor.constraint(equalToConstant: 36)
-        ])
-        searchBar.delegate = self
-        
-        // PlusButton
-        view.addSubview(plusButton)
-        NSLayoutConstraint.activate([
-            plusButton.leadingAnchor.constraint(equalTo: navBar.leadingAnchor, constant: 16),
-            plusButton.topAnchor.constraint(equalTo: navBar.topAnchor, constant: 49),
-            plusButton.widthAnchor.constraint(equalToConstant: 42),
-            plusButton.heightAnchor.constraint(equalToConstant: 42)
-        ])
-        
-        // TrackersLabel
-        navBar.addSubview(trackersLabel)
-        NSLayoutConstraint.activate([
-            trackersLabel.bottomAnchor.constraint(equalTo: navBar.bottomAnchor, constant: -53),
-            trackersLabel.leadingAnchor.constraint(equalTo: navBar.leadingAnchor, constant: 16)
-        ])
     }
     
     @objc
     func didTapPlusButton() {
+        
+        let newViewController = TrackerTypeViewController()
+        self.present(newViewController, animated: true, completion: nil)
+        
         print("plus button pressed")
-        //guard visibleCategories.count < categories.count else { return }
-        
         hideEmptyTrackersInfo()
-        
         let newCategory = TrackerCategory(name: "New category", trackers: trackersArray)
         categories = [newCategory]
-        
         let nextIndex = trackersArray.count
         let newTracker: Tracker = Tracker(
             id: UInt(nextIndex),
@@ -221,12 +142,67 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         let selectedDate: String = dateFormatter.string(from: (sender.date))
         print("date picker changed \(selectedDate)")
     }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print("search bar text did change \(searchText)")
+}
+
+// MARK: - Private methods
+private extension TrackersViewController {
+        func collectionViewConfig() {
+            /// Create collectionView with custom layout
+            view.addSubview(collectionView)
+            NSLayoutConstraint.activate([
+                collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            ])
+            /// Make VC a dataSource of collectionView, to config Cell
+            collectionView.dataSource = self
+            /// Register Cell
+            collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+            /// Make VC a delegate of collectionView, to config Header and Footer
+            collectionView.delegate = self
+            /// Register Header
+            collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+            /// Register Footer
+    //        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
+            /// disable multiple selection
+            collectionView.allowsMultipleSelection = false
+        }
+    func addTopBar() {
+        // NavBar
+        view.addSubview(navBar)
+        // DatePicker
+        navBar.addSubview(datePicker)
+        NSLayoutConstraint.activate([
+            datePicker.centerYAnchor.constraint(equalTo: navBar.centerYAnchor, constant: -datePicker.frame.size.height/2),
+            datePicker.trailingAnchor.constraint(equalTo: navBar.trailingAnchor, constant: -16)
+        ])
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        // PlusButton
+        view.addSubview(plusButton)
+        NSLayoutConstraint.activate([
+            plusButton.leadingAnchor.constraint(equalTo: navBar.leadingAnchor, constant: 16),
+            plusButton.topAnchor.constraint(equalTo: navBar.topAnchor, constant: 49),
+            plusButton.widthAnchor.constraint(equalToConstant: 42),
+            plusButton.heightAnchor.constraint(equalToConstant: 42)
+        ])
+        // TrackersLabel
+        navBar.addSubview(trackersLabel)
+        NSLayoutConstraint.activate([
+            trackersLabel.bottomAnchor.constraint(equalTo: navBar.bottomAnchor, constant: -53),
+            trackersLabel.leadingAnchor.constraint(equalTo: navBar.leadingAnchor, constant: 16)
+        ])
+        // SearchBar
+        view.addSubview(searchBar)
+        NSLayoutConstraint.activate([
+            searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            searchBar.bottomAnchor.constraint(equalTo: navBar.bottomAnchor, constant: -10),
+            searchBar.heightAnchor.constraint(equalToConstant: 36)
+        ])
+        searchBar.delegate = self
     }
-    
-    private func showEmptyTrackersInfo() {
+    func showEmptyTrackersInfo() {
         view.addSubview(emptyTrackersBackground)
         view.addSubview(emptyTrackersImageView)
         view.addSubview(emptyTrackersLabel)
@@ -242,40 +218,16 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
             emptyTrackersLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -171.5)
         ])
     }
-    
-    private func hideEmptyTrackersInfo() {
+    func hideEmptyTrackersInfo() {
         emptyTrackersBackground.removeFromSuperview()
         emptyTrackersImageView.removeFromSuperview()
         emptyTrackersLabel.removeFromSuperview()
     }
-    
-    
-    
-    
-    
-    
-// MARK: - CollectionView
-    func collectionViewConfig() {
-        /// Create collectionView with custom layout
-        view.addSubview(collectionView)
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-        /// Make VC a dataSource of collectionView, to config Cell
-        collectionView.dataSource = self
-        /// Register Cell
-        collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
-        /// Make VC a delegate of collectionView, to config Header and Footer
-        collectionView.delegate = self
-        /// Register Header
-        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
-        /// Register Footer
-//        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
-        /// disable multiple selection
-        collectionView.allowsMultipleSelection = false
+}
+
+extension TrackersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        print("search bar text did change \(searchText)")
     }
 }
 
@@ -317,60 +269,45 @@ extension TrackersViewController: UICollectionViewDelegate {
 //        //cell?.titleLabel.backgroundColor = .blue
 //        print("Did deselect cell at \(indexPath)")
 //    }
-    
     /// Context menu configuration
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         guard indexPaths.count > 0 else {
             return nil
         }
         let indexPath = indexPaths[0]
-        
         return UIContextMenuConfiguration(actionProvider: { actions in
-            
             let deleteAction = UIAction(title: "Delete") { [weak self] _ in
-                
-                guard var newArray = self?.trackersArray else { return }
+                guard let newArray = self?.trackersArray else { return }
                 let newCategory = TrackerCategory(name: "New category", trackers: newArray)
                 self?.categories = [newCategory]
-                
                 self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
-                NotificationCenter.default.post(
-                    name: TrackersViewController.DidChangeNotification,
-                    object: self,
-                    userInfo: ["Delete": "Accerted"]
-                )
             }
             let attributedString = NSAttributedString(string: "Delete", attributes: [
                 //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
             deleteAction.setValue(attributedString, forKey: "attributedTitle")
-            
             return UIMenu(children: [
                 UIAction(title: "Edit") { [weak self] _ in
-                    self?.makeBold(collectionView: collectionView, indexPath: indexPath)
+                    self?.editTracker(collectionView: collectionView, indexPath: indexPath)
                 },
                 deleteAction,
             ])
         })
     }
-
-    private func makeBold(collectionView: UICollectionView, indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-        //cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
-    }
-
     private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-        
         guard trackersArray.count > 0 else { return }
         trackersArray.remove(at: indexPath.row)
         collectionView.performBatchUpdates {
             collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
         }
-        
+        if trackersArray.count == 0 {
+            showEmptyTrackersInfo()
+        }
     }
-
+    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+        // TODO: make tracker editable
+    }
     /// Switch between header and footer
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         var id: String
