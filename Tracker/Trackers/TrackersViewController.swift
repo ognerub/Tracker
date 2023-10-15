@@ -26,18 +26,17 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
     ]
 
-    
     private var currentDate: Date = Date()
     
-    private var firstTracker: Tracker = Tracker(id: 0, name: "Mine first tracker", color: .green, emoji: "😊", schedule: Date())
+    private var trackersArray: [Tracker] = []
     
-    private var firstTrackersArray: [Tracker] = []
-    
-    private var completedTrackers: [TrackerRecord] = []
+    private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
     
     private var categories: [TrackerCategory] = []
     
     private var visibleCategories: [TrackerCategory] = []
+    
+    private var completedTrackers: [TrackerRecord] = []
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -45,17 +44,18 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         return collectionView
     }()
     
-    private let letters = [
-        "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к",
-        "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц",
-        "ч", "ш" , "щ", "ъ", "ы", "ь", "э", "ю", "я"
-    ]
-    
     private let cellIdentifier = "Cell"
     private let headerIdentifier = "Header"
-    private let footerIdentifier = "Footer"
+    //private let footerIdentifier = "Footer"
     
     // MARK: - Properties for Empty Trackers Page
+    private let emptyTrackersBackground: UIView = {
+        var view = UIView()
+        view.backgroundColor = UIColor(named: "YP White")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let emptyTrackersImageView: UIImageView = {
         var image = UIImage(named: "TrackersEmpty")
         var imageView = UIImageView(image: image)
@@ -118,14 +118,37 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         return exitButton
     }()
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
+    static let DidChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
         addTopBar()
-        //showEmptyTrakersInfo()
         collectionViewConfig()
+        showEmptyTrackersInfo()
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: TrackersViewController.DidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self = self else { return }
+            self.updateAvatarObjc(notification: notification)
+        }
+    }
+    
+    @objc
+    private func updateAvatarObjc(notification: Notification) {
+        guard
+            isViewLoaded
+        else { return }
+        if trackersArray.count == 0 {
+            showEmptyTrackersInfo()
+        }
     }
     
     func addTopBar() {
@@ -173,16 +196,19 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         print("plus button pressed")
         //guard visibleCategories.count < categories.count else { return }
         
+        hideEmptyTrackersInfo()
         
+        let newCategory = TrackerCategory(name: "New category", trackers: trackersArray)
+        categories = [newCategory]
         
-        let nextIndex = firstTrackersArray.count
+        let nextIndex = trackersArray.count
         let newTracker: Tracker = Tracker(
             id: UInt(nextIndex),
             name: "Next index is \(nextIndex)",
             color: colors.randomElement() ?? .black,
             emoji: emojies.randomElement() ?? "D",
             schedule: Date())
-        firstTrackersArray.append(newTracker)
+        trackersArray.append(newTracker)
         collectionView.performBatchUpdates {
             collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
         }
@@ -200,10 +226,15 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         print("search bar text did change \(searchText)")
     }
     
-    func showEmptyTrakersInfo() {
+    private func showEmptyTrackersInfo() {
+        view.addSubview(emptyTrackersBackground)
         view.addSubview(emptyTrackersImageView)
         view.addSubview(emptyTrackersLabel)
         NSLayoutConstraint.activate([
+            emptyTrackersBackground.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            emptyTrackersBackground.topAnchor.constraint(equalTo: navBar.bottomAnchor),
+            emptyTrackersBackground.widthAnchor.constraint(equalToConstant: view.frame.width),
+            emptyTrackersBackground.heightAnchor.constraint(equalToConstant: view.frame.height),
             emptyTrackersImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -40),
             emptyTrackersImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -40),
             emptyTrackersLabel.topAnchor.constraint(equalTo: emptyTrackersImageView.bottomAnchor, constant: 8),
@@ -211,6 +242,14 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
             emptyTrackersLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -171.5)
         ])
     }
+    
+    private func hideEmptyTrackersInfo() {
+        emptyTrackersBackground.removeFromSuperview()
+        emptyTrackersImageView.removeFromSuperview()
+        emptyTrackersLabel.removeFromSuperview()
+    }
+    
+    
     
     
     
@@ -234,7 +273,7 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
         /// Register Header
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
         /// Register Footer
-        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
+//        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
         /// disable multiple selection
         collectionView.allowsMultipleSelection = false
     }
@@ -242,18 +281,22 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
 
 // MARK: - CollectionViewDataSource (NumberOfItemsInSection, CellForItemAt)
 extension TrackersViewController: UICollectionViewDataSource {
-    /// Return number of items in section
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard firstTrackersArray.count > 0 else { return 0}
-        return firstTrackersArray.count
+    /// Number of sections
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
     }
-    /// Return cell for item of collectionView
+    /// Number of items in section
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard trackersArray.count > 0 else { return 0}
+        return trackersArray.count
+    }
+    /// Cell for item
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-        cell.cellTrackerLabel.text = firstTrackersArray[indexPath.row].name
-        cell.cellEmojiLabel.text = firstTrackersArray[indexPath.row].emoji
-        cell.cellBackgroundSquare.backgroundColor = firstTrackersArray[indexPath.row].color
-        cell.cellPlusButton.backgroundColor = firstTrackersArray[indexPath.row].color
+        cell.cellTrackerLabel.text = trackersArray[indexPath.row].name
+        cell.cellEmojiLabel.text = trackersArray[indexPath.row].emoji
+        cell.cellBackgroundSquare.backgroundColor = trackersArray[indexPath.row].color
+        cell.cellPlusButton.backgroundColor = trackersArray[indexPath.row].color
         return cell
     }
 }
@@ -282,24 +325,32 @@ extension TrackersViewController: UICollectionViewDelegate {
         }
         let indexPath = indexPaths[0]
         
-        
-        
         return UIContextMenuConfiguration(actionProvider: { actions in
             
-            let action = UIAction(title: "Delete") { [weak self] _ in
+            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
+                
+                guard var newArray = self?.trackersArray else { return }
+                let newCategory = TrackerCategory(name: "New category", trackers: newArray)
+                self?.categories = [newCategory]
+                
                 self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
+                NotificationCenter.default.post(
+                    name: TrackersViewController.DidChangeNotification,
+                    object: self,
+                    userInfo: ["Delete": "Accerted"]
+                )
             }
             let attributedString = NSAttributedString(string: "Delete", attributes: [
                 //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
-            action.setValue(attributedString, forKey: "attributedTitle")
+            deleteAction.setValue(attributedString, forKey: "attributedTitle")
             
             return UIMenu(children: [
                 UIAction(title: "Edit") { [weak self] _ in
                     self?.makeBold(collectionView: collectionView, indexPath: indexPath)
                 },
-                action,
+                deleteAction,
             ])
         })
     }
@@ -312,10 +363,8 @@ extension TrackersViewController: UICollectionViewDelegate {
     private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
         
-        guard firstTrackersArray.count > 0 else { return }
-
-        let lastIndex = firstTrackersArray.count - 1
-        firstTrackersArray.remove(at: indexPath.row)
+        guard trackersArray.count > 0 else { return }
+        trackersArray.remove(at: indexPath.row)
         collectionView.performBatchUpdates {
             collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
         }
@@ -328,13 +377,13 @@ extension TrackersViewController: UICollectionViewDelegate {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
             id = headerIdentifier
-        case UICollectionView.elementKindSectionFooter:
-            id = footerIdentifier
+//        case UICollectionView.elementKindSectionFooter:
+//            id = footerIdentifier
         default:
             id = ""
         }
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView
-        view.titleLabel.text = "It`s \(id)"
+        view.titleLabel.text = "\(firstCategory.name)"
         return view
     }
 }
@@ -369,20 +418,20 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel)
     }
-    /// Set footer size
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let footerView = self.collectionView(
-            collectionView,
-            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionFooter,
-            at: indexPath
-        )
-        return footerView.systemLayoutSizeFitting(
-            CGSize(
-                width: collectionView.frame.width,
-                height: UIView.layoutFittingExpandedSize.height
-            ),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel)
-    }
+//    /// Set footer size
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+//        let indexPath = IndexPath(row: 0, section: section)
+//        let footerView = self.collectionView(
+//            collectionView,
+//            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionFooter,
+//            at: indexPath
+//        )
+//        return footerView.systemLayoutSizeFitting(
+//            CGSize(
+//                width: collectionView.frame.width,
+//                height: UIView.layoutFittingExpandedSize.height
+//            ),
+//            withHorizontalFittingPriority: .required,
+//            verticalFittingPriority: .fittingSizeLevel)
+//    }
 }
