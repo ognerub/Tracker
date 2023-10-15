@@ -15,7 +15,7 @@ final class CollectionViewCell: UICollectionViewCell {
         .red, .purple, .yellow
     ]
     
-    private let cellBackgroundSquare: UIView = {
+    let cellBackgroundSquare: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
@@ -31,9 +31,8 @@ final class CollectionViewCell: UICollectionViewCell {
         return view
     }()
     
-    private let cellEmojiLabel: UILabel = {
+    let cellEmojiLabel: UILabel = {
        var label = UILabel()
-        label.text = "😊"
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -53,7 +52,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var cellPlusButton: UIButton = {
+    lazy var cellPlusButton: UIButton = {
         let resizedImage = UIImage(named: "PlusButton")!.resized(to: CGSize(width: 10, height: 10))
         let button = UIButton.systemButton(
             with: resizedImage,
@@ -85,10 +84,9 @@ final class CollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        cellBackgroundSquare.backgroundColor = colors[1]
+        contentView.backgroundColor = UIColor(named: "YP White")
         cellBackgroundRound.backgroundColor = UIColor(named: "YP White")
         cellBackgroundRound.alpha = 0.3
-        cellPlusButton.backgroundColor = colors[1]
         addSubViews()
         configureConstraints()
     }

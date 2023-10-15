@@ -10,13 +10,40 @@ import UIKit
 final class TrackersViewController: UIViewController, UISearchBarDelegate {
     
     //MARK: - Properties for CollectionView
+    
+    private let colors: [UIColor] = [
+        UIColor(named: "CC Blue")!,
+        UIColor(named: "CC Green")!,
+        UIColor(named: "CC Orange")!,
+        UIColor(named: "CC Pink")!,
+        UIColor(named: "CC Purple")!,
+        UIColor(named: "CC Red")!
+    ]
+    
+    private let emojies = [
+        "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
+        "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
+        "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
+    ]
+
+    
+    private var currentDate: Date = Date()
+    
+    private var firstTracker: Tracker = Tracker(id: 0, name: "Mine first tracker", color: .green, emoji: "😊", schedule: Date())
+    
+    private var firstTrackersArray: [Tracker] = []
+    
+    private var completedTrackers: [TrackerRecord] = []
+    
     private var categories: [TrackerCategory] = []
     
     private var visibleCategories: [TrackerCategory] = []
     
-    private var completedTrackers: [TrackerRecord] = []
-    
-    private var currentDate: Date = Date()
+    private let collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
     
     private let letters = [
         "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к",
@@ -144,12 +171,27 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
     @objc
     func didTapPlusButton() {
         print("plus button pressed")
+        //guard visibleCategories.count < categories.count else { return }
+        
+        
+        
+        let nextIndex = firstTrackersArray.count
+        let newTracker: Tracker = Tracker(
+            id: UInt(nextIndex),
+            name: "Next index is \(nextIndex)",
+            color: colors.randomElement() ?? .black,
+            emoji: emojies.randomElement() ?? "D",
+            schedule: Date())
+        firstTrackersArray.append(newTracker)
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
+        }
     }
     
     @objc
     func datePickerValueChanged(_ sender: UIDatePicker) {
         let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"
+        dateFormatter.dateFormat = "dd.MM.yyyy"
         let selectedDate: String = dateFormatter.string(from: (sender.date))
         print("date picker changed \(selectedDate)")
     }
@@ -176,8 +218,6 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
 // MARK: - CollectionView
     func collectionViewConfig() {
         /// Create collectionView with custom layout
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
@@ -204,12 +244,16 @@ final class TrackersViewController: UIViewController, UISearchBarDelegate {
 extension TrackersViewController: UICollectionViewDataSource {
     /// Return number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return letters.count
+        guard firstTrackersArray.count > 0 else { return 0}
+        return firstTrackersArray.count
     }
     /// Return cell for item of collectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-        cell.cellTrackerLabel.text = letters[indexPath.row]
+        cell.cellTrackerLabel.text = firstTrackersArray[indexPath.row].name
+        cell.cellEmojiLabel.text = firstTrackersArray[indexPath.row].emoji
+        cell.cellBackgroundSquare.backgroundColor = firstTrackersArray[indexPath.row].color
+        cell.cellPlusButton.backgroundColor = firstTrackersArray[indexPath.row].color
         return cell
     }
 }
@@ -230,33 +274,53 @@ extension TrackersViewController: UICollectionViewDelegate {
 //        //cell?.titleLabel.backgroundColor = .blue
 //        print("Did deselect cell at \(indexPath)")
 //    }
+    
     /// Context menu configuration
-//    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-//        guard indexPaths.count > 0 else {
-//            return nil
-//        }
-//        let indexPath = indexPaths[0]
-//        return UIContextMenuConfiguration(actionProvider: { actions in
-//            return UIMenu(children: [
-//                UIAction(title: "Bold") { [weak self] _ in
-//                    self?.makeBold(collectionView: collectionView, indexPath: indexPath)
-//                },
-//                UIAction(title: "Italic") { [weak self] _ in
-//                    self?.makeItalic(collectionView: collectionView, indexPath: indexPath)
-//                },
-//            ])
-//        })
-//    }
-//
-//    private func makeBold(collectionView: UICollectionView, indexPath: IndexPath) {
-//        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-//        //cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
-//    }
-//
-//    private func makeItalic(collectionView: UICollectionView, indexPath: IndexPath) {
-//        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-//        //cell?.titleLabel.font = UIFont.italicSystemFont(ofSize: 17)
-//    }
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        guard indexPaths.count > 0 else {
+            return nil
+        }
+        let indexPath = indexPaths[0]
+        
+        
+        
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            
+            let action = UIAction(title: "Delete") { [weak self] _ in
+                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
+            }
+            let attributedString = NSAttributedString(string: "Delete", attributes: [
+                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
+                NSAttributedString.Key.foregroundColor: UIColor.red
+            ])
+            action.setValue(attributedString, forKey: "attributedTitle")
+            
+            return UIMenu(children: [
+                UIAction(title: "Edit") { [weak self] _ in
+                    self?.makeBold(collectionView: collectionView, indexPath: indexPath)
+                },
+                action,
+            ])
+        })
+    }
+
+    private func makeBold(collectionView: UICollectionView, indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        //cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+    }
+
+    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        
+        guard firstTrackersArray.count > 0 else { return }
+
+        let lastIndex = firstTrackersArray.count - 1
+        firstTrackersArray.remove(at: indexPath.row)
+        collectionView.performBatchUpdates {
+            collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
+        }
+        
+    }
 
     /// Switch between header and footer
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

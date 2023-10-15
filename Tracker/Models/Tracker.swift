@@ -11,6 +11,6 @@ struct Tracker {
     let id: UInt
     let name: String
     let color: UIColor
-    let emoji: UIImage
-    let schedule: Schedule
+    let emoji: String
+    let schedule: Date
 }
