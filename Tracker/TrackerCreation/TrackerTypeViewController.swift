@@ -9,6 +9,8 @@ import UIKit
 
 final class TrackerTypeViewController: UIViewController {
     
+    private let trackerCardViewController = TrackerCardViewController()
+    
     private var titleBackground: UIView = {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -96,21 +98,20 @@ final class TrackerTypeViewController: UIViewController {
         ])
         stackView.addArrangedSubview(regularTrackerButton)
         stackView.addArrangedSubview(unregularTrackerButton)
-//        NSLayoutConstraint.activate([
-//            regularTrackerButton.widthAnchor.constraint(equalToConstant: stackView.frame.width),
-//            regularTrackerButton.heightAnchor.constraint(equalToConstant: 60)
-//        ])
     }
-    
     
     @objc
     func didTapRegularTrackerButton() {
         print("did tap regular tracker button")
+        trackerCardViewController.titleLabel.text = "New habit"
+        self.present(trackerCardViewController, animated: true)
     }
     
     @objc
     func didTapUnregularTrackerButton() {
         print("did tap unregular tracker button")
+        trackerCardViewController.titleLabel.text  = "New unregular tracker"
+        self.present(trackerCardViewController, animated: true, completion: nil)
     }
 }
 

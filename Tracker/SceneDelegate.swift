@@ -16,9 +16,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: scene)
-        window.rootViewController = TabBarController()
+        window.rootViewController = TrackerCardViewController()
         self.window = window
         window.makeKeyAndVisible()
+        
 //        let viewController = TabBarController()
 //        let navigationController = UINavigationController(rootViewController: viewController)
 //        window.rootViewController = navigationController
