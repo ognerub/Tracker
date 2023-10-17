@@ -81,6 +81,27 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    private var categoryButtonArrowImageView: UIImageView = {
+        let image = UIImage(named: "ArrowRight")
+        let imageView = UIImageView(image: image)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private var scheduleButtonArrowImageView: UIImageView = {
+        let image = UIImage(named: "ArrowRight")
+        let imageView = UIImageView(image: image)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private var buttonBottomDivider: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "YP Grey")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -126,6 +147,27 @@ final class TrackerCardViewController: UIViewController {
         ])
         stackView.addArrangedSubview(categoryButton)
         stackView.addArrangedSubview(scheduleButton)
+
+        categoryButton.addSubview(categoryButtonArrowImageView)
+        categoryButton.addSubview(buttonBottomDivider)
+        NSLayoutConstraint.activate([
+            categoryButtonArrowImageView.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -12),
+            categoryButtonArrowImageView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
+            categoryButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
+            categoryButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24),
+            
+            buttonBottomDivider.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
+            buttonBottomDivider.heightAnchor.constraint(equalToConstant: 1),
+            buttonBottomDivider.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
+            buttonBottomDivider.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16)
+        ])
+        scheduleButton.addSubview(scheduleButtonArrowImageView)
+        NSLayoutConstraint.activate([
+            scheduleButtonArrowImageView.topAnchor.constraint(equalTo: scheduleButton.centerYAnchor, constant: -12),
+            scheduleButtonArrowImageView.trailingAnchor.constraint(equalTo: scheduleButton.trailingAnchor, constant: -16),
+            scheduleButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
+            scheduleButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
+        ])
     }
     
     
