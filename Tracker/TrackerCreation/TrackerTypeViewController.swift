@@ -104,14 +104,18 @@ final class TrackerTypeViewController: UIViewController {
     func didTapRegularTrackerButton() {
         print("did tap regular tracker button")
         trackerCardViewController.titleLabel.text = "New habit"
-        self.present(trackerCardViewController, animated: true)
+        self.present(trackerCardViewController, animated: true, completion: {
+            self.trackerCardViewController.presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
+        })
     }
     
     @objc
     func didTapUnregularTrackerButton() {
         print("did tap unregular tracker button")
         trackerCardViewController.titleLabel.text  = "New unregular tracker"
-        self.present(trackerCardViewController, animated: true, completion: nil)
+        self.present(trackerCardViewController, animated: true, completion: {
+            self.trackerCardViewController.presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
+        })
     }
 }
 

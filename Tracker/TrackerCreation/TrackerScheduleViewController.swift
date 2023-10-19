@@ -1,13 +1,13 @@
 //
-//  TrackerCardViewController.swift
+//  TrackerScheduleViewController.swift
 //  Tracker
 //
-//  Created by Admin on 10/15/23.
+//  Created by Admin on 10/19/23.
 //
 
 import UIKit
 
-final class TrackerCardViewController: UIViewController {
+final class TrackerScheduleViewController: UIViewController {
     
     private var titleBackground: UIView = {
         var background = UIView()
@@ -17,20 +17,11 @@ final class TrackerCardViewController: UIViewController {
     
     var titleLabel: UILabel = {
         var label = UILabel()
+        label.text = "Schedule"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    private var textField: UITextField = {
-        let textField = TextFieldWithPadding()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "YP LightGrey")
-        textField.clearButtonMode = .whileEditing
-        textField.layer.masksToBounds = true
-        textField.layer.cornerRadius = 16
-        return textField
     }()
     
     private var verticalStackView: UIStackView = {
@@ -46,7 +37,7 @@ final class TrackerCardViewController: UIViewController {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapCategoryButton)
+            action: #selector(didTapRegularTrackerButton)
         )
         button.setTitle("Category", for: .normal)
         button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
@@ -64,7 +55,7 @@ final class TrackerCardViewController: UIViewController {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapScheduleButton)
+            action: #selector(didTapUnregularTrackerButton)
         )
         button.setTitle("Schedule", for: .normal)
         button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
@@ -78,11 +69,15 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    private var categoryButtonArrowImageView: UIImageView = {
-        let image = UIImage(named: "ArrowRight")
-        let imageView = UIImageView(image: image)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+    private var scheduleSwitch: UISwitch = {
+        let sswitch = UISwitch()
+        sswitch.setOn(false, animated: false)
+        sswitch.tintColor = UIColor(named: "YP Grey")
+        sswitch.onTintColor = UIColor(named: "YP Blue")
+        sswitch.thumbTintColor = UIColor(named: "YP Whtite")
+        sswitch.addTarget(self, action: #selector(switchChanged(sender:)), for: UIControl.Event.valueChanged)
+        sswitch.translatesAutoresizingMaskIntoConstraints = false
+        return sswitch
     }()
     
     private var scheduleButtonArrowImageView: UIImageView = {
@@ -99,56 +94,11 @@ final class TrackerCardViewController: UIViewController {
         return view
     }()
     
-    private var horizontalStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
-    private lazy var cancelButton: UIButton = {
-        let button = UIButton.systemButton(
-            with: UIImage(),
-            target: self,
-            action: #selector(didTapCancelButton)
-        )
-        button.setTitle("Cancel", for: .normal)
-        button.setTitleColor(UIColor(named: "YP Red"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP White")
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(named: "YP Red")?.cgColor
-        button.layer.masksToBounds = true
-        button.layer.cornerRadius = 16
-        button.contentHorizontalAlignment = .center
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private lazy var acceptButton: UIButton = {
-        let button = UIButton.systemButton(
-            with: UIImage(),
-            target: self,
-            action: #selector(didTapAcceptButton)
-        )
-        button.setTitle("Create", for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Grey")
-        button.layer.masksToBounds = true
-        button.layer.cornerRadius = 16
-        button.contentHorizontalAlignment = .center
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        textFieldConfig()
         verticalStackViewConfig()
-        horizontalStackViewConfig()
     }
     
     func titleConfig() {
@@ -167,20 +117,10 @@ final class TrackerCardViewController: UIViewController {
         ])
     }
     
-    func textFieldConfig() {
-        view.addSubview(textField)
-        NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: 24),
-            textField.heightAnchor.constraint(equalToConstant: 75),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
-        ])
-    }
-    
     func verticalStackViewConfig() {
         view.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
-            verticalStackView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            verticalStackView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: 24),
             verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             verticalStackView.heightAnchor.constraint(equalToConstant: 150)
@@ -188,13 +128,13 @@ final class TrackerCardViewController: UIViewController {
         verticalStackView.addArrangedSubview(categoryButton)
         verticalStackView.addArrangedSubview(scheduleButton)
 
-        categoryButton.addSubview(categoryButtonArrowImageView)
+        categoryButton.addSubview(scheduleSwitch)
         categoryButton.addSubview(buttonBottomDivider)
         NSLayoutConstraint.activate([
-            categoryButtonArrowImageView.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -12),
-            categoryButtonArrowImageView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
-            categoryButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
-            categoryButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24),
+            scheduleSwitch.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -15.5),
+            scheduleSwitch.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
+            scheduleSwitch.heightAnchor.constraint(equalToConstant: 31),
+            scheduleSwitch.widthAnchor.constraint(equalToConstant: 51),
             
             buttonBottomDivider.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
             buttonBottomDivider.heightAnchor.constraint(equalToConstant: 1),
@@ -212,37 +152,17 @@ final class TrackerCardViewController: UIViewController {
     }
     
     @objc
-    func didTapCategoryButton() {
-        print("did tap category button")
+    func didTapRegularTrackerButton() {
+        print("did tap regular tracker button")
     }
     
     @objc
-    func didTapScheduleButton() {
-        print("did tap schedule button")
-        self.present(TrackerScheduleViewController(), animated: true, completion: {
-            TrackerScheduleViewController().presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
-        })
-    }
-    
-    func horizontalStackViewConfig() {
-        view.addSubview(horizontalStackView)
-        NSLayoutConstraint.activate([
-            horizontalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -34),
-            horizontalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            horizontalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
-        ])
-        horizontalStackView.addArrangedSubview(cancelButton)
-        horizontalStackView.addArrangedSubview(acceptButton)
+    func didTapUnregularTrackerButton() {
+        print("did tap unregular tracker button")
     }
     
     @objc
-    func didTapCancelButton() {
-        self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc
-    func didTapAcceptButton() {
-        print("did tap accept button")
+    func switchChanged(sender: UISwitch!) {
+        print("Switch value is \(sender.isOn)")
     }
 }
