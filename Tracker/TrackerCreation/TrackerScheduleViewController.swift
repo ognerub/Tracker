@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class TrackerScheduleViewController: UIViewController {
+final class TrackerScheduleViewController: UIViewController{
     
     private var titleBackground: UIView = {
         var background = UIView()
@@ -24,81 +24,39 @@ final class TrackerScheduleViewController: UIViewController {
         return label
     }()
     
-    private var verticalStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.spacing = 0
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
+    private var tableView: UITableView = {
+        let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.backgroundColor = .red
+        return table
     }()
     
-    private lazy var categoryButton: UIButton = {
+    private lazy var acceptScheduleButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapRegularTrackerButton)
+            action: #selector(didTapAcceptScheduleButton)
         )
-        button.setTitle("Category", for: .normal)
-        button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")
-        button.layer.masksToBounds = true
+        button.setTitle("Accept", for: .normal)
+        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
+        button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
-        button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIEdgeInsets(top: 26, left: 16, bottom: 26, right: 16)
+        button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    }()
-    
-    private lazy var scheduleButton: UIButton = {
-        let button = UIButton.systemButton(
-            with: UIImage(),
-            target: self,
-            action: #selector(didTapUnregularTrackerButton)
-        )
-        button.setTitle("Schedule", for: .normal)
-        button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")
-        button.layer.masksToBounds = true
-        button.layer.cornerRadius = 16
-        button.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIEdgeInsets(top: 26, left: 16, bottom: 26, right: 16)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private var scheduleSwitch: UISwitch = {
-        let sswitch = UISwitch()
-        sswitch.setOn(false, animated: false)
-        sswitch.tintColor = UIColor(named: "YP Grey")
-        sswitch.onTintColor = UIColor(named: "YP Blue")
-        sswitch.thumbTintColor = UIColor(named: "YP Whtite")
-        sswitch.addTarget(self, action: #selector(switchChanged(sender:)), for: UIControl.Event.valueChanged)
-        sswitch.translatesAutoresizingMaskIntoConstraints = false
-        return sswitch
-    }()
-    
-    private var scheduleButtonArrowImageView: UIImageView = {
-        let image = UIImage(named: "ArrowRight")
-        let imageView = UIImageView(image: image)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    private var buttonBottomDivider: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(named: "YP Grey")
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        verticalStackViewConfig()
+        acceptScheduleButtonConfig()
+        tableViewConfig()
+    }
+    
+    @objc
+    func didTapAcceptScheduleButton() {
+        print("did tap accept schedule button")
     }
     
     func titleConfig() {
@@ -117,52 +75,152 @@ final class TrackerScheduleViewController: UIViewController {
         ])
     }
     
-    func verticalStackViewConfig() {
-        view.addSubview(verticalStackView)
+    func acceptScheduleButtonConfig() {
+        view.addSubview(acceptScheduleButton)
         NSLayoutConstraint.activate([
-            verticalStackView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: 24),
-            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            verticalStackView.heightAnchor.constraint(equalToConstant: 150)
-        ])
-        verticalStackView.addArrangedSubview(categoryButton)
-        verticalStackView.addArrangedSubview(scheduleButton)
-
-        categoryButton.addSubview(scheduleSwitch)
-        categoryButton.addSubview(buttonBottomDivider)
-        NSLayoutConstraint.activate([
-            scheduleSwitch.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -15.5),
-            scheduleSwitch.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
-            scheduleSwitch.heightAnchor.constraint(equalToConstant: 31),
-            scheduleSwitch.widthAnchor.constraint(equalToConstant: 51),
-            
-            buttonBottomDivider.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-            buttonBottomDivider.heightAnchor.constraint(equalToConstant: 1),
-            buttonBottomDivider.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
-            buttonBottomDivider.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16)
-        ])
-        
-        scheduleButton.addSubview(scheduleButtonArrowImageView)
-        NSLayoutConstraint.activate([
-            scheduleButtonArrowImageView.topAnchor.constraint(equalTo: scheduleButton.centerYAnchor, constant: -12),
-            scheduleButtonArrowImageView.trailingAnchor.constraint(equalTo: scheduleButton.trailingAnchor, constant: -16),
-            scheduleButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
-            scheduleButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
+            acceptScheduleButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            acceptScheduleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            acceptScheduleButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            acceptScheduleButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     
-    @objc
-    func didTapRegularTrackerButton() {
-        print("did tap regular tracker button")
+    func tableViewConfig() {
+        view.addSubview(tableView)
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: acceptScheduleButton.topAnchor)
+        ])
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(TrackerScheduleTableViewCell.self, forCellReuseIdentifier: TrackerScheduleTableViewCell.reuseIdentifier)
     }
     
     @objc
-    func didTapUnregularTrackerButton() {
-        print("did tap unregular tracker button")
+    func didTapScheduleButton() {
+        print("did tap schedule button")
     }
     
     @objc
     func switchChanged(sender: UISwitch!) {
         print("Switch value is \(sender.isOn)")
     }
+}
+
+extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
+    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        print("Delegate did switch \(indexPath)")
+    }
+}
+
+extension TrackerScheduleViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 75
+    }
+    
+}
+
+extension TrackerScheduleViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        7
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: TrackerScheduleTableViewCell.reuseIdentifier, for: indexPath)
+        guard let TrackerScheduleTableViewCell = cell as? TrackerScheduleTableViewCell else {
+            return UITableViewCell()
+        }
+        TrackerScheduleTableViewCell.delegate = self
+        let cellViewModel = TrackerScheduleTableViewCellViewModel(
+            scheduleView: TrackerScheduleTableViewCell.scheduleView,
+            scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch)
+        configCell(at: indexPath, cell: cellViewModel)
+        return TrackerScheduleTableViewCell
+        return UITableViewCell()
+    }
+    
+    func configCell(at: IndexPath, cell: TrackerScheduleTableViewCellViewModel) {
+        
+    }
+    
+}
+
+protocol TrackerScheduleTableViewCellDelegate: AnyObject {
+    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell)
+}
+
+final class TrackerScheduleTableViewCell: UITableViewCell {
+    
+    static let reuseIdentifier = "TrackerScheduleTableViewCell"
+    weak var delegate: TrackerScheduleTableViewCellDelegate?
+    
+    lazy var scheduleView: UIView = {
+        let view = UIView()
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 16
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .yellow
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(named: "YP Blue")?.cgColor
+        return view
+    }()
+    
+    var scheduleSwitch: UISwitch = {
+        let sswitch = UISwitch()
+        sswitch.setOn(false, animated: false)
+        sswitch.tintColor = UIColor(named: "YP Grey")
+        sswitch.onTintColor = UIColor(named: "YP Blue")
+        sswitch.thumbTintColor = UIColor(named: "YP Whtite")
+        sswitch.addTarget(self, action: #selector(switchChanged(sender:)), for: UIControl.Event.valueChanged)
+        sswitch.translatesAutoresizingMaskIntoConstraints = false
+        return sswitch
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = UIColor(named: "YP White")
+        addSubviews()
+        configureConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func addSubviews() {
+        addSubview(scheduleView)
+        contentView.addSubview(scheduleSwitch)
+    }
+    
+    func configureConstraints() {
+        NSLayoutConstraint.activate([
+            scheduleView.topAnchor.constraint(equalTo: topAnchor),
+            scheduleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            scheduleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+        NSLayoutConstraint.activate([
+            scheduleSwitch.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -15.5),
+            scheduleSwitch.trailingAnchor.constraint(equalTo: scheduleView.trailingAnchor, constant: -16),
+            scheduleSwitch.heightAnchor.constraint(equalToConstant: 31),
+            scheduleSwitch.widthAnchor.constraint(equalToConstant: 51)
+        ])
+    }
+    
+    @objc
+    func switchChanged(sender: UISwitch!) {
+        print("Switch value is \(sender.isOn)")
+        delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
+    }
+    
+}
+
+struct TrackerScheduleTableViewCellViewModel {
+    var scheduleView: UIView
+    var scheduleSwitch: UISwitch
 }

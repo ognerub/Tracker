@@ -68,11 +68,6 @@ final class CollectionViewCell: UICollectionViewCell {
         return button
     }()
     
-    @objc
-    func didTapCellPlusButton() {
-        print("plus cell button pressed")
-    }
-    
     private let cellDaysCounterLabel: UILabel = {
        var label = UILabel()
         label.text = "1 day"
@@ -87,7 +82,7 @@ final class CollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = UIColor(named: "YP White")
         cellBackgroundRound.backgroundColor = UIColor(named: "YP White")
         cellBackgroundRound.alpha = 0.3
-        addSubViews()
+        addSubviews()
         configureConstraints()
     }
     
@@ -97,14 +92,10 @@ final class CollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        // Clear style of cell after scroll!
-//        if titleLabel.backgroundColor == .black {
-//            titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-//            titleLabel.backgroundColor = .blue
-//        }
+        /// Here we can clear style of cell after scroll!
     }
     
-    func addSubViews() {
+    func addSubviews() {
         addSubview(cellBackgroundSquare)
         addSubview(cellBackgroundRound)
         addSubview(cellEmojiLabel)
@@ -112,6 +103,7 @@ final class CollectionViewCell: UICollectionViewCell {
         contentView.addSubview(cellPlusButton)
         addSubview(cellDaysCounterLabel)
     }
+    
     func configureConstraints() {
         
         NSLayoutConstraint.activate([
@@ -142,5 +134,10 @@ final class CollectionViewCell: UICollectionViewCell {
             cellDaysCounterLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.leadingAnchor),
             cellDaysCounterLabel.centerYAnchor.constraint(equalTo: cellPlusButton.centerYAnchor)
         ])
+    }
+    
+    @objc
+    func didTapCellPlusButton() {
+        print("plus cell button pressed")
     }
 }
