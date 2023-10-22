@@ -86,7 +86,6 @@ final class TrackerScheduleViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("TSVC viewWillAppear \(newNumbersArray)")
     }
     
     // MARK: - Objective-C functions
@@ -95,7 +94,6 @@ final class TrackerScheduleViewController: UIViewController {
     func didTapAcceptScheduleButton() {
         self.delegate?.newNumbesArrayFunc(newNumberArray: newNumbersArray)
         dismiss(animated: true, completion: { })
-        //present(TrackerCardViewController(), animated: true, completion: nil)
     }
     
     
@@ -183,14 +181,12 @@ extension TrackerScheduleViewController: UITableViewDataSource {
 extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        print("Delegate did switch \(indexPath.row)")
         let currentArrayNumber = newNumbersArray[indexPath.row]
             if currentArrayNumber > 0 {
                 newNumbersArray[indexPath.row] = 0
             } else {
                 newNumbersArray[indexPath.row] = 1
             }
-        print("NumbersArray is \(newNumbersArray)")
     }
 }
 

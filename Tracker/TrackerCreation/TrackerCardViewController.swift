@@ -71,13 +71,15 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    private let scheduleButtonTitle = "Schedule"
+    
     private lazy var scheduleButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
             action: #selector(didTapScheduleButton)
         )
-        button.setTitle("Schedule", for: .normal)
+        button.setTitle(scheduleButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
         button.backgroundColor = UIColor(named: "YP LightGrey")
@@ -173,7 +175,6 @@ final class TrackerCardViewController: UIViewController {
             categoryButton.removeFromSuperview()
             verticalStackViewConfig()
             scheduleButtonTitleTextConfig()
-            print("TCVC viewWillAppear \(numbersArray)")
         }
     }
     
@@ -182,15 +183,34 @@ final class TrackerCardViewController: UIViewController {
         let arraySum = numbersArray.reduce(0, +)
         var scheduleButtonTitleText: String = ""
         if arraySum > 0 {
-            scheduleButtonTitleText = "Schedule \n \(numbersArray)"
+            switch numbersArray {
+            case [0,0,0,0,0,1,1]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekends"
+            case [1,1,1,1,1,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekdays"
+            case [1,0,0,0,0,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Mon"
+            case [0,1,0,0,0,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Tue"
+            case [0,0,1,0,0,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Wed"
+            case [0,0,0,1,0,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Thu"
+            case [0,0,0,0,1,0,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Fri"
+            case [0,0,0,0,0,1,0]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Sat"
+            case [0,0,0,0,0,0,1]:
+                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Sun"
+            default:
+                scheduleButtonTitleText = scheduleButtonTitle
+            }
         } else {
-            scheduleButtonTitleText = "Schedule"
+            scheduleButtonTitleText = scheduleButtonTitle
         }
         let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
-        if let textLength = scheduleButton.titleLabel?.text?.count {
-            mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: String("Schedule").count))
-            scheduleButton.setAttributedTitle(mutableString, for: .normal)
-        }
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: scheduleButtonTitle.count))
+        scheduleButton.setAttributedTitle(mutableString, for: .normal)
     }
     
     // MARK: - Objective-C functions
@@ -269,7 +289,7 @@ final class TrackerCardViewController: UIViewController {
         ])
         verticalStackView.addArrangedSubview(categoryButton)
         verticalStackView.addArrangedSubview(scheduleButton)
-
+        
         categoryButton.addSubview(categoryButtonArrowImageView)
         categoryButton.addSubview(buttonBottomDivider)
         NSLayoutConstraint.activate([
