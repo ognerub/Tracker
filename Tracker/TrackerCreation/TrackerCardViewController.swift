@@ -12,7 +12,7 @@ import UIKit
 
 final class TrackerCardViewController: UIViewController {
     
-    var numbersArray: [Int] = [] {
+    var numbersArray: [String] = [] {
         didSet {
             scheduleButtonTitleTextConfig()
         }
@@ -180,33 +180,21 @@ final class TrackerCardViewController: UIViewController {
     
     func scheduleButtonTitleTextConfig() {
         
-        let arraySum = numbersArray.reduce(0, +)
         var scheduleButtonTitleText: String = ""
-        if arraySum > 0 {
-            switch numbersArray {
-            case [0,0,0,0,0,1,1]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekends"
-            case [1,1,1,1,1,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekdays"
-            case [1,0,0,0,0,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Mon"
-            case [0,1,0,0,0,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Tue"
-            case [0,0,1,0,0,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Wed"
-            case [0,0,0,1,0,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Thu"
-            case [0,0,0,0,1,0,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Fri"
-            case [0,0,0,0,0,1,0]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Sat"
-            case [0,0,0,0,0,0,1]:
-                scheduleButtonTitleText = "\(scheduleButtonTitle) \n Sun"
-            default:
-                scheduleButtonTitleText = scheduleButtonTitle
-            }
-        } else {
+        switch numbersArray {
+        case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Everyday"
+        case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "", ""]:
+            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekdays"
+        case ["", "", "", "", "", "Saturday", "Sunday"]:
+            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekends"
+        case ["", "", "", "", "", "", ""]:
             scheduleButtonTitleText = scheduleButtonTitle
+        default:
+            let filteredAndShuffledArray = numbersArray.filter({ $0 != "" })
+            let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
+            let joinedString = prefixedArray.joined(separator: ", ")
+            scheduleButtonTitleText = "\(scheduleButtonTitle) \n \(joinedString)"
         }
         let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
         mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: scheduleButtonTitle.count))
@@ -330,7 +318,7 @@ final class TrackerCardViewController: UIViewController {
 
 // MARK: - TrackerScheduleViewControllerDelegate
 extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
-    func newNumbesArrayFunc(newNumberArray: [Int]) {
+    func newNumbesArrayFunc(newNumberArray: [String]) {
         numbersArray = newNumberArray
     }
 }

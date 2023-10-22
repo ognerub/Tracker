@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - TrackerScheduleViewControllerDelegate
 protocol TrackerScheduleViewControllerDelegate: AnyObject {
-    func newNumbesArrayFunc(newNumberArray: [Int])
+    func newNumbesArrayFunc(newNumberArray: [String])
 }
 
 // MARK: - TrackerScheduleViewController
@@ -17,9 +17,9 @@ final class TrackerScheduleViewController: UIViewController {
     
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
-    var newNumbersArray: [Int]
+    var newNumbersArray: [String]
     
-    init(newNumbersArray: [Int]) {
+    init(newNumbersArray: [String]) {
         self.newNumbersArray = newNumbersArray
         super.init(nibName: nil, bundle: nil)
     }
@@ -173,7 +173,7 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         items.scheduleLabel.text = daysArray[indexPath.row]
-        items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != 0)
+        items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != "")
     }
 }
 
@@ -182,10 +182,25 @@ extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let currentArrayNumber = newNumbersArray[indexPath.row]
-            if currentArrayNumber > 0 {
-                newNumbersArray[indexPath.row] = 0
+            if currentArrayNumber != "" {
+                newNumbersArray[indexPath.row] = ""
             } else {
-                newNumbersArray[indexPath.row] = 1
+                switch indexPath.row {
+                case 1:
+                    newNumbersArray[indexPath.row] = "Tuesday"
+                case 2:
+                    newNumbersArray[indexPath.row] = "Wednesday"
+                case 3:
+                    newNumbersArray[indexPath.row] = "Thursday"
+                case 4:
+                    newNumbersArray[indexPath.row] = "Friday"
+                case 5:
+                    newNumbersArray[indexPath.row] = "Saturday"
+                case 6:
+                    newNumbersArray[indexPath.row] = "Sunday"
+                default:
+                    newNumbersArray[indexPath.row] = "Monday"
+                }
             }
     }
 }

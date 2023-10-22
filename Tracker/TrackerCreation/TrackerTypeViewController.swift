@@ -85,7 +85,7 @@ final class TrackerTypeViewController: UIViewController {
     @objc
     func didTapUnregularTrackerButton() {
         trackerCardViewController.titleLabel.text  = "New unregular tracker"
-        self.trackerCardViewController.numbersArray = [0,0,0,0,0,0,0]
+        self.trackerCardViewController.numbersArray = ["", "", "", "", "", "", ""]
         self.present(trackerCardViewController, animated: true, completion: nil)
     }
     
