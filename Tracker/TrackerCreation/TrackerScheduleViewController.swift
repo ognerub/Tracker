@@ -7,15 +7,28 @@
 
 import UIKit
 
+// MARK: - TrackerScheduleViewControllerDelegate
 protocol TrackerScheduleViewControllerDelegate: AnyObject {
     func newNumbesArrayFunc(newNumberArray: [Int])
 }
 
+// MARK: - TrackerScheduleViewController
 final class TrackerScheduleViewController: UIViewController {
     
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
-    var newNumbersArray: [Int] = [0,0,0,0,0,0,0]
+    var newNumbersArray: [Int]
+    
+    init(newNumbersArray: [Int]) {
+        self.newNumbersArray = newNumbersArray
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Mutable properties:
     
     private var titleBackground: UIView = {
         var background = UIView()
@@ -61,6 +74,8 @@ final class TrackerScheduleViewController: UIViewController {
         return button
     }()
     
+    // MARK: - viewDidLoad()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
@@ -74,12 +89,17 @@ final class TrackerScheduleViewController: UIViewController {
         print("TSVC viewWillAppear \(newNumbersArray)")
     }
     
+    // MARK: - Objective-C functions
+    
     @objc
     func didTapAcceptScheduleButton() {
         self.delegate?.newNumbesArrayFunc(newNumberArray: newNumbersArray)
         dismiss(animated: true, completion: { })
         //present(TrackerCardViewController(), animated: true, completion: nil)
     }
+    
+    
+    // MARK: - Constraints configuration
     
     func titleConfig() {
         view.addSubview(titleBackground)
@@ -121,26 +141,14 @@ final class TrackerScheduleViewController: UIViewController {
     }
 }
 
-extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
-    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-        print("Delegate did switch \(indexPath.row)")
-        let currentArrayNumber = newNumbersArray[indexPath.row]
-            if currentArrayNumber > 0 {
-                newNumbersArray[indexPath.row] = 0
-            } else {
-                newNumbersArray[indexPath.row] = 1
-            }
-        print("NumbersArray is \(newNumbersArray)")
-    }
-}
-
+// MARK: - UITableViewDelegate
 extension TrackerScheduleViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 75
     }
 }
 
+// MARK: - UITableViewDataSource
 extension TrackerScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         7
@@ -167,14 +175,31 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         items.scheduleLabel.text = daysArray[indexPath.row]
-        //items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != 0)
+        items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != 0)
     }
 }
 
+// MARK: - TrackerScheduleTableViewCellDelegate (extension)
+extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
+    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        print("Delegate did switch \(indexPath.row)")
+        let currentArrayNumber = newNumbersArray[indexPath.row]
+            if currentArrayNumber > 0 {
+                newNumbersArray[indexPath.row] = 0
+            } else {
+                newNumbersArray[indexPath.row] = 1
+            }
+        print("NumbersArray is \(newNumbersArray)")
+    }
+}
+
+// MARK: - TrackerScheduleTableViewCellDelegate (protocol)
 protocol TrackerScheduleTableViewCellDelegate: AnyObject {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell)
 }
 
+// MARK: - TrackerScheduleTableViewCell
 final class TrackerScheduleTableViewCell: UITableViewCell {
     
     static let reuseIdentifier = "TrackerScheduleTableViewCell"
@@ -195,7 +220,6 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         sswitch.tintColor = UIColor(named: "YP Grey")
         sswitch.onTintColor = UIColor(named: "YP Blue")
         sswitch.thumbTintColor = UIColor(named: "YP Whtite")
-        sswitch.addTarget(self, action: #selector(switchChanged(sender:)), for: UIControl.Event.valueChanged)
         sswitch.translatesAutoresizingMaskIntoConstraints = false
         return sswitch
     }()
@@ -214,10 +238,16 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "YP White")
         addSubviews()
         configureConstraints()
+        scheduleSwitch.addTarget(self, action: #selector(switchChanged(sender: )), for: UIControl.Event.valueChanged)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    func switchChanged(sender: UISwitch!) {
+        delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
     }
     
     func addSubviews() {
@@ -243,15 +273,9 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
             scheduleSwitch.widthAnchor.constraint(equalToConstant: 51)
         ])
     }
-    
-    @objc
-    func switchChanged(sender: UISwitch!) {
-        //print("Switch value is \(sender.isOn)")
-        delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
-    }
-    
 }
 
+// MARK: - TrackerScheduleTableViewCellViewModel
 struct TrackerScheduleTableViewCellViewModel {
     var scheduleView: UIView
     var scheduleSwitch: UISwitch

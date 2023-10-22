@@ -7,19 +7,15 @@
 
 import UIKit
 
+
+// MARK: - TrackerCardViewController
+
 final class TrackerCardViewController: UIViewController {
     
     var numbersArray: [Int] = [0,0,0,0,0,0,0]
     
-//    init(numbersArray: [Int], newNumbersArray: [Int]) {
-//        self.numbersArray = numbersArray
-//        self.newNumbersArray = delegate?.newNumbersArray ?? newNumbersArray
-//        super.init(nibName: nil, bundle: nil)
-//    }
-//
-//    required init?(coder aDecoder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
+    
+    // MARK: - Mutable properties
     
     var titleLabel: UILabel = {
         var label = UILabel()
@@ -154,6 +150,8 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    // MARK: - viewDidLoad()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
@@ -180,7 +178,7 @@ final class TrackerCardViewController: UIViewController {
         let arraySum = numbersArray.reduce(0, +)
         var scheduleButtonTitleText: String = ""
         if arraySum > 0 {
-            scheduleButtonTitleText = "Schedule \n \(numbersArray))"
+            scheduleButtonTitleText = "Schedule \n \(numbersArray)"
         } else {
             scheduleButtonTitleText = "Schedule"
         }
@@ -190,6 +188,35 @@ final class TrackerCardViewController: UIViewController {
             scheduleButton.setAttributedTitle(mutableString, for: .normal)
         }
     }
+    
+    // MARK: - Objective-C functions
+    
+    @objc
+    func didTapCategoryButton() {
+        print("did tap category button")
+    }
+    
+    @objc
+    func didTapScheduleButton() {
+        let vc = TrackerScheduleViewController(newNumbersArray: numbersArray)
+        vc.delegate = self
+        self.present(vc, animated: true, completion: {
+            
+        })
+    }
+    
+    @objc
+    func didTapCancelButton() {
+        //self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
+    }
+    
+    @objc
+    func didTapAcceptButton() {
+        print("did tap accept button")
+    }
+    
+    // MARK: - Constraints configuration
     
     func titleConfig() {
         view.addSubview(titleBackground)
@@ -263,18 +290,6 @@ final class TrackerCardViewController: UIViewController {
         ])
     }
     
-    @objc
-    func didTapCategoryButton() {
-        print("did tap category button")
-    }
-    
-    @objc
-    func didTapScheduleButton() {
-        let vc = TrackerScheduleViewController()
-        vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
-    }
-    
     func horizontalStackViewConfig() {
         view.addSubview(horizontalStackView)
         NSLayoutConstraint.activate([
@@ -286,19 +301,10 @@ final class TrackerCardViewController: UIViewController {
         horizontalStackView.addArrangedSubview(cancelButton)
         horizontalStackView.addArrangedSubview(acceptButton)
     }
-    
-    @objc
-    func didTapCancelButton() {
-        //self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
-        dismiss(animated: true)
-    }
-    
-    @objc
-    func didTapAcceptButton() {
-        print("did tap accept button")
-    }
 }
 
+
+// MARK: - TrackerScheduleViewControllerDelegate
 extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
     func newNumbesArrayFunc(newNumberArray: [Int]) {
         numbersArray = newNumberArray
