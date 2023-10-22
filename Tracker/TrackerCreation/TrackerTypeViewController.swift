@@ -7,10 +7,12 @@
 
 import UIKit
 
+// MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
     let trackerCardViewController = TrackerCardViewController()
     
+    // MARK: - Mutable properties
     private var titleBackground: UIView = {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -65,6 +67,7 @@ final class TrackerTypeViewController: UIViewController {
         return stackView
     }()
     
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
@@ -72,6 +75,21 @@ final class TrackerTypeViewController: UIViewController {
         stackViewConfig()
     }
     
+    // MARK: - Objective-C functions
+    @objc
+    func didTapRegularTrackerButton() {
+        trackerCardViewController.titleLabel.text = "New habit"
+        self.present(trackerCardViewController, animated: true, completion: nil)
+    }
+    
+    @objc
+    func didTapUnregularTrackerButton() {
+        trackerCardViewController.titleLabel.text  = "New unregular tracker"
+        self.trackerCardViewController.numbersArray = [0,0,0,0,0,0,0]
+        self.present(trackerCardViewController, animated: true, completion: nil)
+    }
+    
+    // MARK: - Constraints configuration
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
@@ -98,18 +116,6 @@ final class TrackerTypeViewController: UIViewController {
         ])
         stackView.addArrangedSubview(regularTrackerButton)
         stackView.addArrangedSubview(unregularTrackerButton)
-    }
-    
-    @objc
-    func didTapRegularTrackerButton() {
-        trackerCardViewController.titleLabel.text = "New habit"
-        self.present(trackerCardViewController, animated: true, completion: nil)
-    }
-    
-    @objc
-    func didTapUnregularTrackerButton() {
-        trackerCardViewController.titleLabel.text  = "New unregular tracker"
-        self.present(trackerCardViewController, animated: true, completion: nil)
     }
 }
 

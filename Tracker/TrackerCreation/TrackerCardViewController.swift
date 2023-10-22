@@ -12,7 +12,11 @@ import UIKit
 
 final class TrackerCardViewController: UIViewController {
     
-    var numbersArray: [Int] = [0,0,0,0,0,0,0]
+    var numbersArray: [Int] = [] {
+        didSet {
+            scheduleButtonTitleTextConfig()
+        }
+    }
     
     
     // MARK: - Mutable properties
@@ -184,7 +188,7 @@ final class TrackerCardViewController: UIViewController {
         }
         let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
         if let textLength = scheduleButton.titleLabel?.text?.count {
-            mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: textLength))
+            mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: String("Schedule").count))
             scheduleButton.setAttributedTitle(mutableString, for: .normal)
         }
     }
@@ -308,6 +312,5 @@ final class TrackerCardViewController: UIViewController {
 extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
     func newNumbesArrayFunc(newNumberArray: [Int]) {
         numbersArray = newNumberArray
-        scheduleButtonTitleTextConfig()
     }
 }
