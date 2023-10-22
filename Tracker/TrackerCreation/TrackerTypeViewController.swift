@@ -9,7 +9,7 @@ import UIKit
 
 final class TrackerTypeViewController: UIViewController {
     
-    private let trackerCardViewController = TrackerCardViewController()
+    let trackerCardViewController = TrackerCardViewController()
     
     private var titleBackground: UIView = {
         var background = UIView()
@@ -102,20 +102,14 @@ final class TrackerTypeViewController: UIViewController {
     
     @objc
     func didTapRegularTrackerButton() {
-        print("did tap regular tracker button")
         trackerCardViewController.titleLabel.text = "New habit"
-        self.present(trackerCardViewController, animated: true, completion: {
-            self.trackerCardViewController.presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
-        })
+        self.present(trackerCardViewController, animated: true, completion: nil)
     }
     
     @objc
     func didTapUnregularTrackerButton() {
-        print("did tap unregular tracker button")
         trackerCardViewController.titleLabel.text  = "New unregular tracker"
-        self.present(trackerCardViewController, animated: true, completion: {
-            self.trackerCardViewController.presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
-        })
+        self.present(trackerCardViewController, animated: true, completion: nil)
     }
 }
 

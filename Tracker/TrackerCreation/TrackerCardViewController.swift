@@ -9,11 +9,17 @@ import UIKit
 
 final class TrackerCardViewController: UIViewController {
     
-    private var titleBackground: UIView = {
-        var background = UIView()
-        background.translatesAutoresizingMaskIntoConstraints = false
-        return background
-    }()
+    var numbersArray: [Int] = [0,0,0,0,0,0,0]
+    
+//    init(numbersArray: [Int], newNumbersArray: [Int]) {
+//        self.numbersArray = numbersArray
+//        self.newNumbersArray = delegate?.newNumbersArray ?? newNumbersArray
+//        super.init(nibName: nil, bundle: nil)
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
     
     var titleLabel: UILabel = {
         var label = UILabel()
@@ -21,6 +27,12 @@ final class TrackerCardViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private var titleBackground: UIView = {
+        var background = UIView()
+        background.translatesAutoresizingMaskIntoConstraints = false
+        return background
     }()
     
     private var textField: UITextField = {
@@ -53,7 +65,6 @@ final class TrackerCardViewController: UIViewController {
         button.backgroundColor = UIColor(named: "YP LightGrey")
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIEdgeInsets(top: 26, left: 16, bottom: 26, right: 16)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +78,8 @@ final class TrackerCardViewController: UIViewController {
             action: #selector(didTapScheduleButton)
         )
         button.setTitle("Schedule", for: .normal)
-        button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
+        button.titleLabel?.lineBreakMode = .byWordWrapping
+        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
         button.backgroundColor = UIColor(named: "YP LightGrey")
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -147,8 +159,36 @@ final class TrackerCardViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         textFieldConfig()
-        verticalStackViewConfig()
         horizontalStackViewConfig()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if titleLabel.text == "New habit" {
+            verticalStackView.removeFromSuperview()
+            buttonBottomDivider.removeFromSuperview()
+            categoryButtonConfig()
+        } else {
+            categoryButton.removeFromSuperview()
+            verticalStackViewConfig()
+            scheduleButtonTitleTextConfig()
+            print("TCVC viewWillAppear \(numbersArray)")
+        }
+    }
+    
+    func scheduleButtonTitleTextConfig() {
+        
+        let arraySum = numbersArray.reduce(0, +)
+        var scheduleButtonTitleText: String = ""
+        if arraySum > 0 {
+            scheduleButtonTitleText = "Schedule \n \(numbersArray))"
+        } else {
+            scheduleButtonTitleText = "Schedule"
+        }
+        let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
+        if let textLength = scheduleButton.titleLabel?.text?.count {
+            mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: textLength))
+            scheduleButton.setAttributedTitle(mutableString, for: .normal)
+        }
     }
     
     func titleConfig() {
@@ -177,6 +217,17 @@ final class TrackerCardViewController: UIViewController {
         ])
     }
     
+    func categoryButtonConfig() {
+        view.addSubview(categoryButton)
+        NSLayoutConstraint.activate([
+            categoryButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            categoryButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            categoryButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            categoryButton.heightAnchor.constraint(equalToConstant: 75)
+        ])
+        categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+    }
+    
     func verticalStackViewConfig() {
         view.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
@@ -201,6 +252,7 @@ final class TrackerCardViewController: UIViewController {
             buttonBottomDivider.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
             buttonBottomDivider.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16)
         ])
+        categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         
         scheduleButton.addSubview(scheduleButtonArrowImageView)
         NSLayoutConstraint.activate([
@@ -218,10 +270,9 @@ final class TrackerCardViewController: UIViewController {
     
     @objc
     func didTapScheduleButton() {
-        print("did tap schedule button")
-        self.present(TrackerScheduleViewController(), animated: true, completion: {
-            TrackerScheduleViewController().presentationController?.presentedView?.gestureRecognizers?[0].isEnabled = false
-        })
+        let vc = TrackerScheduleViewController()
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
     }
     
     func horizontalStackViewConfig() {
@@ -238,11 +289,19 @@ final class TrackerCardViewController: UIViewController {
     
     @objc
     func didTapCancelButton() {
-        self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
+        //self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
     }
     
     @objc
     func didTapAcceptButton() {
         print("did tap accept button")
+    }
+}
+
+extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
+    func newNumbesArrayFunc(newNumberArray: [Int]) {
+        numbersArray = newNumberArray
+        scheduleButtonTitleTextConfig()
     }
 }

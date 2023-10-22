@@ -7,7 +7,15 @@
 
 import UIKit
 
-final class TrackerScheduleViewController: UIViewController{
+protocol TrackerScheduleViewControllerDelegate: AnyObject {
+    func newNumbesArrayFunc(newNumberArray: [Int])
+}
+
+final class TrackerScheduleViewController: UIViewController {
+    
+    weak var delegate: TrackerScheduleViewControllerDelegate?
+    
+    var newNumbersArray: [Int] = [0,0,0,0,0,0,0]
     
     private var titleBackground: UIView = {
         var background = UIView()
@@ -27,7 +35,14 @@ final class TrackerScheduleViewController: UIViewController{
     private var tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
-        table.backgroundColor = .red
+        table.allowsMultipleSelection = false
+        table.isScrollEnabled = false
+        table.allowsSelection = false
+        table.separatorColor = UIColor(named: "YP Grey")
+        table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
+        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: table.frame.size.width, height: 1))
+        footerView.backgroundColor = UIColor(named: "YP White")
+        table.tableFooterView = footerView
         return table
     }()
     
@@ -54,9 +69,16 @@ final class TrackerScheduleViewController: UIViewController{
         tableViewConfig()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("TSVC viewWillAppear \(newNumbersArray)")
+    }
+    
     @objc
     func didTapAcceptScheduleButton() {
-        print("did tap accept schedule button")
+        self.delegate?.newNumbesArrayFunc(newNumberArray: newNumbersArray)
+        dismiss(animated: true, completion: { })
+        //present(TrackerCardViewController(), animated: true, completion: nil)
     }
     
     func titleConfig() {
@@ -97,39 +119,32 @@ final class TrackerScheduleViewController: UIViewController{
         tableView.delegate = self
         tableView.register(TrackerScheduleTableViewCell.self, forCellReuseIdentifier: TrackerScheduleTableViewCell.reuseIdentifier)
     }
-    
-    @objc
-    func didTapScheduleButton() {
-        print("did tap schedule button")
-    }
-    
-    @objc
-    func switchChanged(sender: UISwitch!) {
-        print("Switch value is \(sender.isOn)")
-    }
 }
 
 extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        print("Delegate did switch \(indexPath)")
+        print("Delegate did switch \(indexPath.row)")
+        let currentArrayNumber = newNumbersArray[indexPath.row]
+            if currentArrayNumber > 0 {
+                newNumbersArray[indexPath.row] = 0
+            } else {
+                newNumbersArray[indexPath.row] = 1
+            }
+        print("NumbersArray is \(newNumbersArray)")
     }
 }
 
 extension TrackerScheduleViewController: UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 75
     }
-    
 }
 
 extension TrackerScheduleViewController: UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         7
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TrackerScheduleTableViewCell.reuseIdentifier, for: indexPath)
         guard let TrackerScheduleTableViewCell = cell as? TrackerScheduleTableViewCell else {
@@ -138,16 +153,22 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         TrackerScheduleTableViewCell.delegate = self
         let cellViewModel = TrackerScheduleTableViewCellViewModel(
             scheduleView: TrackerScheduleTableViewCell.scheduleView,
-            scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch)
+            scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch,
+            scheduleLabel: TrackerScheduleTableViewCell.scheduleLabel)
         configCell(at: indexPath, cell: cellViewModel)
         return TrackerScheduleTableViewCell
-        return UITableViewCell()
     }
-    
-    func configCell(at: IndexPath, cell: TrackerScheduleTableViewCellViewModel) {
-        
+    func configCell(at indexPath: IndexPath, cell: TrackerScheduleTableViewCellViewModel) {
+        let items = TrackerScheduleTableViewCellViewModel(
+            scheduleView: cell.scheduleView,
+            scheduleSwitch: cell.scheduleSwitch,
+            scheduleLabel: cell.scheduleLabel)
+        let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
+        items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
+        let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        items.scheduleLabel.text = daysArray[indexPath.row]
+        //items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != 0)
     }
-    
 }
 
 protocol TrackerScheduleTableViewCellDelegate: AnyObject {
@@ -164,9 +185,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .yellow
-        view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor(named: "YP Blue")?.cgColor
+        view.backgroundColor = UIColor(named: "YP LightGrey")
         return view
     }()
     
@@ -179,6 +198,15 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         sswitch.addTarget(self, action: #selector(switchChanged(sender:)), for: UIControl.Event.valueChanged)
         sswitch.translatesAutoresizingMaskIntoConstraints = false
         return sswitch
+    }()
+    
+    var scheduleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.textColor = UIColor(named: "YP Black")
+        label.text = "Monday"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -194,6 +222,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     
     func addSubviews() {
         addSubview(scheduleView)
+        scheduleView.addSubview(scheduleLabel)
         contentView.addSubview(scheduleSwitch)
     }
     
@@ -202,7 +231,10 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
             scheduleView.topAnchor.constraint(equalTo: topAnchor),
             scheduleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             scheduleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scheduleLabel.heightAnchor.constraint(equalToConstant: 22),
+            scheduleLabel.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -11),
+            scheduleLabel.leadingAnchor.constraint(equalTo: scheduleView.leadingAnchor, constant: 16)
         ])
         NSLayoutConstraint.activate([
             scheduleSwitch.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -15.5),
@@ -214,7 +246,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     
     @objc
     func switchChanged(sender: UISwitch!) {
-        print("Switch value is \(sender.isOn)")
+        //print("Switch value is \(sender.isOn)")
         delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
     }
     
@@ -223,4 +255,5 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
 struct TrackerScheduleTableViewCellViewModel {
     var scheduleView: UIView
     var scheduleSwitch: UISwitch
+    var scheduleLabel: UILabel
 }
