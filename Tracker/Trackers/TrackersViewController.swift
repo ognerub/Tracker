@@ -7,24 +7,21 @@
 
 import UIKit
 
+protocol TrackersViewControllerDelegate: AnyObject {
+    func sendTrackersArray(trackersArray: [Tracker])
+}
+
 final class TrackersViewController: UIViewController {
     
+    weak var delegate: TrackersViewControllerDelegate?
+    
     //MARK: - Properties for CollectionView
-    private let colors: [UIColor] = [
-        UIColor(named: "CC Blue")!,
-        UIColor(named: "CC Green")!,
-        UIColor(named: "CC Orange")!,
-        UIColor(named: "CC Pink")!,
-        UIColor(named: "CC Purple")!,
-        UIColor(named: "CC Red")!
-    ]
-    private let emojies = [
-        "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
-        "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
-        "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
-    ]
     private var currentDate: Date = Date()
+    
     private var trackersArray: [Tracker] = []
+    
+    private var newTracker: Tracker?
+    
     private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
@@ -109,29 +106,33 @@ final class TrackersViewController: UIViewController {
         view.backgroundColor = .white
         addTopBar()
         collectionViewConfig()
-        showEmptyTrackersInfo()
     }
     
+    // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
         
-        let newViewController = TrackerTypeViewController()
-        self.present(newViewController, animated: true, completion: nil)
-        
-        print("plus button pressed")
-        hideEmptyTrackersInfo()
         let newCategory = TrackerCategory(name: "New category", trackers: trackersArray)
         categories = [newCategory]
         let nextIndex = trackersArray.count
         let newTracker: Tracker = Tracker(
             id: UInt(nextIndex),
             name: "Next index is \(nextIndex)",
-            color: colors.randomElement() ?? .black,
-            emoji: emojies.randomElement() ?? "D",
+            color: .black,
+            emoji: "D",
             schedule: Date())
         trackersArray.append(newTracker)
         collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
+            collectionView.insertItems(at: [IndexPath(item: trackersArray.count, section: 0)])
+        }
+        
+        //self.delegate?.sendTrackersArray(trackersArray: trackersArray)
+        //self.present(TrackerTypeViewController(), animated: true, completion: nil)
+    }
+    
+    func performBatchUpdatesOfCollectionViewAfterAddingNewTracker() {
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: [IndexPath(item: trackersArray.count, section: 0)])
         }
     }
     
@@ -144,30 +145,36 @@ final class TrackersViewController: UIViewController {
     }
 }
 
-// MARK: - Private methods
+extension TrackersViewController: TrackerCardViewControllerDelegate {
+    func sendNewTrackersArray(tracker: Tracker) {
+        print("Tracker is \(tracker)")
+    }
+}
+
+// MARK: - Configure constraints
 private extension TrackersViewController {
-        func collectionViewConfig() {
-            /// Create collectionView with custom layout
-            view.addSubview(collectionView)
-            NSLayoutConstraint.activate([
-                collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
-                collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-            ])
-            /// Make VC a dataSource of collectionView, to config Cell
-            collectionView.dataSource = self
-            /// Register Cell
-            collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
-            /// Make VC a delegate of collectionView, to config Header and Footer
-            collectionView.delegate = self
-            /// Register Header
-            collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
-            /// Register Footer
-    //        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
-            /// disable multiple selection
-            collectionView.allowsMultipleSelection = false
-        }
+    func collectionViewConfig() {
+        /// Create collectionView with custom layout
+        view.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+        /// Make VC a dataSource of collectionView, to config Cell
+        collectionView.dataSource = self
+        /// Register Cell
+        collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        /// Make VC a delegate of collectionView, to config Header and Footer
+        collectionView.delegate = self
+        /// Register Header
+        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+        /// Register Footer
+        //        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerIdentifier)
+        /// disable multiple selection
+        collectionView.allowsMultipleSelection = false
+    }
     func addTopBar() {
         // NavBar
         view.addSubview(navBar)
@@ -256,19 +263,19 @@ extension TrackersViewController: UICollectionViewDataSource {
 // MARK: - CollectionViewDelegate
 extension TrackersViewController: UICollectionViewDelegate {
     /// Did select cell
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-//        //cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
-//        //cell?.titleLabel.backgroundColor = .black
-//        print("Did select cell at \(indexPath)")
-//    }
+    //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+    //        //cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+    //        //cell?.titleLabel.backgroundColor = .black
+    //        print("Did select cell at \(indexPath)")
+    //    }
     /// Did deselect cell
-//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-//        //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-//        //cell?.titleLabel.backgroundColor = .blue
-//        print("Did deselect cell at \(indexPath)")
-//    }
+    //    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+    //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+    //        //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+    //        //cell?.titleLabel.backgroundColor = .blue
+    //        print("Did deselect cell at \(indexPath)")
+    //    }
     /// Context menu configuration
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         guard indexPaths.count > 0 else {
@@ -314,8 +321,8 @@ extension TrackersViewController: UICollectionViewDelegate {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
             id = headerIdentifier
-//        case UICollectionView.elementKindSectionFooter:
-//            id = footerIdentifier
+            //        case UICollectionView.elementKindSectionFooter:
+            //            id = footerIdentifier
         default:
             id = ""
         }
@@ -355,20 +362,20 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel)
     }
-//    /// Set footer size
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-//        let indexPath = IndexPath(row: 0, section: section)
-//        let footerView = self.collectionView(
-//            collectionView,
-//            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionFooter,
-//            at: indexPath
-//        )
-//        return footerView.systemLayoutSizeFitting(
-//            CGSize(
-//                width: collectionView.frame.width,
-//                height: UIView.layoutFittingExpandedSize.height
-//            ),
-//            withHorizontalFittingPriority: .required,
-//            verticalFittingPriority: .fittingSizeLevel)
-//    }
+    //    /// Set footer size
+    //    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+    //        let indexPath = IndexPath(row: 0, section: section)
+    //        let footerView = self.collectionView(
+    //            collectionView,
+    //            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionFooter,
+    //            at: indexPath
+    //        )
+    //        return footerView.systemLayoutSizeFitting(
+    //            CGSize(
+    //                width: collectionView.frame.width,
+    //                height: UIView.layoutFittingExpandedSize.height
+    //            ),
+    //            withHorizontalFittingPriority: .required,
+    //            verticalFittingPriority: .fittingSizeLevel)
+    //    }
 }

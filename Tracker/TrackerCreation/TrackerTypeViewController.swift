@@ -10,7 +10,7 @@ import UIKit
 // MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
-    let trackerCardViewController = TrackerCardViewController()
+    private var array: [Tracker] = []
     
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
@@ -78,18 +78,25 @@ final class TrackerTypeViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapRegularTrackerButton() {
-        trackerCardViewController.titleLabel.text = "New habit"
-        self.present(trackerCardViewController, animated: true, completion: nil)
+        
+        let vc = TrackerCardViewController()
+        
+        vc.titleLabel.text = "New habit"
+        self.present(vc, animated: true, completion: nil)
     }
     
     @objc
     func didTapUnregularTrackerButton() {
-        trackerCardViewController.titleLabel.text  = "New unregular tracker"
-        self.trackerCardViewController.numbersArray = ["", "", "", "", "", "", ""]
-        self.present(trackerCardViewController, animated: true, completion: nil)
+        
+        let vc = TrackerCardViewController()
+        
+        vc.titleLabel.text  = "New unregular tracker"
+        self.present(vc, animated: true, completion: nil)
     }
-    
-    // MARK: - Constraints configuration
+}
+
+// MARK: - Constraints configuration
+extension TrackerTypeViewController {
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
@@ -118,4 +125,5 @@ final class TrackerTypeViewController: UIViewController {
         stackView.addArrangedSubview(unregularTrackerButton)
     }
 }
+
 

@@ -7,17 +7,39 @@
 
 import UIKit
 
+protocol TrackerCardViewControllerDelegate: AnyObject {
+    func sendNewTrackersArray(tracker: Tracker)
+}
+
 
 // MARK: - TrackerCardViewController
-
 final class TrackerCardViewController: UIViewController {
     
-    var numbersArray: [String] = [] {
-        didSet {
-            scheduleButtonTitleTextConfig()
-        }
-    }
+    weak var newDelegate: TrackerCardViewControllerDelegate?
     
+    private var numbersArray: [String] = ["", "", "", "", "", "", ""]
+    
+    private var newTrackersArray: [Tracker] = []
+    
+    private let emojies = [
+        "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
+        "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
+        "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
+    ]
+    
+    private let colors: [UIColor] = [
+        UIColor(named: "CC Blue")!,
+        UIColor(named: "CC Green")!,
+        UIColor(named: "CC Orange")!,
+        UIColor(named: "CC Pink")!,
+        UIColor(named: "CC Purple")!,
+        UIColor(named: "CC Red")!
+    ]
+    
+    private var newTrackerName: String = ""
+    private var newTrackerColor: UIColor = .clear
+    private var newTrackerEmoji: String = ""
+    private var newTrackerDate: Date = Date()
     
     // MARK: - Mutable properties
     
@@ -140,11 +162,11 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    private lazy var acceptButton: UIButton = {
+    private lazy var createButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapAcceptButton)
+            action: #selector(didTapCreateButton)
         )
         button.setTitle("Create", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -164,6 +186,13 @@ final class TrackerCardViewController: UIViewController {
         titleConfig()
         textFieldConfig()
         horizontalStackViewConfig()
+        textField.delegate = self
+        
+        let vc = TrackersViewController()
+        vc.delegate = self
+        
+        sendTrackersArray(trackersArray: newTrackersArray)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -176,6 +205,19 @@ final class TrackerCardViewController: UIViewController {
             verticalStackViewConfig()
             scheduleButtonTitleTextConfig()
         }
+    }
+    
+    func createNewTracker() -> Tracker {
+        let newTrackerId = UInt(newTrackersArray.count)
+        newTrackerEmoji = emojies.randomElement()!
+        newTrackerColor = colors.randomElement()!
+        let newTracker: Tracker = Tracker(
+            id: newTrackerId,
+            name: newTrackerName,
+            color: newTrackerColor,
+            emoji: newTrackerEmoji,
+            schedule: newTrackerDate)
+        return newTracker
     }
     
     func scheduleButtonTitleTextConfig() {
@@ -212,24 +254,38 @@ final class TrackerCardViewController: UIViewController {
     func didTapScheduleButton() {
         let vc = TrackerScheduleViewController(newNumbersArray: numbersArray)
         vc.delegate = self
-        self.present(vc, animated: true, completion: {
-            
-        })
+        self.present(vc, animated: true, completion: nil)
     }
     
     @objc
     func didTapCancelButton() {
-        //self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
         dismiss(animated: true)
     }
     
     @objc
-    func didTapAcceptButton() {
+    func didTapCreateButton() {
+        
+        let vc = TrackersViewController()
+        self.newDelegate = vc
+        
+        self.newDelegate?.sendNewTrackersArray(tracker: self.createNewTracker())
+        
+        self.view.window?.rootViewController?.dismiss(animated: true, completion: {
+            
+            
+        })
         print("did tap accept button")
     }
-    
-    // MARK: - Constraints configuration
-    
+}
+
+extension TrackerCardViewController: TrackersViewControllerDelegate {
+    func sendTrackersArray(trackersArray: [Tracker]) {
+        newTrackersArray = trackersArray
+    }
+}
+
+// MARK: - Constraints configuration
+extension TrackerCardViewController {
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
@@ -311,7 +367,7 @@ final class TrackerCardViewController: UIViewController {
             horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
         horizontalStackView.addArrangedSubview(cancelButton)
-        horizontalStackView.addArrangedSubview(acceptButton)
+        horizontalStackView.addArrangedSubview(createButton)
     }
 }
 
@@ -320,5 +376,16 @@ final class TrackerCardViewController: UIViewController {
 extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
     func newNumbesArrayFunc(newNumberArray: [String]) {
         numbersArray = newNumberArray
+        scheduleButtonTitleTextConfig()
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackerCardViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
+        guard let updatedString = updatedString else { return false }
+        newTrackerName = updatedString
+        return true
     }
 }
