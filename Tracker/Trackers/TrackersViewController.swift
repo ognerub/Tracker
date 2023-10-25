@@ -18,9 +18,7 @@ final class TrackersViewController: UIViewController {
     //MARK: - Properties for CollectionView
     private var currentDate: Date = Date()
     
-    private var trackersArray: [Tracker] = []
-    
-    private var newTracker: Tracker?
+    var trackersArray: [Tracker] = []
     
     private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
     private var categories: [TrackerCategory] = []
@@ -108,31 +106,27 @@ final class TrackersViewController: UIViewController {
         collectionViewConfig()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if trackersArray.count > 0 {
+            addNewTrackerAndPerformBatchUpdates()
+        }
+    }
+    
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
         
-        let newCategory = TrackerCategory(name: "New category", trackers: trackersArray)
-        categories = [newCategory]
-        let nextIndex = trackersArray.count
-        let newTracker: Tracker = Tracker(
-            id: UInt(nextIndex),
-            name: "Next index is \(nextIndex)",
-            color: .black,
-            emoji: "D",
-            schedule: Date())
-        trackersArray.append(newTracker)
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [IndexPath(item: trackersArray.count, section: 0)])
-        }
-        
-        //self.delegate?.sendTrackersArray(trackersArray: trackersArray)
-        //self.present(TrackerTypeViewController(), animated: true, completion: nil)
+        let vc = TrackerTypeViewController()
+        self.delegate = vc
+        self.delegate?.sendTrackersArray(trackersArray: trackersArray)
+        self.present(vc, animated: true, completion: nil)
     }
     
-    func performBatchUpdatesOfCollectionViewAfterAddingNewTracker() {
+    func addNewTrackerAndPerformBatchUpdates() {
+        let nextIndex = trackersArray.count - 1
         collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [IndexPath(item: trackersArray.count, section: 0)])
+            collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
         }
     }
     
@@ -142,12 +136,13 @@ final class TrackersViewController: UIViewController {
         dateFormatter.dateFormat = "dd.MM.yyyy"
         let selectedDate: String = dateFormatter.string(from: (sender.date))
         print("date picker changed \(selectedDate)")
-    }
+    } 
 }
 
 extension TrackersViewController: TrackerCardViewControllerDelegate {
-    func sendNewTrackersArray(tracker: Tracker) {
-        print("Tracker is \(tracker)")
+    func sendNewTrackersArray(newTrackersArray: [Tracker]) {
+        trackersArray = newTrackersArray
+        print("trackersArray \(trackersArray)")
     }
 }
 
@@ -249,6 +244,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         guard trackersArray.count > 0 else { return 0}
         return trackersArray.count
     }
+    
     /// Cell for item
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell

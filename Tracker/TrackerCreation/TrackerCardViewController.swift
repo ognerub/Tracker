@@ -8,14 +8,13 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendNewTrackersArray(tracker: Tracker)
+    func sendNewTrackersArray(newTrackersArray: [Tracker])
 }
-
 
 // MARK: - TrackerCardViewController
 final class TrackerCardViewController: UIViewController {
     
-    weak var newDelegate: TrackerCardViewControllerDelegate?
+    weak var delegate: TrackerCardViewControllerDelegate?
     
     private var numbersArray: [String] = ["", "", "", "", "", "", ""]
     
@@ -187,12 +186,6 @@ final class TrackerCardViewController: UIViewController {
         textFieldConfig()
         horizontalStackViewConfig()
         textField.delegate = self
-        
-        let vc = TrackersViewController()
-        vc.delegate = self
-        
-        sendTrackersArray(trackersArray: newTrackersArray)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -265,22 +258,28 @@ final class TrackerCardViewController: UIViewController {
     @objc
     func didTapCreateButton() {
         
+        let newTracker = createNewTracker()
+        newTrackersArray.append(newTracker)
+        
         let vc = TrackersViewController()
-        self.newDelegate = vc
+        self.delegate = vc
+        self.delegate?.sendNewTrackersArray(newTrackersArray: newTrackersArray)
         
-        self.newDelegate?.sendNewTrackersArray(tracker: self.createNewTracker())
+        //self.dismiss(animated: true)
         
-        self.view.window?.rootViewController?.dismiss(animated: true, completion: {
-            
-            
-        })
-        print("did tap accept button")
+        //self.view.window?.rootViewController?.dismiss(animated: true)
+        
+//        self.presentingViewController?.presentingViewController?.dismiss(animated: true) {
+//            //self.view.window?.rootViewController?.viewWillAppear(false)
+//        }
+        
+        self.view.window?.rootViewController?.show(vc, sender: self)
     }
 }
 
-extension TrackerCardViewController: TrackersViewControllerDelegate {
-    func sendTrackersArray(trackersArray: [Tracker]) {
-        newTrackersArray = trackersArray
+extension TrackerCardViewController: TrackerTypeViewControllerDelegate {
+    func sendMiddleArray(array: [Tracker]) {
+        newTrackersArray = array
     }
 }
 

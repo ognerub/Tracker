@@ -7,10 +7,16 @@
 
 import UIKit
 
+protocol TrackerTypeViewControllerDelegate: AnyObject {
+    func sendMiddleArray(array: [Tracker])
+}
+
 // MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
-    private var array: [Tracker] = []
+    weak var delegate: TrackerTypeViewControllerDelegate?
+    
+    private var middleArray: [Tracker] = []
     
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
@@ -75,23 +81,33 @@ final class TrackerTypeViewController: UIViewController {
         stackViewConfig()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
     // MARK: - Objective-C functions
     @objc
     func didTapRegularTrackerButton() {
-        
         let vc = TrackerCardViewController()
-        
-        vc.titleLabel.text = "New habit"
+        self.delegate = vc
+        self.delegate?.sendMiddleArray(array: middleArray)
+        vc.titleLabel.text  = "New habit"
         self.present(vc, animated: true, completion: nil)
     }
     
     @objc
     func didTapUnregularTrackerButton() {
-        
         let vc = TrackerCardViewController()
-        
+        self.delegate = vc
+        self.delegate?.sendMiddleArray(array: middleArray)
         vc.titleLabel.text  = "New unregular tracker"
         self.present(vc, animated: true, completion: nil)
+    }
+}
+
+extension TrackerTypeViewController: TrackersViewControllerDelegate {
+    func sendTrackersArray(trackersArray: [Tracker]) {
+        middleArray = trackersArray
     }
 }
 
@@ -125,5 +141,7 @@ extension TrackerTypeViewController {
         stackView.addArrangedSubview(unregularTrackerButton)
     }
 }
+
+
 
 
