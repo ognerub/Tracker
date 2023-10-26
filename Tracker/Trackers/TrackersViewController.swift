@@ -109,7 +109,10 @@ final class TrackersViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if trackersArray.count > 0 {
+            hideEmptyTrackersInfo()
             addNewTrackerAndPerformBatchUpdates()
+        } else {
+            showEmptyTrackersInfo()
         }
     }
     
@@ -121,12 +124,17 @@ final class TrackersViewController: UIViewController {
         self.delegate = vc
         self.delegate?.sendTrackersArray(trackersArray: trackersArray)
         self.present(vc, animated: true, completion: nil)
+        //self.view.window?.rootViewController?.show(vc, sender: self)
     }
     
     func addNewTrackerAndPerformBatchUpdates() {
-        let nextIndex = trackersArray.count - 1
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
+        if trackersArray.count >= 1 {
+            collectionView.reloadData()
+        } else {
+            let nextIndex = trackersArray.count - 1
+            collectionView.performBatchUpdates {
+                collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
+        }
         }
     }
     
@@ -142,7 +150,6 @@ final class TrackersViewController: UIViewController {
 extension TrackersViewController: TrackerCardViewControllerDelegate {
     func sendNewTrackersArray(newTrackersArray: [Tracker]) {
         trackersArray = newTrackersArray
-        print("trackersArray \(trackersArray)")
     }
 }
 

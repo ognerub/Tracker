@@ -189,7 +189,7 @@ final class TrackerCardViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if titleLabel.text == "New habit" {
+        if titleLabel.text != "New habit" {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
             categoryButtonConfig()
@@ -257,7 +257,6 @@ final class TrackerCardViewController: UIViewController {
     
     @objc
     func didTapCreateButton() {
-        
         let newTracker = createNewTracker()
         newTrackersArray.append(newTracker)
         
@@ -265,15 +264,8 @@ final class TrackerCardViewController: UIViewController {
         self.delegate = vc
         self.delegate?.sendNewTrackersArray(newTrackersArray: newTrackersArray)
         
-        //self.dismiss(animated: true)
-        
-        //self.view.window?.rootViewController?.dismiss(animated: true)
-        
-//        self.presentingViewController?.presentingViewController?.dismiss(animated: true) {
-//            //self.view.window?.rootViewController?.viewWillAppear(false)
-//        }
-        
-        self.view.window?.rootViewController?.show(vc, sender: self)
+        vc.modalPresentationStyle = .fullScreen
+        self.presentingViewController?.presentingViewController?.show(vc, sender: self)
     }
 }
 
