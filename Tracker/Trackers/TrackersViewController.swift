@@ -18,7 +18,16 @@ final class TrackersViewController: UIViewController {
     //MARK: - Properties for CollectionView
     private var currentDate: Date = Date()
     
-    var trackersArray: [Tracker] = []
+    var trackersArray: [Tracker]
+    
+    init(trackersArray: [Tracker]) {
+        self.trackersArray = trackersArray
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
     private var categories: [TrackerCategory] = []
@@ -102,34 +111,56 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
-        addTopBar()
-        collectionViewConfig()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("willAppear trackersArray is \(trackersArray)")
+        addTopBar()
+        collectionViewConfig()
+        setStartView()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("didAppear")
+    }
+    
+    func setStartView() {
+        
         if trackersArray.count > 0 {
+            print("hide stub")
             hideEmptyTrackersInfo()
             addNewTrackerAndPerformBatchUpdates()
         } else {
+            print("show stub")
             showEmptyTrackersInfo()
         }
     }
     
     // MARK: - Objective-C functions
     @objc
+    func reloadObjC() {
+        print("notice \(trackersArray)")
+    }
+    
+    
+    @objc
     func didTapPlusButton() {
         
-        let vc = TrackerTypeViewController()
+        let vc = TrackerTypeViewController(middleArray: trackersArray)
         self.delegate = vc
         self.delegate?.sendTrackersArray(trackersArray: trackersArray)
         self.present(vc, animated: true, completion: nil)
-        //self.view.window?.rootViewController?.show(vc, sender: self)
     }
     
     func addNewTrackerAndPerformBatchUpdates() {
         if trackersArray.count >= 1 {
+            print("CollectionView reloadData \(trackersArray)")
             collectionView.reloadData()
+            collectionView.collectionViewLayout.invalidateLayout()
+            collectionView.layoutSubviews()
         } else {
             let nextIndex = trackersArray.count - 1
             collectionView.performBatchUpdates {
@@ -147,9 +178,12 @@ final class TrackersViewController: UIViewController {
     } 
 }
 
-extension TrackersViewController: TrackerCardViewControllerDelegate {
-    func sendNewTrackersArray(newTrackersArray: [Tracker]) {
-        trackersArray = newTrackersArray
+extension TrackersViewController: TrackerTypeViewControllerDelegate {
+    func sendMiddleArray(array: [Tracker]) {
+        trackersArray = array
+        print("trackersArray delegate \(trackersArray)")
+        
+        setStartView()
     }
 }
 

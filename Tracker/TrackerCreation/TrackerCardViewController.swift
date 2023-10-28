@@ -18,7 +18,17 @@ final class TrackerCardViewController: UIViewController {
     
     private var numbersArray: [String] = ["", "", "", "", "", "", ""]
     
-    private var newTrackersArray: [Tracker] = []
+    private var newTrackersArray: [Tracker]
+    
+    init(newTrackersArray: [Tracker]){
+        self.newTrackersArray = newTrackersArray
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
@@ -260,12 +270,24 @@ final class TrackerCardViewController: UIViewController {
         let newTracker = createNewTracker()
         newTrackersArray.append(newTracker)
         
-        let vc = TrackersViewController()
-        self.delegate = vc
-        self.delegate?.sendNewTrackersArray(newTrackersArray: newTrackersArray)
         
-        vc.modalPresentationStyle = .fullScreen
-        self.presentingViewController?.presentingViewController?.show(vc, sender: self)
+        
+        
+        
+        
+        
+        self.dismiss(animated: true) {
+            
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DismissAfterPresenting") , object: nil)
+            print("Before sending back newTrackers array is \(self.newTrackersArray)")
+            let vc = TrackerTypeViewController(middleArray: self.newTrackersArray)
+            self.delegate = vc
+            self.delegate?.sendNewTrackersArray(newTrackersArray: self.newTrackersArray)
+            
+            
+            
+        }
+        
     }
 }
 
