@@ -31,7 +31,7 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let firstItem = TrackersViewController(trackersArray: [])
+        let firstItem = TrackersViewController()
         let firstItemIcon = UITabBarItem(title: "Trakers", image: UIImage(named: "TabBarRecordOff"), selectedImage: UIImage(named: "TabBarRecordOn"))
         firstItem.tabBarItem = firstItemIcon
         let secondItem = StatisticsViewController()

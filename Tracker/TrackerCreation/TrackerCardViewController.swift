@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendNewTrackersArray(newTrackersArray: [Tracker])
+    func didReceiveTracker(tracker: Tracker)
 }
 
 // MARK: - TrackerCardViewController
@@ -17,18 +17,6 @@ final class TrackerCardViewController: UIViewController {
     weak var delegate: TrackerCardViewControllerDelegate?
     
     private var numbersArray: [String] = ["", "", "", "", "", "", ""]
-    
-    private var newTrackersArray: [Tracker]
-    
-    init(newTrackersArray: [Tracker]){
-        self.newTrackersArray = newTrackersArray
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
@@ -211,7 +199,7 @@ final class TrackerCardViewController: UIViewController {
     }
     
     func createNewTracker() -> Tracker {
-        let newTrackerId = UInt(newTrackersArray.count)
+        let newTrackerId = UInt(0)
         newTrackerEmoji = emojies.randomElement()!
         newTrackerColor = colors.randomElement()!
         let newTracker: Tracker = Tracker(
@@ -268,32 +256,7 @@ final class TrackerCardViewController: UIViewController {
     @objc
     func didTapCreateButton() {
         let newTracker = createNewTracker()
-        newTrackersArray.append(newTracker)
-        
-        
-        
-        
-        
-        
-        
-        self.dismiss(animated: true) {
-            
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DismissAfterPresenting") , object: nil)
-            print("Before sending back newTrackers array is \(self.newTrackersArray)")
-            let vc = TrackerTypeViewController(middleArray: self.newTrackersArray)
-            self.delegate = vc
-            self.delegate?.sendNewTrackersArray(newTrackersArray: self.newTrackersArray)
-            
-            
-            
-        }
-        
-    }
-}
-
-extension TrackerCardViewController: TrackerTypeViewControllerDelegate {
-    func sendMiddleArray(array: [Tracker]) {
-        newTrackersArray = array
+        self.delegate?.didReceiveTracker(tracker: newTracker)
     }
 }
 

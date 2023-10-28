@@ -7,25 +7,12 @@
 
 import UIKit
 
-protocol TrackerTypeViewControllerDelegate: AnyObject {
-    func sendMiddleArray(array: [Tracker])
-}
+
 
 // MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
-    weak var delegate: TrackerTypeViewControllerDelegate?
-    
-    var middleArray: [Tracker]
-    
-    init(middleArray: [Tracker]) {
-        self.middleArray = middleArray
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    weak var delegate: TrackerCardViewControllerDelegate?
     
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
@@ -88,60 +75,33 @@ final class TrackerTypeViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         stackViewConfig()
-        NotificationCenter.default.addObserver(self, selector: #selector(dismissObjC), name: NSNotification.Name(rawValue: "DismissAfterPresenting"), object: nil)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("viewWillDisappear \(middleArray)")
-        let vc = TrackersViewController(trackersArray: middleArray)
-        vc.beginAppearanceTransition(true, animated: false)
     }
     
     // MARK: - Objective-C functions
     
-    @objc
-    func dismissObjC() {
-        self.dismiss(animated: true)
-    }
     
     @objc
     func didTapRegularTrackerButton() {
-        let vc = TrackerCardViewController(newTrackersArray: middleArray)
-        self.delegate = vc
-        self.delegate?.sendMiddleArray(array: middleArray)
-        vc.titleLabel.text  = "New habit"
-        self.present(vc, animated: true, completion: nil)
+        regularOrUnregularTrackersChoosen(type: true)
     }
     
     @objc
     func didTapUnregularTrackerButton() {
-        let vc = TrackerCardViewController(newTrackersArray: middleArray)
-        self.delegate = vc
-        self.delegate?.sendMiddleArray(array: middleArray)
-        vc.titleLabel.text  = "New unregular tracker"
-        self.present(vc, animated: true, completion: nil)
+        regularOrUnregularTrackersChoosen(type: false)
+    }
+    
+    func regularOrUnregularTrackersChoosen(type: Bool) {
+        let vc = TrackerCardViewController()
+        vc.delegate = self.delegate
+        if type {
+            vc.titleLabel.text  = "New habit"
+        } else {
+            vc.titleLabel.text  = "New unregular tracker"
+        }
+        present(vc, animated: true)
     }
 }
 
-extension TrackerTypeViewController: TrackersViewControllerDelegate {
-    func sendTrackersArray(trackersArray: [Tracker]) {
-        middleArray = trackersArray
-    }
-}
-
-extension TrackerTypeViewController: TrackerCardViewControllerDelegate {
-    func sendNewTrackersArray(newTrackersArray: [Tracker]) {
-        middleArray = newTrackersArray
-        
-        print("middlearray delegate \(middleArray)")
-        
-        let vc = TrackersViewController(trackersArray: middleArray)
-        self.delegate = vc
-        self.delegate?.sendMiddleArray(array: self.middleArray)
-        
-    }
-}
 
 // MARK: - Constraints configuration
 extension TrackerTypeViewController {
