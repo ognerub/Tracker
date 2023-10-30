@@ -9,4 +9,5 @@ import Foundation
 
 struct Schedule {
     let date: Date
+    let days: [String]
 }

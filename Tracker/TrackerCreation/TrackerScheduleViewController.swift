@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - TrackerScheduleViewControllerDelegate
 protocol TrackerScheduleViewControllerDelegate: AnyObject {
-    func newNumbesArrayFunc(newNumberArray: [String])
+    func sendArray(array: [String])
 }
 
 // MARK: - TrackerScheduleViewController
@@ -17,10 +17,10 @@ final class TrackerScheduleViewController: UIViewController {
     
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
-    var newNumbersArray: [String]
+    var newWeekDaysNamesArray: [String]
     
     init(newNumbersArray: [String]) {
-        self.newNumbersArray = newNumbersArray
+        self.newWeekDaysNamesArray = newNumbersArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -92,10 +92,9 @@ final class TrackerScheduleViewController: UIViewController {
     
     @objc
     func didTapAcceptScheduleButton() {
-        self.delegate?.newNumbesArrayFunc(newNumberArray: newNumbersArray)
+        self.delegate?.sendArray(array: newWeekDaysNamesArray)
         dismiss(animated: true, completion: { })
     }
-    
     
     // MARK: - Constraints configuration
     
@@ -173,7 +172,7 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         items.scheduleLabel.text = daysArray[indexPath.row]
-        items.scheduleSwitch.isOn = (newNumbersArray[indexPath.row] != "")
+        items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != "")
     }
 }
 
@@ -181,25 +180,25 @@ extension TrackerScheduleViewController: UITableViewDataSource {
 extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let currentArrayNumber = newNumbersArray[indexPath.row]
+        let currentArrayNumber = newWeekDaysNamesArray[indexPath.row]
             if currentArrayNumber != "" {
-                newNumbersArray[indexPath.row] = ""
+                newWeekDaysNamesArray[indexPath.row] = ""
             } else {
                 switch indexPath.row {
                 case 1:
-                    newNumbersArray[indexPath.row] = "Tuesday"
+                    newWeekDaysNamesArray[indexPath.row] = "Tuesday"
                 case 2:
-                    newNumbersArray[indexPath.row] = "Wednesday"
+                    newWeekDaysNamesArray[indexPath.row] = "Wednesday"
                 case 3:
-                    newNumbersArray[indexPath.row] = "Thursday"
+                    newWeekDaysNamesArray[indexPath.row] = "Thursday"
                 case 4:
-                    newNumbersArray[indexPath.row] = "Friday"
+                    newWeekDaysNamesArray[indexPath.row] = "Friday"
                 case 5:
-                    newNumbersArray[indexPath.row] = "Saturday"
+                    newWeekDaysNamesArray[indexPath.row] = "Saturday"
                 case 6:
-                    newNumbersArray[indexPath.row] = "Sunday"
+                    newWeekDaysNamesArray[indexPath.row] = "Sunday"
                 default:
-                    newNumbersArray[indexPath.row] = "Monday"
+                    newWeekDaysNamesArray[indexPath.row] = "Monday"
                 }
             }
     }

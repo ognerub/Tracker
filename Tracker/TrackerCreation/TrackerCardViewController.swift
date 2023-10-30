@@ -16,7 +16,7 @@ final class TrackerCardViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
-    private var numbersArray: [String] = ["", "", "", "", "", "", ""]
+    
     
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
@@ -37,6 +37,7 @@ final class TrackerCardViewController: UIViewController {
     private var newTrackerColor: UIColor = .clear
     private var newTrackerEmoji: String = ""
     private var newTrackerDate: Date = Date()
+    private var newTrackerDays: [String] = ["", "", "", "", "", "", ""]
     
     // MARK: - Mutable properties
     
@@ -172,6 +173,7 @@ final class TrackerCardViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .center
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isEnabled = false
         return button
     }()
     
@@ -198,23 +200,27 @@ final class TrackerCardViewController: UIViewController {
         }
     }
     
+    // MARK: - CreateNewTracker
     func createNewTracker() -> Tracker {
         let newTrackerId = UInt(0)
         newTrackerEmoji = emojies.randomElement()!
         newTrackerColor = colors.randomElement()!
+        let schedule = Schedule(
+            date: newTrackerDate.onlyDate ?? newTrackerDate,
+            days: newTrackerDays)
         let newTracker: Tracker = Tracker(
             id: newTrackerId,
             name: newTrackerName,
             color: newTrackerColor,
             emoji: newTrackerEmoji,
-            schedule: newTrackerDate)
+            schedule: schedule)
         return newTracker
     }
     
     func scheduleButtonTitleTextConfig() {
         
         var scheduleButtonTitleText: String = ""
-        switch numbersArray {
+        switch newTrackerDays {
         case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
             scheduleButtonTitleText = "\(scheduleButtonTitle) \n Everyday"
         case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "", ""]:
@@ -224,7 +230,7 @@ final class TrackerCardViewController: UIViewController {
         case ["", "", "", "", "", "", ""]:
             scheduleButtonTitleText = scheduleButtonTitle
         default:
-            let filteredAndShuffledArray = numbersArray.filter({ $0 != "" })
+            let filteredAndShuffledArray = newTrackerDays.filter({ $0 != "" })
             let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
             let joinedString = prefixedArray.joined(separator: ", ")
             scheduleButtonTitleText = "\(scheduleButtonTitle) \n \(joinedString)"
@@ -243,7 +249,7 @@ final class TrackerCardViewController: UIViewController {
     
     @objc
     func didTapScheduleButton() {
-        let vc = TrackerScheduleViewController(newNumbersArray: numbersArray)
+        let vc = TrackerScheduleViewController(newNumbersArray: newTrackerDays)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -257,6 +263,40 @@ final class TrackerCardViewController: UIViewController {
     func didTapCreateButton() {
         let newTracker = createNewTracker()
         self.delegate?.didReceiveTracker(tracker: newTracker)
+    }
+}
+
+// MARK: - TrackerScheduleViewControllerDelegate
+extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
+    func sendArray(array: [String]) {
+        newTrackerDays = array
+        scheduleButtonTitleTextConfig()
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackerCardViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
+        guard let updatedString = updatedString else { return false }
+        newTrackerName = updatedString
+        createButtonIsActive(newTrackerName.count > 0)
+        return true
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        createButtonIsActive(false)
+        return true
+    }
+    
+    func createButtonIsActive(_ bool: Bool) {
+        if bool {
+            createButton.isEnabled = true
+            createButton.backgroundColor = UIColor(named: "YP Black")
+        } else {
+            createButton.isEnabled = false
+            createButton.backgroundColor = UIColor(named: "YP Grey")
+        }
     }
 }
 
@@ -344,24 +384,5 @@ extension TrackerCardViewController {
         ])
         horizontalStackView.addArrangedSubview(cancelButton)
         horizontalStackView.addArrangedSubview(createButton)
-    }
-}
-
-
-// MARK: - TrackerScheduleViewControllerDelegate
-extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
-    func newNumbesArrayFunc(newNumberArray: [String]) {
-        numbersArray = newNumberArray
-        scheduleButtonTitleTextConfig()
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension TrackerCardViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-        guard let updatedString = updatedString else { return false }
-        newTrackerName = updatedString
-        return true
     }
 }
