@@ -299,10 +299,29 @@ extension TrackersViewController: UICollectionViewDataSource {
 
 extension TrackersViewController: CollectionViewCellDelegate {
     func completeTracker(id: UInt, at indexPath: IndexPath) {
-        let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
-        completedTrackers.append(trackerRecord)
         
-        collectionView.reloadItems(at: [indexPath])
+        let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
+        
+        let compareTwoDatesByDay = Calendar.current.compare(visibleCategories[0].trackers[indexPath.row].schedule.date, to: datePicker.date, toGranularity: .day)
+        let resultOfDatesCompatison: ComparisonResult = compareTwoDatesByDay
+        var isNotFutureDate: Bool = true
+        switch resultOfDatesCompatison {
+        case .orderedAscending:
+            isNotFutureDate = false
+        case .orderedSame:
+            isNotFutureDate = true
+        case .orderedDescending:
+            isNotFutureDate = true
+        default:
+            isNotFutureDate = true
+        }
+        
+        if isNotFutureDate {
+            completedTrackers.append(trackerRecord)
+            collectionView.reloadItems(at: [indexPath])
+        } else {
+            return
+        }
     }
     
     func uncompleteTracker(id: UInt, at indexPath: IndexPath) {
