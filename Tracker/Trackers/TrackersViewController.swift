@@ -109,11 +109,7 @@ final class TrackersViewController: UIViewController {
     private var selectedDate: String = ""
     private var currentDate: String = ""
     
-    private var idArray: [UInt] = []
-    
     private var collectionViewNeedsReloadData: Bool = true
-    
-    private var isCompletedToday: Bool = false
     
     // MARK: - viewDidLoad
     override func viewDidLoad() {
@@ -131,8 +127,16 @@ final class TrackersViewController: UIViewController {
     func setMainView() {
         addTopBar()
         collectionViewConfig()
-        visibleArray = trackersArray
-        if visibleArray.count > 0 {
+        
+        let category = TrackerCategory(
+            name: "New category",
+            trackers: trackersArray)
+        let categories = [category]
+        self.categories = categories
+        
+        visibleCategories = self.categories
+        
+        if visibleCategories[0].trackers.count > 0 {
             hideEmptyTrackersInfo()
             performCollectionViewUpdate()
         } else {
@@ -145,7 +149,7 @@ final class TrackersViewController: UIViewController {
             collectionView.reloadData()
             collectionViewNeedsReloadData = false
         } else {
-            let nextIndex = visibleArray.count - 1
+            let nextIndex = visibleCategories[0].trackers.count - 1
             collectionView.performBatchUpdates {
                 collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
             }
@@ -159,11 +163,30 @@ final class TrackersViewController: UIViewController {
         vc.delegate = self
         present(vc, animated: true)
     }
-    
+}
+
+// MARK: - ThirdViewController Delegate
+extension TrackersViewController: TrackerCardViewControllerDelegate {
+    func didReceiveTracker(tracker: Tracker) {
+        trackersArray.append(tracker)
+        let category = TrackerCategory(
+            name: "New category",
+            trackers: trackersArray)
+        let categories = [category]
+        self.categories = categories
+        setMainView()
+        dismiss(animated: true)
+    }
+}
+
+extension TrackersViewController {
     // MARK: - Date Picker
     @objc
     func datePickerValueChanged(_ sender: UIDatePicker) {
-        hideEmptyTrackersInfo()
+        
+        searchBar.text = ""
+        searchBar.endEditing(true)
+        
         let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yyyy"
         
@@ -171,70 +194,61 @@ final class TrackersViewController: UIViewController {
         currentDate = dateFormatter.string(from: Date())
         let selectedDay: String = sender.date.dayOfWeek()
         
-        visibleArray = trackersArray
-        var array: [Tracker] = []
-        if selectedDate == currentDate {
-            visibleArray = trackersArray
-        } else {
-            for item in 0..<visibleArray.count {
-                if visibleArray[item].schedule.days.contains(selectedDay) {
-                    let tracker = trackersArray[item]
-                    array.append(tracker)
-                }
-            }
-            visibleArray = array
-        }
-        collectionViewNeedsReloadData = true
-        performCollectionViewUpdate()
-        if visibleArray.count == 0 {
-            showEmptyTrackersInfo()
-        }
-    }
-}
-
-// MARK: - ThirdViewController Delegate
-extension TrackersViewController: TrackerCardViewControllerDelegate {
-    func didReceiveTracker(tracker: Tracker) {
-        trackersArray.append(tracker)
-        setMainView()
-        dismiss(animated: true)
+        hideOrShowEmptyTrackersInfoAndReload(firstIf: true, firstString: selectedDate, secondIf: true, secondString: selectedDay)
     }
 }
 
 // MARK: - UISearchBarDelegate
 extension TrackersViewController: UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.setShowsCancelButton(true, animated: true)
-        hideEmptyTrackersInfo()
-        visibleArray = trackersArray
-        
-        var array: [Tracker] = []
-        if searchText.count == 0 {
-            visibleArray = trackersArray
-        } else {
-            for item in 0..<visibleArray.count{
-                if visibleArray[item].name.contains(searchText) {
-                    let tracker = trackersArray[item]
-                    array.append(tracker)
-                }
-            }
-            visibleArray = array
-        }
-        collectionViewNeedsReloadData = true
-        performCollectionViewUpdate()
-        if visibleArray.count == 0 {
-            showEmptyTrackersInfo()
-        }
+        return true
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        hideOrShowEmptyTrackersInfoAndReload(firstIf: false, firstString: searchText, secondIf: false, secondString: searchText)
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         hideEmptyTrackersInfo()
         searchBar.setShowsCancelButton(false, animated: true)
-        visibleArray = trackersArray
+        visibleCategories = categories
         searchBar.text = ""
         searchBar.endEditing(true)
+        if Calendar.current.isDate(Date(), inSameDayAs: datePicker.date) {
+            collectionViewNeedsReloadData = true
+            performCollectionViewUpdate()
+        } else {
+            let selectedDay: String = datePicker.date.dayOfWeek()
+            hideOrShowEmptyTrackersInfoAndReload(firstIf: true, firstString: selectedDate, secondIf: true, secondString: selectedDay)
+        }
+        
+    }
+    
+    private func hideOrShowEmptyTrackersInfoAndReload(firstIf: Bool, firstString: String, secondIf: Bool, secondString: String) {
+        hideEmptyTrackersInfo()
+        visibleCategories = categories
+        if firstIf ? firstString == currentDate : firstString.count == 0 {
+            visibleCategories = categories
+        } else {
+            var array: [Tracker] = []
+            for item in 0..<visibleCategories[0].trackers.count {
+                if secondIf ? visibleCategories[0].trackers[item].schedule.days.contains(secondString) : visibleCategories[0].trackers[item].name.contains(secondString) {
+                    let tracker = categories[0].trackers[item]
+                    array.append(tracker)
+                }
+            }
+            let category = TrackerCategory(
+                name: "New category", trackers: array)
+            let categories = [category]
+            visibleCategories = categories
+        }
         collectionViewNeedsReloadData = true
         performCollectionViewUpdate()
+        if visibleCategories[0].trackers.count == 0 {
+            showEmptyTrackersInfo()
+        }
     }
 }
 
@@ -246,8 +260,8 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard visibleArray.count > 0 else { return 0}
-        return visibleArray.count
+        guard visibleCategories[0].trackers.count > 0 else { return 0 }
+        return visibleCategories[0].trackers.count
     }
     
     /// Cell for item
@@ -256,7 +270,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
-        let tracker = visibleArray[indexPath.row]
+        let tracker = visibleCategories[0].trackers[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
@@ -317,45 +331,46 @@ extension TrackersViewController: UICollectionViewDelegate {
     //        print("Did deselect cell at \(indexPath)")
     //    }
     
-    /// Context menu configuration
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        guard indexPaths.count > 0 else {
-            return nil
-        }
-        let indexPath = indexPaths[0]
-        return UIContextMenuConfiguration(actionProvider: { actions in
-            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
-                guard let newArray = self?.visibleArray else { return }
-                let newCategory = TrackerCategory(name: "New category", trackers: newArray)
-                self?.categories = [newCategory]
-                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
-            }
-            let attributedString = NSAttributedString(string: "Delete", attributes: [
-                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-                NSAttributedString.Key.foregroundColor: UIColor.red
-            ])
-            deleteAction.setValue(attributedString, forKey: "attributedTitle")
-            return UIMenu(children: [
-                UIAction(title: "Edit") { [weak self] _ in
-                    self?.editTracker(collectionView: collectionView, indexPath: indexPath)
-                },
-                deleteAction,
-            ])
-        })
-    }
-    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-        guard visibleArray.count > 0 else { return }
-        visibleArray.remove(at: indexPath.row)
-        collectionView.performBatchUpdates {
-            collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
-        }
-        if visibleArray.count == 0 {
-            showEmptyTrackersInfo()
-        }
-    }
-    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-        // TODO: make tracker editable
-    }
+//    /// Context menu configuration
+//    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+//        guard indexPaths.count > 0 else {
+//            return nil
+//        }
+//        let indexPath = indexPaths[0]
+//        return UIContextMenuConfiguration(actionProvider: { actions in
+//            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
+//                guard let newArray = self?.visibleArray else { return }
+//                let newCategory = TrackerCategory(name: "New category", trackers: newArray)
+//                self?.categories = [newCategory]
+//                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
+//            }
+//            let attributedString = NSAttributedString(string: "Delete", attributes: [
+//                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
+//                NSAttributedString.Key.foregroundColor: UIColor.red
+//            ])
+//            deleteAction.setValue(attributedString, forKey: "attributedTitle")
+//            return UIMenu(children: [
+//                UIAction(title: "Edit") { [weak self] _ in
+//                    self?.editTracker(collectionView: collectionView, indexPath: indexPath)
+//                },
+//                deleteAction,
+//            ])
+//        })
+//    }
+//    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+//        guard visibleArray.count > 0 else { return }
+//        visibleArray.remove(at: indexPath.row)
+//        collectionView.performBatchUpdates {
+//            collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
+//        }
+//        if visibleArray.count == 0 {
+//            showEmptyTrackersInfo()
+//        }
+//    }
+//    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+//        // TODO: make tracker editable
+//    }
+    
     /// Switch between header and (footer removed)
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         var id: String
@@ -366,7 +381,7 @@ extension TrackersViewController: UICollectionViewDelegate {
             id = ""
         }
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView
-        view.titleLabel.text = "\(firstCategory.name)"
+        view.titleLabel.text = "\(categories[0].name)"
         return view
     }
 }
