@@ -16,8 +16,6 @@ final class TrackerCardViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
-    
-    
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
         "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
@@ -33,6 +31,7 @@ final class TrackerCardViewController: UIViewController {
         UIColor(named: "CC Red")!
     ]
     
+    private var newTrackerIdArray: [Int] = []
     private var newTrackerName: String = ""
     private var newTrackerColor: UIColor = .clear
     private var newTrackerEmoji: String = ""
@@ -202,12 +201,19 @@ final class TrackerCardViewController: UIViewController {
     
     // MARK: - CreateNewTracker
     func createNewTracker() -> Tracker {
-        let newTrackerId = UInt(0)
+        let newTrackerId = UInt(newTrackerIdArray.count)
+        newTrackerIdArray.append(0)
         newTrackerEmoji = emojies.randomElement()!
         newTrackerColor = colors.randomElement()!
-        let schedule = Schedule(
+        var schedule = Schedule(
             date: newTrackerDate.onlyDate ?? newTrackerDate,
             days: newTrackerDays)
+        if titleLabel.text != "New habit" {
+            let unregularSchedule = Schedule(
+                date: schedule.date,
+                days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+            schedule = unregularSchedule
+        }
         let newTracker: Tracker = Tracker(
             id: newTrackerId,
             name: newTrackerName,

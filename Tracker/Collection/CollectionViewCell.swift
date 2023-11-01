@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol CollectionViewCellDelegate: AnyObject {
+    func uncompleteTracker(id: UInt, at indexPath: IndexPath)
+    func completeTracker(id: UInt, at indexPath: IndexPath)
+}
+
 final class CollectionViewCell: UICollectionViewCell {
+    
+    weak var delegate: CollectionViewCellDelegate?
     
     private let colors: [UIColor] = [
         .black, .blue, .brown,
@@ -68,14 +75,19 @@ final class CollectionViewCell: UICollectionViewCell {
         return button
     }()
     
-    private let cellDaysCounterLabel: UILabel = {
+    let cellDaysCounterLabel: UILabel = {
        var label = UILabel()
-        label.text = "1 day"
+        label.text = "0 days"
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private var isCompletedToday: Bool = false
+    private var trackerId: UInt?
+    private var indexPath: IndexPath?
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -90,17 +102,74 @@ final class CollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        /// Here we can clear style of cell after scroll!
+    func configure(
+        with tracker: Tracker,
+        isCompletedToday: Bool,
+        completedDays: Int,
+        indexPath: IndexPath
+    ) {
+        self.trackerId = tracker.id
+        self.isCompletedToday = isCompletedToday
+        self.indexPath = indexPath
+        
+        cellTrackerLabel.text = tracker.name
+        cellEmojiLabel.text = tracker.emoji
+        cellBackgroundSquare.backgroundColor = tracker.color
+        cellPlusButton.backgroundColor = tracker.color
+        
+        let wordDays = pluralizeDays(completedDays)
+        cellDaysCounterLabel.text = wordDays
+        
+        changeCellPlussButtonImage(changeValue: isCompletedToday)
     }
     
+    private func pluralizeDays(_ completedDays: Int) -> String {
+        switch completedDays {
+            case 0:
+            return "0 days"
+        case 1:
+            return "1 day"
+        default:
+            return "\(completedDays) days"
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        //isCheckedFunc(boolValue: isChecked)
+    }
+    
+    @objc
+    func didTapCellPlusButton() {
+        guard
+            let trackerId = trackerId,
+                let indexPath = indexPath
+        else { return }
+        if isCompletedToday {
+            self.delegate?.uncompleteTracker(id: trackerId, at: indexPath)
+        } else {
+            self.delegate?.completeTracker(id: trackerId, at: indexPath)
+        }
+    }
+    
+    func changeCellPlussButtonImage(changeValue: Bool) {
+        if changeValue {
+            let resizedImage = UIImage(named: "Checkmark")!.resized(to: CGSize(width: 10, height: 10))
+            cellPlusButton.setImage(resizedImage, for: .normal)
+        } else {
+            let resizedImage = UIImage(named: "PlusButton")!.resized(to: CGSize(width: 10, height: 10))
+            cellPlusButton.setImage(resizedImage, for: .normal)
+        }
+    }
+    
+    
+    // MARK: - Configure Constraints
     func addSubviews() {
         addSubview(cellBackgroundSquare)
         addSubview(cellBackgroundRound)
         addSubview(cellEmojiLabel)
         addSubview(cellTrackerLabel)
-        contentView.addSubview(cellPlusButton)
+        addSubview(cellPlusButton)
         addSubview(cellDaysCounterLabel)
     }
     
@@ -134,10 +203,5 @@ final class CollectionViewCell: UICollectionViewCell {
             cellDaysCounterLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.leadingAnchor),
             cellDaysCounterLabel.centerYAnchor.constraint(equalTo: cellPlusButton.centerYAnchor)
         ])
-    }
-    
-    @objc
-    func didTapCellPlusButton() {
-        print("plus cell button pressed")
     }
 }
