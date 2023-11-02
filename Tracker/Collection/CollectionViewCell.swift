@@ -8,8 +8,8 @@
 import UIKit
 
 protocol CollectionViewCellDelegate: AnyObject {
-    func uncompleteTracker(id: UInt, at indexPath: IndexPath)
-    func completeTracker(id: UInt, at indexPath: IndexPath)
+    func uncompleteTracker(id: UUID, at indexPath: IndexPath)
+    func completeTracker(id: UUID, at indexPath: IndexPath)
 }
 
 final class CollectionViewCell: UICollectionViewCell {
@@ -85,7 +85,7 @@ final class CollectionViewCell: UICollectionViewCell {
     }()
     
     private var isCompletedToday: Bool = false
-    private var trackerId: UInt?
+    private var trackerId: UUID?
     private var indexPath: IndexPath?
     
     

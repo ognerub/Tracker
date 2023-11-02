@@ -11,26 +11,8 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
-    /// MOCK array
-    private var trackersArray: [Tracker] =
-    [Tracker(id: 0, name: "Monday", color: UIColor(named: "CC Orange")!, emoji: "🍍", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["Monday", "", "", "", "", "", ""])),
-     Tracker(id: 1, name: "Tuesday", color: UIColor(named: "CC Pink")!, emoji: "🥭", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "Tuesday", "", "", "", "", ""])),
-     Tracker(id: 2, name: "Wednesday", color: UIColor(named: "CC Red")!, emoji: "🥑", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "Wednesday", "", "", "", ""])),
-     Tracker(id: 3, name: "Thursday", color: UIColor(named: "CC Blue")!, emoji: "🥝", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "Thursday", "", "", ""])),
-     Tracker(id: 4, name: "Friday", color: UIColor(named: "CC Green")!, emoji: "🥑", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "", "Friday", "", ""])),
-     Tracker(id: 5, name: "Saturday", color: UIColor(named: "CC Red")!, emoji: "🍒", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "", "", "Saturday", ""])),
-     Tracker(id: 6, name: "Sunday", color: UIColor(named: "CC Pink")!, emoji: "🥭", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "", "", "", "Sunday"])),
-     Tracker(id: 7, name: "Everyday", color: UIColor(named: "CC Blue")!, emoji: "🌶️", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])),
-     Tracker(id: 8, name: "Weekdays", color: UIColor(named: "CC Orange")!, emoji: "🍉", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "", ""])),
-     Tracker(id: 9, name: "Weekends", color: UIColor(named: "CC Red")!, emoji: "🫐", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "", "", "Saturday", "Sunday"])),
-     Tracker(id: 10, name: "Random", color: UIColor(named: "CC Purple")!, emoji: "🍏", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["Monday", "", "Wednesday", "", "Friday", "", "Sunday"])),
-     Tracker(id: 11, name: "Random2", color: UIColor(named: "CC Green")!, emoji: "🧄", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "Tuesday", "", "Thursday", "", "Saturday", ""])),
-     Tracker(id: 12, name: "Unregulated", color: UIColor(named: "CC Blue")!, emoji: "🍆", schedule: Schedule(date: String("2023-10-28 21:00:00 +0000").dateFromISO8601String(), days: ["", "", "", "", "", "", ""]))]
-    
     //MARK: - Properties for CollectionView
-    //private var trackersArray: [Tracker] = []
-    private var visibleArray: [Tracker] = []
-    private var firstCategory: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
+    private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
@@ -116,17 +98,16 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
-        
+        addTopBar()
+        collectionViewConfig()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setMainView()
+        reloadData()
     }
     
-    func setMainView() {
-        addTopBar()
-        collectionViewConfig()
+    func reloadData() {
         
         let category = TrackerCategory(
             name: "New category",
@@ -174,7 +155,7 @@ extension TrackersViewController: TrackerCardViewControllerDelegate {
             trackers: trackersArray)
         let categories = [category]
         self.categories = categories
-        setMainView()
+        reloadData()
         dismiss(animated: true)
     }
 }
@@ -186,14 +167,14 @@ extension TrackersViewController {
         
         searchBar.text = ""
         searchBar.endEditing(true)
-        
+
         let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yyyy"
-        
+
         selectedDate = dateFormatter.string(from: (sender.date))
         currentDate = dateFormatter.string(from: Date())
         let selectedDay: String = sender.date.dayOfWeek()
-        
+
         hideOrShowEmptyTrackersInfoAndReload(firstIf: true, firstString: selectedDate, secondIf: true, secondString: selectedDay)
     }
 }
@@ -285,20 +266,20 @@ extension TrackersViewController: UICollectionViewDataSource {
         return cell
     }
     
-    private func isTrackerCompletedToday(id: UInt) -> Bool {
+    private func isTrackerCompletedToday(id: UUID) -> Bool {
         completedTrackers.contains { trackerRecord in
             isSameTrackerRecord(trackerRecord: trackerRecord, id: id)
         }
     }
     
-    private func isSameTrackerRecord(trackerRecord: TrackerRecord, id: UInt) -> Bool {
+    private func isSameTrackerRecord(trackerRecord: TrackerRecord, id: UUID) -> Bool {
         let isSameDate = Calendar.current.isDate(trackerRecord.date, inSameDayAs: datePicker.date)
         return trackerRecord.id == id && isSameDate
     }
 }
 
 extension TrackersViewController: CollectionViewCellDelegate {
-    func completeTracker(id: UInt, at indexPath: IndexPath) {
+    func completeTracker(id: UUID, at indexPath: IndexPath) {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
@@ -324,7 +305,7 @@ extension TrackersViewController: CollectionViewCellDelegate {
         }
     }
     
-    func uncompleteTracker(id: UInt, at indexPath: IndexPath) {
+    func uncompleteTracker(id: UUID, at indexPath: IndexPath) {
         completedTrackers.removeAll { trackerRecord in
             isSameTrackerRecord(trackerRecord: trackerRecord, id: id)
         }

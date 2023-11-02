@@ -201,7 +201,7 @@ final class TrackerCardViewController: UIViewController {
     
     // MARK: - CreateNewTracker
     func createNewTracker() -> Tracker {
-        let newTrackerId = UInt(newTrackerIdArray.count)
+        let newTrackerId = UUID()
         newTrackerIdArray.append(0)
         newTrackerEmoji = emojies.randomElement()!
         newTrackerColor = colors.randomElement()!
