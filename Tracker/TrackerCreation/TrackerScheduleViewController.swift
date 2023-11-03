@@ -51,11 +51,8 @@ final class TrackerScheduleViewController: UIViewController {
         table.allowsMultipleSelection = false
         table.isScrollEnabled = false
         table.allowsSelection = false
-        table.separatorColor = UIColor(named: "YP Grey")
+        table.separatorColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
-        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: table.frame.size.width, height: 1))
-        footerView.backgroundColor = UIColor(named: "YP White")
-        table.tableFooterView = footerView
         return table
     }()
     
@@ -159,7 +156,9 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         let cellViewModel = TrackerScheduleTableViewCellViewModel(
             scheduleView: TrackerScheduleTableViewCell.scheduleView,
             scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch,
-            scheduleLabel: TrackerScheduleTableViewCell.scheduleLabel)
+            scheduleLabel: TrackerScheduleTableViewCell.scheduleLabel,
+            scheduleFooterView:
+                TrackerScheduleTableViewCell.scheduleFooterView)
         configCell(at: indexPath, cell: cellViewModel)
         return TrackerScheduleTableViewCell
     }
@@ -167,12 +166,15 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         let items = TrackerScheduleTableViewCellViewModel(
             scheduleView: cell.scheduleView,
             scheduleSwitch: cell.scheduleSwitch,
-            scheduleLabel: cell.scheduleLabel)
+            scheduleLabel: cell.scheduleLabel,
+            scheduleFooterView: cell.scheduleFooterView)
         let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         items.scheduleLabel.text = daysArray[indexPath.row]
         items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != "")
+        let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
+        items.scheduleFooterView.alpha = alpha[indexPath.row]
     }
 }
 
@@ -215,12 +217,12 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     static let reuseIdentifier = "TrackerScheduleTableViewCell"
     weak var delegate: TrackerScheduleTableViewCellDelegate?
     
-    lazy var scheduleView: UIView = {
+    var scheduleView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP LightGrey")
+        view.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         return view
     }()
     
@@ -243,6 +245,13 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         return label
     }()
     
+    var scheduleFooterView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "YP Grey")
+        return view
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = UIColor(named: "YP White")
@@ -262,6 +271,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     
     func addSubviews() {
         addSubview(scheduleView)
+        addSubview(scheduleFooterView)
         scheduleView.addSubview(scheduleLabel)
         contentView.addSubview(scheduleSwitch)
     }
@@ -274,7 +284,11 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
             scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor),
             scheduleLabel.heightAnchor.constraint(equalToConstant: 22),
             scheduleLabel.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -11),
-            scheduleLabel.leadingAnchor.constraint(equalTo: scheduleView.leadingAnchor, constant: 16)
+            scheduleLabel.leadingAnchor.constraint(equalTo: scheduleView.leadingAnchor, constant: 16),
+            scheduleFooterView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scheduleFooterView.heightAnchor.constraint(equalToConstant: 0.5),
+            scheduleFooterView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
+            scheduleFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
         ])
         NSLayoutConstraint.activate([
             scheduleSwitch.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -15.5),
@@ -290,4 +304,5 @@ struct TrackerScheduleTableViewCellViewModel {
     var scheduleView: UIView
     var scheduleSwitch: UISwitch
     var scheduleLabel: UILabel
+    var scheduleFooterView: UIView
 }

@@ -116,6 +116,7 @@ final class CollectionViewCell: UICollectionViewCell {
         cellEmojiLabel.text = tracker.emoji
         cellBackgroundSquare.backgroundColor = tracker.color
         cellPlusButton.backgroundColor = tracker.color
+        cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
         
         let wordDays = pluralizeDays(completedDays)
         cellDaysCounterLabel.text = wordDays

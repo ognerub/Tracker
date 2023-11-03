@@ -57,7 +57,7 @@ final class TrackerCardViewController: UIViewController {
     private var textField: UITextField = {
         let textField = TextFieldWithPadding()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "YP LightGrey")
+        textField.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
@@ -81,7 +81,7 @@ final class TrackerCardViewController: UIViewController {
         )
         button.setTitle("Category", for: .normal)
         button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")
+        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .leading
@@ -100,8 +100,9 @@ final class TrackerCardViewController: UIViewController {
         )
         button.setTitle(scheduleButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
+        button.contentHorizontalAlignment = .left
         button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")
+        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -228,18 +229,18 @@ final class TrackerCardViewController: UIViewController {
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
         case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
-            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Everyday"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Everyday"
         case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "", ""]:
-            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekdays"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekdays"
         case ["", "", "", "", "", "Saturday", "Sunday"]:
-            scheduleButtonTitleText = "\(scheduleButtonTitle) \n Weekends"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekends"
         case ["", "", "", "", "", "", ""]:
             scheduleButtonTitleText = scheduleButtonTitle
         default:
             let filteredAndShuffledArray = newTrackerDays.filter({ $0 != "" })
             let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
             let joinedString = prefixedArray.joined(separator: ", ")
-            scheduleButtonTitleText = "\(scheduleButtonTitle) \n \(joinedString)"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
         }
         let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
         mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: scheduleButtonTitle.count))
@@ -365,7 +366,7 @@ extension TrackerCardViewController {
             categoryButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24),
             
             buttonBottomDivider.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-            buttonBottomDivider.heightAnchor.constraint(equalToConstant: 1),
+            buttonBottomDivider.heightAnchor.constraint(equalToConstant: 0.5),
             buttonBottomDivider.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
             buttonBottomDivider.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16)
         ])
