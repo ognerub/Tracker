@@ -137,7 +137,6 @@ final class CollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        //isCheckedFunc(boolValue: isChecked)
     }
     
     @objc

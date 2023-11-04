@@ -7,12 +7,9 @@
 
 import UIKit
 
-
-
 final class TrackersViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
-    
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
