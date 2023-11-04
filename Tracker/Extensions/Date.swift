@@ -38,17 +38,21 @@ extension Date {
         dateFormatter.dateFormat = "EEEE"
         return dateFormatter.string(from: self).capitalized
     }
+    
+    func distance(from date: Date, only component: Calendar.Component, calendar: Calendar = .current) -> Int {
+        let days1 = calendar.component(component, from: self)
+        let days2 = calendar.component(component, from: date)
+        return days1 - days2
+    }
 }
 
 extension String {
     func dateFromISO8601String() -> Date {
-        var formatDate = self
         let isoDateFormatter = ISO8601DateFormatter()
         if let date = isoDateFormatter.date(from: self) {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .long
             dateFormatter.timeStyle = .none
-            formatDate = dateFormatter.string(from: date)
             return date
         }
         return isoDateFormatter.date(from: self) ?? Date()

@@ -12,6 +12,7 @@ import UIKit
 final class TrackersViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
+    
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
@@ -88,9 +89,6 @@ final class TrackersViewController: UIViewController {
         return button
     }()
     
-    private var selectedDate: String = ""
-    private var currentDate: String = ""
-    
     private var collectionViewNeedsReloadData: Bool = true
     
     // MARK: - viewDidLoad
@@ -98,30 +96,25 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
+        reloadData()
         addTopBar()
         collectionViewConfig()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        reloadData()
-    }
-    
     func reloadData() {
-        
         let category = TrackerCategory(
             name: "New category",
             trackers: trackersArray)
         let categories = [category]
         self.categories = categories
-        
-        visibleCategories = self.categories
-        
-        if visibleCategories[0].trackers.count > 0 {
-            hideEmptyTrackersInfo()
-            performCollectionViewUpdate()
-        } else {
+        reloadVisibleCategories()
+    }
+    
+    func showOrHideEmptyTrackersInfo() {
+        if visibleCategories[0].trackers.isEmpty {
             showEmptyTrackersInfo()
+        } else {
+            hideEmptyTrackersInfo()
         }
     }
     
@@ -164,18 +157,30 @@ extension TrackersViewController {
     // MARK: - Date Picker
     @objc
     func datePickerValueChanged(_ sender: UIDatePicker) {
-        
         searchBar.text = ""
         searchBar.endEditing(true)
-
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-
-        selectedDate = dateFormatter.string(from: (sender.date))
-        currentDate = dateFormatter.string(from: Date())
-        let selectedDay: String = sender.date.dayOfWeek()
-
-        hideOrShowEmptyTrackersInfoAndReload(firstIf: true, firstString: selectedDate, secondIf: true, secondString: selectedDay)
+        reloadVisibleCategories()
+    }
+    private func reloadVisibleCategories() {
+        let filterWeekDay = datePicker.date.dayOfWeek()
+        let filterText = (searchBar.text ?? "").lowercased()
+        
+        visibleCategories = categories.map { category in
+            let trackers = category.trackers.filter { tracker in
+                let textCondition = filterText.isEmpty ||
+                tracker.name.lowercased().contains(filterText)
+                let dateCondition = tracker.schedule.days.contains { WeekDay in
+                    WeekDay.rawValue == filterWeekDay
+                }
+                return textCondition && dateCondition
+            }
+            return TrackerCategory(
+                name: category.name,
+                trackers: trackers)
+        }
+        collectionViewNeedsReloadData = true
+        performCollectionViewUpdate()
+        showOrHideEmptyTrackersInfo()
     }
 }
 
@@ -188,48 +193,15 @@ extension TrackersViewController: UISearchBarDelegate {
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        hideOrShowEmptyTrackersInfoAndReload(firstIf: false, firstString: searchText, secondIf: false, secondString: searchText)
+        reloadVisibleCategories()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         hideEmptyTrackersInfo()
         searchBar.setShowsCancelButton(false, animated: true)
-        visibleCategories = categories
         searchBar.text = ""
         searchBar.endEditing(true)
-        if Calendar.current.isDate(Date(), inSameDayAs: datePicker.date) {
-            collectionViewNeedsReloadData = true
-            performCollectionViewUpdate()
-        } else {
-            let selectedDay: String = datePicker.date.dayOfWeek()
-            hideOrShowEmptyTrackersInfoAndReload(firstIf: true, firstString: selectedDate, secondIf: true, secondString: selectedDay)
-        }
-        
-    }
-    
-    private func hideOrShowEmptyTrackersInfoAndReload(firstIf: Bool, firstString: String, secondIf: Bool, secondString: String) {
-        hideEmptyTrackersInfo()
-        visibleCategories = categories
-        if firstIf ? firstString == currentDate : firstString.count == 0 {
-            visibleCategories = categories
-        } else {
-            var array: [Tracker] = []
-            for item in 0..<visibleCategories[0].trackers.count {
-                if secondIf ? visibleCategories[0].trackers[item].schedule.days.contains(WeekDay(rawValue: secondString) ?? WeekDay.empty) : visibleCategories[0].trackers[item].name.contains(secondString) {
-                    let tracker = categories[0].trackers[item]
-                    array.append(tracker)
-                }
-            }
-            let category = TrackerCategory(
-                name: "New category", trackers: array)
-            let categories = [category]
-            visibleCategories = categories
-        }
-        collectionViewNeedsReloadData = true
-        performCollectionViewUpdate()
-        if visibleCategories[0].trackers.count == 0 {
-            showEmptyTrackersInfo()
-        }
+        reloadVisibleCategories()
     }
 }
 
@@ -283,20 +255,7 @@ extension TrackersViewController: CollectionViewCellDelegate {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
-        let compareTwoDatesByDay = Calendar.current.compare(Date(), to: datePicker.date, toGranularity: .day)
-        let resultOfDatesCompatison: ComparisonResult = compareTwoDatesByDay
-        var isNotFutureDate: Bool = true
-        switch resultOfDatesCompatison {
-        case .orderedAscending:
-            isNotFutureDate = false
-        case .orderedSame:
-            isNotFutureDate = true
-        case .orderedDescending:
-            isNotFutureDate = true
-        default:
-            isNotFutureDate = true
-        }
-        
+        let isNotFutureDate: Bool = (datePicker.date.distance(from: Date(), only: Calendar.Component.day)<=0)
         if isNotFutureDate {
             completedTrackers.append(trackerRecord)
             collectionView.reloadItems(at: [indexPath])
@@ -316,60 +275,6 @@ extension TrackersViewController: CollectionViewCellDelegate {
 
 // MARK: - CollectionViewDelegate
 extension TrackersViewController: UICollectionViewDelegate {
-    
-    /// Did selecet cell
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-//        print("Did select cell at \(indexPath)")
-//    }
-    
-    /// Did deselect cell
-    //    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-    //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-    //        //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-    //        //cell?.titleLabel.backgroundColor = .blue
-    //        print("Did deselect cell at \(indexPath)")
-    //    }
-    
-//    /// Context menu configuration
-//    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-//        guard indexPaths.count > 0 else {
-//            return nil
-//        }
-//        let indexPath = indexPaths[0]
-//        return UIContextMenuConfiguration(actionProvider: { actions in
-//            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
-//                guard let newArray = self?.visibleArray else { return }
-//                let newCategory = TrackerCategory(name: "New category", trackers: newArray)
-//                self?.categories = [newCategory]
-//                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
-//            }
-//            let attributedString = NSAttributedString(string: "Delete", attributes: [
-//                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-//                NSAttributedString.Key.foregroundColor: UIColor.red
-//            ])
-//            deleteAction.setValue(attributedString, forKey: "attributedTitle")
-//            return UIMenu(children: [
-//                UIAction(title: "Edit") { [weak self] _ in
-//                    self?.editTracker(collectionView: collectionView, indexPath: indexPath)
-//                },
-//                deleteAction,
-//            ])
-//        })
-//    }
-//    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-//        guard visibleArray.count > 0 else { return }
-//        visibleArray.remove(at: indexPath.row)
-//        collectionView.performBatchUpdates {
-//            collectionView.deleteItems(at: [IndexPath(item: indexPath.row, section: 0)])
-//        }
-//        if visibleArray.count == 0 {
-//            showEmptyTrackersInfo()
-//        }
-//    }
-//    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-//        // TODO: make tracker editable
-//    }
     
     /// Switch between header and (footer removed)
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

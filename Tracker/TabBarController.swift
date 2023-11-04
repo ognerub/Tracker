@@ -11,14 +11,6 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     var selectedTabBar: Int = 0
     
-//    let border: UIView = {
-//        let border = UIView()
-//        border.backgroundColor = UIColor(named: "YP Grey")
-//        border.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
-//        border.frame = CGRect(x: 0, y: 0, width: 0, height: 1)
-//        return border
-//    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
@@ -38,7 +30,7 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
         let secondItemIcon = UITabBarItem(title: "Statistics", image: UIImage(named: "TabBarHareOff"), selectedImage: UIImage(named: "TabBarHareOn"))
         secondItem.tabBarItem = secondItemIcon
         let controllers = [firstItem, secondItem]
-        self.viewControllers = controllers
+        viewControllers = controllers
     }
     
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {

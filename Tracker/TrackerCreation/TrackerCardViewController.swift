@@ -92,6 +92,8 @@ final class TrackerCardViewController: UIViewController {
     
     private let scheduleButtonTitle = "Schedule"
     
+    private let newHabit = "New habit"
+    
     private lazy var scheduleButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
@@ -189,7 +191,7 @@ final class TrackerCardViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if titleLabel.text != "New habit" {
+        if titleLabel.text != newHabit {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
             categoryButtonConfig()
@@ -208,9 +210,9 @@ final class TrackerCardViewController: UIViewController {
         newTrackerColor = colors.randomElement()!
             var schedule = Schedule(
                 days: newTrackerDays)
-            if titleLabel.text != "New habit" {
+            if titleLabel.text != newHabit {
                 let unregularSchedule = Schedule(
-                    days: newTrackerDays)
+                    days: WeekDay.allCases.filter { $0 != WeekDay.empty })
                 schedule = unregularSchedule
             }
             let newTracker: Tracker = Tracker(

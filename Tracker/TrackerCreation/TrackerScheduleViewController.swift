@@ -130,8 +130,8 @@ extension TrackerScheduleViewController: UITableViewDataSource {
             scheduleFooterView: cell.scheduleFooterView)
         let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
-        let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        items.scheduleLabel.text = daysArray[indexPath.row]
+        let daysArray: [WeekDay] = WeekDay.allCases
+        items.scheduleLabel.text = daysArray[indexPath.row].rawValue
         items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != .empty)
         let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
         items.scheduleFooterView.alpha = alpha[indexPath.row]
