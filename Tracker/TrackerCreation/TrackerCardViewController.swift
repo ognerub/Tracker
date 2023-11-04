@@ -235,7 +235,7 @@ final class TrackerCardViewController: UIViewController {
         
         let weekEnds: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .saturday,.sunday]
         let weekDays: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .empty, .empty]
-        let empty: [WeekDay] = [ .empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
         
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
@@ -289,6 +289,7 @@ extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
     func sendArray(array: [WeekDay]) {
         newTrackerDays = array
         scheduleButtonTitleTextConfig()
+        createButtonIsActive(newTrackerName.count > 0)
     }
 }
 
@@ -308,7 +309,8 @@ extension TrackerCardViewController: UITextFieldDelegate {
     }
     
     func createButtonIsActive(_ bool: Bool) {
-        if bool {
+        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        if bool && newTrackerDays != empty || titleLabel.text != newHabit {
             createButton.isEnabled = true
             createButton.backgroundColor = UIColor(named: "YP Black")
         } else {
