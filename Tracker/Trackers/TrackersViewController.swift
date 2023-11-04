@@ -13,26 +13,6 @@ final class TrackersViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
     
-//    private var trackersArray: [Tracker] = [
-//        Tracker(
-//            id: UUID(uuidString: "B888674C-2877-4C9C-BBCD-AF0FD78A4892")!,
-//            name: "M",
-//            color: UIColor(named: "CC Purple")!,
-//            emoji: "🍐",
-//            schedule: Schedule(days: [WeekDay.monday, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty])),
-//        Tracker(
-//            id: UUID(uuidString: "16C5519F-5153-4E97-88EF-ADED2EC001C6")!,
-//            name: "SA",
-//            color: UIColor(named: "CC Blue")!,
-//            emoji: "🥒",
-//            schedule: Schedule(days: [WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.saturday, WeekDay.empty])),
-//        Tracker(
-//            id: UUID(uuidString: "6D57331B-A68F-4643-96CB-3A15440EFFD4")!,
-//            name: "Weekends",
-//            color: UIColor(named: "CC Red")!,
-//            emoji: "🥒",
-//            schedule: Schedule(days: [WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.saturday, WeekDay.sunday]))]
-    
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
