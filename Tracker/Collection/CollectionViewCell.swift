@@ -60,7 +60,7 @@ final class CollectionViewCell: UICollectionViewCell {
     }()
     
     lazy var cellPlusButton: UIButton = {
-        let resizedImage = UIImage(named: "PlusButton")!.resized(to: CGSize(width: 10, height: 10))
+        let resizedImage = (UIImage(named: "PlusButton") ?? UIImage()).resized(to: CGSize(width: 10, height: 10))
         let button = UIButton.systemButton(
             with: resizedImage,
             target: self,
@@ -154,10 +154,10 @@ final class CollectionViewCell: UICollectionViewCell {
     
     func changeCellPlussButtonImage(changeValue: Bool) {
         if changeValue {
-            let resizedImage = UIImage(named: "Checkmark")!.resized(to: CGSize(width: 10, height: 10))
+            let resizedImage = (UIImage(named: "Checkmark") ?? UIImage()).resized(to: CGSize(width: 10, height: 10))
             cellPlusButton.setImage(resizedImage, for: .normal)
         } else {
-            let resizedImage = UIImage(named: "PlusButton")!.resized(to: CGSize(width: 10, height: 10))
+            let resizedImage = (UIImage(named: "PlusButton") ?? UIImage()).resized(to: CGSize(width: 10, height: 10))
             cellPlusButton.setImage(resizedImage, for: .normal)
         }
     }

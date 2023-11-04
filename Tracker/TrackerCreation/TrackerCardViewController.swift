@@ -23,12 +23,12 @@ final class TrackerCardViewController: UIViewController {
     ]
     
     private let colors: [UIColor] = [
-        UIColor(named: "CC Blue")!,
-        UIColor(named: "CC Green")!,
-        UIColor(named: "CC Orange")!,
-        UIColor(named: "CC Pink")!,
-        UIColor(named: "CC Purple")!,
-        UIColor(named: "CC Red")!
+        UIColor(named: "CC Blue") ?? .blue,
+        UIColor(named: "CC Green") ?? .green,
+        UIColor(named: "CC Orange") ?? .orange,
+        UIColor(named: "CC Pink") ?? .systemPink,
+        UIColor(named: "CC Purple") ?? .purple,
+        UIColor(named: "CC Red") ?? .red
     ]
     
     private var newTrackerIdArray: [Int] = []
@@ -206,8 +206,8 @@ final class TrackerCardViewController: UIViewController {
     func createNewTracker() -> Tracker {
         let newTrackerId = UUID()
         newTrackerIdArray.append(0)
-        newTrackerEmoji = emojies.randomElement()!
-        newTrackerColor = colors.randomElement()!
+        newTrackerEmoji = emojies.randomElement() ?? ""
+        newTrackerColor = colors.randomElement() ?? .black
             var schedule = Schedule(
                 days: newTrackerDays)
             if titleLabel.text != newHabit {
@@ -254,7 +254,7 @@ final class TrackerCardViewController: UIViewController {
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
         }
         let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black")!, range: NSRange(location: 0, length: scheduleButtonTitle.count))
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: scheduleButtonTitle.count))
         scheduleButton.setAttributedTitle(mutableString, for: .normal)
     }
     

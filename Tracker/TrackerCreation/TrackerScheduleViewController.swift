@@ -225,7 +225,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     }
     
     @objc
-    func switchChanged(sender: UISwitch!) {
+    func switchChanged(sender: UISwitch) {
         delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
     }
     

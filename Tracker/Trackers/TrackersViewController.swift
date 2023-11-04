@@ -77,7 +77,7 @@ final class TrackersViewController: UIViewController {
     }()
     private lazy var plusButton: UIButton = {
         let button = UIButton.systemButton(
-            with: UIImage(named: "PlusButton")!,
+            with: UIImage(named: "PlusButton") ?? UIImage(),
             target: self,
             action: #selector(didTapPlusButton)
         )
@@ -95,24 +95,17 @@ final class TrackersViewController: UIViewController {
         view.backgroundColor = .white
         addTopBar()
         collectionViewConfig()
-        reloadData()
-    }
-    
-    func reloadData() {
-        if trackersArray.isEmpty {
-            showEmptyTrackersInfo()
-        } else {
-            hideEmptyTrackersInfo()
-            let category = TrackerCategory(
-                name: "New category",
-                trackers: trackersArray)
-            let categories = [category]
-            self.categories = categories
-            reloadVisibleCategories()
-        }
+        reloadVisibleCategories()
     }
     
     private func reloadVisibleCategories() {
+        
+        let category = TrackerCategory(
+            name: "New category",
+            trackers: trackersArray)
+        let categories = [category]
+        self.categories = categories
+        
         let filterWeekDay = datePicker.date.dayOfWeek()
         let filterText = (searchBar.text ?? "").lowercased()
         
@@ -131,9 +124,18 @@ final class TrackersViewController: UIViewController {
         }
         collectionViewNeedsReloadData = true
         performCollectionViewUpdate()
+        showOrHideEmptyTrackersInfo()
     }
     
-    func performCollectionViewUpdate() {
+    private func showOrHideEmptyTrackersInfo() {
+        if visibleCategories[0].trackers.count == 0 {
+            showEmptyTrackersInfo()
+        } else {
+            hideEmptyTrackersInfo()
+        }
+    }
+    
+    private func performCollectionViewUpdate() {
         if collectionViewNeedsReloadData {
             collectionView.reloadData()
             collectionViewNeedsReloadData = false
@@ -158,12 +160,7 @@ final class TrackersViewController: UIViewController {
 extension TrackersViewController: TrackerCardViewControllerDelegate {
     func didReceiveTracker(tracker: Tracker) {
         trackersArray.append(tracker)
-        let category = TrackerCategory(
-            name: "New category",
-            trackers: trackersArray)
-        let categories = [category]
-        self.categories = categories
-        reloadData()
+        reloadVisibleCategories()
         dismiss(animated: true)
     }
 }
@@ -207,13 +204,15 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard trackersArray.count > 0 else { return 0 }
+        guard visibleCategories[0].trackers.count != 0 else { return 0 }
         return visibleCategories[0].trackers.count
     }
     
     /// Cell for item
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? CollectionViewCell else {
+            return UICollectionViewCell()
+        }
         
         cell.delegate = self
         
@@ -249,7 +248,10 @@ extension TrackersViewController: CollectionViewCellDelegate {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
-        let isNotFutureDate: Bool = (datePicker.date.distance(from: Date(), only: Calendar.Component.day)<=0)
+        let isNotFutureDate: Bool = (
+            Calendar.current.isDate(Date(), inSameDayAs: datePicker.date) ||
+            Date().distance(to: datePicker.date) < 0
+        )
         if isNotFutureDate {
             completedTrackers.append(trackerRecord)
             collectionView.reloadItems(at: [indexPath])
@@ -279,8 +281,10 @@ extension TrackersViewController: UICollectionViewDelegate {
         default:
             id = ""
         }
-        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView
-        guard trackersArray.count > 0 else { return view }
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? SupplementaryView else {
+            return UICollectionReusableView()
+        }
+        guard visibleCategories[0].trackers.count != 0 else { return view }
         view.titleLabel.text = "\(categories[0].name)"
         return view
     }
