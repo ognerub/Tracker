@@ -13,6 +13,26 @@ final class TrackersViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
     
+//    private var trackersArray: [Tracker] = [
+//        Tracker(
+//            id: UUID(uuidString: "B888674C-2877-4C9C-BBCD-AF0FD78A4892")!,
+//            name: "M",
+//            color: UIColor(named: "CC Purple")!,
+//            emoji: "🍐",
+//            schedule: Schedule(days: [WeekDay.monday, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty])),
+//        Tracker(
+//            id: UUID(uuidString: "16C5519F-5153-4E97-88EF-ADED2EC001C6")!,
+//            name: "SA",
+//            color: UIColor(named: "CC Blue")!,
+//            emoji: "🥒",
+//            schedule: Schedule(days: [WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.saturday, WeekDay.empty])),
+//        Tracker(
+//            id: UUID(uuidString: "6D57331B-A68F-4643-96CB-3A15440EFFD4")!,
+//            name: "Weekends",
+//            color: UIColor(named: "CC Red")!,
+//            emoji: "🥒",
+//            schedule: Schedule(days: [WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.empty, WeekDay.saturday, WeekDay.sunday]))]
+    
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
@@ -96,26 +116,44 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
-        reloadData()
         addTopBar()
         collectionViewConfig()
+        reloadData()
     }
     
     func reloadData() {
-        let category = TrackerCategory(
-            name: "New category",
-            trackers: trackersArray)
-        let categories = [category]
-        self.categories = categories
-        reloadVisibleCategories()
-    }
-    
-    func showOrHideEmptyTrackersInfo() {
-        if visibleCategories[0].trackers.isEmpty {
+        if trackersArray.isEmpty {
             showEmptyTrackersInfo()
         } else {
             hideEmptyTrackersInfo()
+            let category = TrackerCategory(
+                name: "New category",
+                trackers: trackersArray)
+            let categories = [category]
+            self.categories = categories
+            reloadVisibleCategories()
         }
+    }
+    
+    private func reloadVisibleCategories() {
+        let filterWeekDay = datePicker.date.dayOfWeek()
+        let filterText = (searchBar.text ?? "").lowercased()
+        
+        visibleCategories = categories.map { category in
+            let trackers = category.trackers.filter { tracker in
+                let textCondition = filterText.isEmpty ||
+                tracker.name.lowercased().contains(filterText)
+                let dateCondition = tracker.schedule.days.contains { WeekDay in
+                    WeekDay.rawValue == filterWeekDay
+                }
+                return textCondition && dateCondition
+            }
+            return TrackerCategory(
+                name: category.name,
+                trackers: trackers)
+        }
+        collectionViewNeedsReloadData = true
+        performCollectionViewUpdate()
     }
     
     func performCollectionViewUpdate() {
@@ -161,27 +199,6 @@ extension TrackersViewController {
         searchBar.endEditing(true)
         reloadVisibleCategories()
     }
-    private func reloadVisibleCategories() {
-        let filterWeekDay = datePicker.date.dayOfWeek()
-        let filterText = (searchBar.text ?? "").lowercased()
-        
-        visibleCategories = categories.map { category in
-            let trackers = category.trackers.filter { tracker in
-                let textCondition = filterText.isEmpty ||
-                tracker.name.lowercased().contains(filterText)
-                let dateCondition = tracker.schedule.days.contains { WeekDay in
-                    WeekDay.rawValue == filterWeekDay
-                }
-                return textCondition && dateCondition
-            }
-            return TrackerCategory(
-                name: category.name,
-                trackers: trackers)
-        }
-        collectionViewNeedsReloadData = true
-        performCollectionViewUpdate()
-        showOrHideEmptyTrackersInfo()
-    }
 }
 
 // MARK: - UISearchBarDelegate
@@ -213,7 +230,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard visibleCategories[0].trackers.count > 0 else { return 0 }
+        guard trackersArray.count > 0 else { return 0 }
         return visibleCategories[0].trackers.count
     }
     
@@ -286,6 +303,7 @@ extension TrackersViewController: UICollectionViewDelegate {
             id = ""
         }
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView
+        guard trackersArray.count > 0 else { return view }
         view.titleLabel.text = "\(categories[0].name)"
         return view
     }
