@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - TrackerScheduleViewControllerDelegate
 protocol TrackerScheduleViewControllerDelegate: AnyObject {
-    func sendArray(array: [String])
+    func sendArray(array: [WeekDay])
 }
 
 // MARK: - TrackerScheduleViewController
@@ -17,10 +17,10 @@ final class TrackerScheduleViewController: UIViewController {
     
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
-    var newWeekDaysNamesArray: [String]
+    var newWeekDaysNamesArray: [WeekDay]
     
-    init(newNumbersArray: [String]) {
-        self.newWeekDaysNamesArray = newNumbersArray
+    init(newWeekDaysNamesArray: [WeekDay]) {
+        self.newWeekDaysNamesArray = newWeekDaysNamesArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -93,46 +93,6 @@ final class TrackerScheduleViewController: UIViewController {
         dismiss(animated: true, completion: { })
     }
     
-    // MARK: - Constraints configuration
-    
-    func titleConfig() {
-        view.addSubview(titleBackground)
-        NSLayoutConstraint.activate([
-            titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            titleBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            titleBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            titleBackground.heightAnchor.constraint(equalToConstant: 57)
-        ])
-        titleBackground.addSubview(titleLabel)
-        NSLayoutConstraint.activate([
-            titleLabel.bottomAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: -14),
-            titleLabel.widthAnchor.constraint(equalToConstant: view.frame.width),
-            titleLabel.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: -view.frame.width/2)
-        ])
-    }
-    
-    func acceptScheduleButtonConfig() {
-        view.addSubview(acceptScheduleButton)
-        NSLayoutConstraint.activate([
-            acceptScheduleButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-            acceptScheduleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            acceptScheduleButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            acceptScheduleButton.heightAnchor.constraint(equalToConstant: 60)
-        ])
-    }
-    
-    func tableViewConfig() {
-        view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: acceptScheduleButton.topAnchor)
-        ])
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(TrackerScheduleTableViewCell.self, forCellReuseIdentifier: TrackerScheduleTableViewCell.reuseIdentifier)
-    }
 }
 
 // MARK: - UITableViewDelegate
@@ -172,7 +132,7 @@ extension TrackerScheduleViewController: UITableViewDataSource {
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [String] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         items.scheduleLabel.text = daysArray[indexPath.row]
-        items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != "")
+        items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != .empty)
         let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
         items.scheduleFooterView.alpha = alpha[indexPath.row]
     }
@@ -183,24 +143,24 @@ extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let currentArrayNumber = newWeekDaysNamesArray[indexPath.row]
-            if currentArrayNumber != "" {
-                newWeekDaysNamesArray[indexPath.row] = ""
+        if currentArrayNumber != WeekDay.empty {
+            newWeekDaysNamesArray[indexPath.row] = WeekDay.empty
             } else {
                 switch indexPath.row {
                 case 1:
-                    newWeekDaysNamesArray[indexPath.row] = "Tuesday"
+                    newWeekDaysNamesArray[indexPath.row] = .tuesday
                 case 2:
-                    newWeekDaysNamesArray[indexPath.row] = "Wednesday"
+                    newWeekDaysNamesArray[indexPath.row] = .wednesday
                 case 3:
-                    newWeekDaysNamesArray[indexPath.row] = "Thursday"
+                    newWeekDaysNamesArray[indexPath.row] = .thursday
                 case 4:
-                    newWeekDaysNamesArray[indexPath.row] = "Friday"
+                    newWeekDaysNamesArray[indexPath.row] = .friday
                 case 5:
-                    newWeekDaysNamesArray[indexPath.row] = "Saturday"
+                    newWeekDaysNamesArray[indexPath.row] = .saturday
                 case 6:
-                    newWeekDaysNamesArray[indexPath.row] = "Sunday"
+                    newWeekDaysNamesArray[indexPath.row] = .sunday
                 default:
-                    newWeekDaysNamesArray[indexPath.row] = "Monday"
+                    newWeekDaysNamesArray[indexPath.row] = .monday
                 }
             }
     }
@@ -305,4 +265,47 @@ struct TrackerScheduleTableViewCellViewModel {
     var scheduleSwitch: UISwitch
     var scheduleLabel: UILabel
     var scheduleFooterView: UIView
+}
+
+extension TrackerScheduleViewController {
+    // MARK: - Constraints configuration
+    
+    func titleConfig() {
+        view.addSubview(titleBackground)
+        NSLayoutConstraint.activate([
+            titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            titleBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            titleBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            titleBackground.heightAnchor.constraint(equalToConstant: 57)
+        ])
+        titleBackground.addSubview(titleLabel)
+        NSLayoutConstraint.activate([
+            titleLabel.bottomAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: -14),
+            titleLabel.widthAnchor.constraint(equalToConstant: view.frame.width),
+            titleLabel.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: -view.frame.width/2)
+        ])
+    }
+    
+    func acceptScheduleButtonConfig() {
+        view.addSubview(acceptScheduleButton)
+        NSLayoutConstraint.activate([
+            acceptScheduleButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            acceptScheduleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            acceptScheduleButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            acceptScheduleButton.heightAnchor.constraint(equalToConstant: 60)
+        ])
+    }
+    
+    func tableViewConfig() {
+        view.addSubview(tableView)
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: acceptScheduleButton.topAnchor)
+        ])
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(TrackerScheduleTableViewCell.self, forCellReuseIdentifier: TrackerScheduleTableViewCell.reuseIdentifier)
+    }
 }

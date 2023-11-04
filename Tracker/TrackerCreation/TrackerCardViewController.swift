@@ -36,7 +36,7 @@ final class TrackerCardViewController: UIViewController {
     private var newTrackerColor: UIColor = .clear
     private var newTrackerEmoji: String = ""
     private var newTrackerDate: Date = Date()
-    private var newTrackerDays: [String] = ["", "", "", "", "", "", ""]
+    private var newTrackerDays: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
     
     // MARK: - Mutable properties
     
@@ -206,38 +206,47 @@ final class TrackerCardViewController: UIViewController {
         newTrackerIdArray.append(0)
         newTrackerEmoji = emojies.randomElement()!
         newTrackerColor = colors.randomElement()!
-        var schedule = Schedule(
-            date: newTrackerDate.onlyDate ?? newTrackerDate,
-            days: newTrackerDays)
-        if titleLabel.text != "New habit" {
-            let unregularSchedule = Schedule(
-                date: schedule.date,
-                days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-            schedule = unregularSchedule
-        }
-        let newTracker: Tracker = Tracker(
-            id: newTrackerId,
-            name: newTrackerName,
-            color: newTrackerColor,
-            emoji: newTrackerEmoji,
-            schedule: schedule)
-        return newTracker
+            var schedule = Schedule(
+                days: newTrackerDays)
+            if titleLabel.text != "New habit" {
+                let unregularSchedule = Schedule(
+                    days: newTrackerDays)
+                schedule = unregularSchedule
+            }
+            let newTracker: Tracker = Tracker(
+                id: newTrackerId,
+                name: newTrackerName,
+                color: newTrackerColor,
+                emoji: newTrackerEmoji,
+                schedule: schedule)
+            return newTracker
+        
     }
     
     func scheduleButtonTitleTextConfig() {
         
+        var stringArray: [String] = []
+        for item in 0..<newTrackerDays.count {
+            let value = newTrackerDays[item].rawValue
+            stringArray.append(value)
+        }
+        
+        let weekEnds: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .saturday,.sunday]
+        let weekDays: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .empty, .empty]
+        let empty: [WeekDay] = [ .empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
-        case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+        case WeekDay.allCases:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n Everyday"
-        case ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "", ""]:
+        case weekDays:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekdays"
-        case ["", "", "", "", "", "Saturday", "Sunday"]:
+        case weekEnds:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekends"
-        case ["", "", "", "", "", "", ""]:
+        case empty:
             scheduleButtonTitleText = scheduleButtonTitle
         default:
-            let filteredAndShuffledArray = newTrackerDays.filter({ $0 != "" })
+            let filteredAndShuffledArray = stringArray.filter({ $0 != "" })
             let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
             let joinedString = prefixedArray.joined(separator: ", ")
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
@@ -256,7 +265,7 @@ final class TrackerCardViewController: UIViewController {
     
     @objc
     func didTapScheduleButton() {
-        let vc = TrackerScheduleViewController(newNumbersArray: newTrackerDays)
+        let vc = TrackerScheduleViewController(newWeekDaysNamesArray: newTrackerDays)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -275,7 +284,7 @@ final class TrackerCardViewController: UIViewController {
 
 // MARK: - TrackerScheduleViewControllerDelegate
 extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
-    func sendArray(array: [String]) {
+    func sendArray(array: [WeekDay]) {
         newTrackerDays = array
         scheduleButtonTitleTextConfig()
     }

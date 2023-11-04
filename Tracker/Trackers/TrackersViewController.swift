@@ -215,7 +215,7 @@ extension TrackersViewController: UISearchBarDelegate {
         } else {
             var array: [Tracker] = []
             for item in 0..<visibleCategories[0].trackers.count {
-                if secondIf ? visibleCategories[0].trackers[item].schedule.days.contains(secondString) : visibleCategories[0].trackers[item].name.contains(secondString) {
+                if secondIf ? visibleCategories[0].trackers[item].schedule.days.contains(WeekDay(rawValue: secondString) ?? WeekDay.empty) : visibleCategories[0].trackers[item].name.contains(secondString) {
                     let tracker = categories[0].trackers[item]
                     array.append(tracker)
                 }
@@ -283,7 +283,7 @@ extension TrackersViewController: CollectionViewCellDelegate {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
-        let compareTwoDatesByDay = Calendar.current.compare(visibleCategories[0].trackers[indexPath.row].schedule.date, to: datePicker.date, toGranularity: .day)
+        let compareTwoDatesByDay = Calendar.current.compare(Date(), to: datePicker.date, toGranularity: .day)
         let resultOfDatesCompatison: ComparisonResult = compareTwoDatesByDay
         var isNotFutureDate: Bool = true
         switch resultOfDatesCompatison {

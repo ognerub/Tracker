@@ -8,16 +8,16 @@
 import Foundation
 
 struct Schedule {
-    let date: Date
-    let days: [String]
+    let days: [WeekDay]
 }
 
-enum WeekDay {
-    case Monday
-    case Tuesday
-    case Wednesday
-    case Thursday
-    case Friday
-    case Saturday
-    case Sunday
+enum WeekDay: String, CaseIterable {
+    case monday = "Monday"
+    case tuesday = "Tuesday"
+    case wednesday = "Wednesday"
+    case thursday = "Thursday"
+    case friday = "Friday"
+    case saturday = "Saturday"
+    case sunday = "Sunday"
+    case empty = ""
 }
