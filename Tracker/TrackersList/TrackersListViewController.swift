@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class TrackersViewController: UIViewController {
+final class TrackersListViewController: UIViewController {
     
     //MARK: - Properties for CollectionView
     private var trackersArray: [Tracker] = []
@@ -157,7 +157,7 @@ final class TrackersViewController: UIViewController {
 }
 
 // MARK: - ThirdViewController Delegate
-extension TrackersViewController: TrackerCardViewControllerDelegate {
+extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func didReceiveTracker(tracker: Tracker) {
         trackersArray.append(tracker)
         reloadVisibleCategories()
@@ -165,7 +165,7 @@ extension TrackersViewController: TrackerCardViewControllerDelegate {
     }
 }
 
-extension TrackersViewController {
+extension TrackersListViewController {
     // MARK: - Date Picker
     @objc
     func datePickerValueChanged(_ sender: UIDatePicker) {
@@ -176,7 +176,7 @@ extension TrackersViewController {
 }
 
 // MARK: - UISearchBarDelegate
-extension TrackersViewController: UISearchBarDelegate {
+extension TrackersListViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.setShowsCancelButton(true, animated: true)
@@ -197,7 +197,7 @@ extension TrackersViewController: UISearchBarDelegate {
 }
 
 // MARK: - CollectionViewDataSource (NumberOfItemsInSection, CellForItemAt)
-extension TrackersViewController: UICollectionViewDataSource {
+extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -243,7 +243,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
 }
 
-extension TrackersViewController: CollectionViewCellDelegate {
+extension TrackersListViewController: CollectionViewCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
@@ -270,7 +270,7 @@ extension TrackersViewController: CollectionViewCellDelegate {
 }
 
 // MARK: - CollectionViewDelegate
-extension TrackersViewController: UICollectionViewDelegate {
+extension TrackersListViewController: UICollectionViewDelegate {
     
     /// Switch between header and (footer removed)
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -291,7 +291,7 @@ extension TrackersViewController: UICollectionViewDelegate {
 }
 
 // MARK: - CollectionViewDelegateFlowLayout
-extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width / 2 - 5, height: 148)
@@ -323,7 +323,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - Configure constraints
-private extension TrackersViewController {
+private extension TrackersListViewController {
     func collectionViewConfig() {
         /// Create collectionView with custom layout
         view.addSubview(collectionView)

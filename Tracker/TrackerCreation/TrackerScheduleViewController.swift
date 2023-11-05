@@ -86,7 +86,6 @@ final class TrackerScheduleViewController: UIViewController {
     }
     
     // MARK: - Objective-C functions
-    
     @objc
     func didTapAcceptScheduleButton() {
         self.delegate?.sendArray(array: newWeekDaysNamesArray)
@@ -164,107 +163,6 @@ extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
                 }
             }
     }
-}
-
-// MARK: - TrackerScheduleTableViewCellDelegate (protocol)
-protocol TrackerScheduleTableViewCellDelegate: AnyObject {
-    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell)
-}
-
-// MARK: - TrackerScheduleTableViewCell
-final class TrackerScheduleTableViewCell: UITableViewCell {
-    
-    static let reuseIdentifier = "TrackerScheduleTableViewCell"
-    weak var delegate: TrackerScheduleTableViewCellDelegate?
-    
-    var scheduleView: UIView = {
-        let view = UIView()
-        view.layer.masksToBounds = true
-        view.layer.cornerRadius = 16
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
-        return view
-    }()
-    
-    var scheduleSwitch: UISwitch = {
-        let sswitch = UISwitch()
-        sswitch.setOn(false, animated: false)
-        sswitch.tintColor = UIColor(named: "YP Grey")
-        sswitch.onTintColor = UIColor(named: "YP Blue")
-        sswitch.thumbTintColor = UIColor(named: "YP Whtite")
-        sswitch.translatesAutoresizingMaskIntoConstraints = false
-        return sswitch
-    }()
-    
-    var scheduleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        label.textColor = UIColor(named: "YP Black")
-        label.text = "Monday"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    var scheduleFooterView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP Grey")
-        return view
-    }()
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = UIColor(named: "YP White")
-        addSubviews()
-        configureConstraints()
-        scheduleSwitch.addTarget(self, action: #selector(switchChanged(sender: )), for: UIControl.Event.valueChanged)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc
-    func switchChanged(sender: UISwitch) {
-        delegate?.TrackerScheduleTableViewCellSwitchDidChange(self)
-    }
-    
-    func addSubviews() {
-        addSubview(scheduleView)
-        addSubview(scheduleFooterView)
-        scheduleView.addSubview(scheduleLabel)
-        contentView.addSubview(scheduleSwitch)
-    }
-    
-    func configureConstraints() {
-        NSLayoutConstraint.activate([
-            scheduleView.topAnchor.constraint(equalTo: topAnchor),
-            scheduleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            scheduleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scheduleLabel.heightAnchor.constraint(equalToConstant: 22),
-            scheduleLabel.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -11),
-            scheduleLabel.leadingAnchor.constraint(equalTo: scheduleView.leadingAnchor, constant: 16),
-            scheduleFooterView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scheduleFooterView.heightAnchor.constraint(equalToConstant: 0.5),
-            scheduleFooterView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
-            scheduleFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
-        ])
-        NSLayoutConstraint.activate([
-            scheduleSwitch.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -15.5),
-            scheduleSwitch.trailingAnchor.constraint(equalTo: scheduleView.trailingAnchor, constant: -16),
-            scheduleSwitch.heightAnchor.constraint(equalToConstant: 31),
-            scheduleSwitch.widthAnchor.constraint(equalToConstant: 51)
-        ])
-    }
-}
-
-// MARK: - TrackerScheduleTableViewCellViewModel
-struct TrackerScheduleTableViewCellViewModel {
-    var scheduleView: UIView
-    var scheduleSwitch: UISwitch
-    var scheduleLabel: UILabel
-    var scheduleFooterView: UIView
 }
 
 extension TrackerScheduleViewController {

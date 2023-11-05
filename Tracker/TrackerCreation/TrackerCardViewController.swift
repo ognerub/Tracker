@@ -16,6 +16,9 @@ final class TrackerCardViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
+    private let scheduleButtonTitle = "Schedule"
+    private let newHabit = "New habit"
+    
     private let emojies = [
         "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
         "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
@@ -45,6 +48,7 @@ final class TrackerCardViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "New habit"
         return label
     }()
     
@@ -89,10 +93,6 @@ final class TrackerCardViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
-    private let scheduleButtonTitle = "Schedule"
-    
-    private let newHabit = "New habit"
     
     private lazy var scheduleButton: UIButton = {
         let button = UIButton.systemButton(
@@ -179,14 +179,30 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    private lazy var scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.contentSize = contentSize
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        return scroll
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.frame.size = contentSize
+        return view
+    }()
+    
+    private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: 781)
+    
     // MARK: - viewDidLoad()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        textFieldConfig()
         horizontalStackViewConfig()
+        scrollViewConfig()
+        textFieldConfig()
         textField.delegate = self
     }
     
@@ -194,6 +210,7 @@ final class TrackerCardViewController: UIViewController {
         if titleLabel.text != newHabit {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
+            contentSize = CGSize(width: view.frame.width, height: 706)
             categoryButtonConfig()
         } else {
             categoryButton.removeFromSuperview()
@@ -201,9 +218,11 @@ final class TrackerCardViewController: UIViewController {
             scheduleButtonTitleTextConfig()
         }
     }
-    
+}
+
+extension TrackerCardViewController {
     // MARK: - CreateNewTracker
-    func createNewTracker() -> Tracker {
+    private func createNewTracker() -> Tracker {
         let newTrackerId = UUID()
         newTrackerIdArray.append(0)
         newTrackerEmoji = emojies.randomElement() ?? ""
@@ -225,7 +244,7 @@ final class TrackerCardViewController: UIViewController {
         
     }
     
-    func scheduleButtonTitleTextConfig() {
+    private func scheduleButtonTitleTextConfig() {
         
         var stringArray: [String] = []
         for item in 0..<newTrackerDays.count {
@@ -321,7 +340,7 @@ extension TrackerCardViewController: UITextFieldDelegate {
 }
 
 // MARK: - Constraints configuration
-extension TrackerCardViewController {
+private extension TrackerCardViewController {
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
@@ -338,33 +357,59 @@ extension TrackerCardViewController {
         ])
     }
     
-    func textFieldConfig() {
-        view.addSubview(textField)
+    func horizontalStackViewConfig() {
+        view.addSubview(horizontalStackView)
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: 24),
+            horizontalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -34),
+            horizontalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            horizontalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        horizontalStackView.addArrangedSubview(cancelButton)
+        horizontalStackView.addArrangedSubview(createButton)
+    }
+    
+    func scrollViewConfig() {
+        
+        view.addSubview(scrollView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: horizontalStackView.topAnchor)
+        ])
+        
+        scrollView.addSubview(contentView)
+    }
+    
+    func textFieldConfig() {
+        contentView.addSubview(textField)
+        NSLayoutConstraint.activate([
+            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             textField.heightAnchor.constraint(equalToConstant: 75),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
+            textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            textField.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -32)
         ])
     }
     
     func categoryButtonConfig() {
-        view.addSubview(categoryButton)
+        contentView.addSubview(categoryButton)
         NSLayoutConstraint.activate([
             categoryButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
-            categoryButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            categoryButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            categoryButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            categoryButton.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -32),
             categoryButton.heightAnchor.constraint(equalToConstant: 75)
         ])
         categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
     }
     
     func verticalStackViewConfig() {
-        view.addSubview(verticalStackView)
+        contentView.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
             verticalStackView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
-            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            verticalStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            verticalStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             verticalStackView.heightAnchor.constraint(equalToConstant: 150)
         ])
         verticalStackView.addArrangedSubview(categoryButton)
@@ -392,17 +437,5 @@ extension TrackerCardViewController {
             scheduleButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
             scheduleButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
         ])
-    }
-    
-    func horizontalStackViewConfig() {
-        view.addSubview(horizontalStackView)
-        NSLayoutConstraint.activate([
-            horizontalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -34),
-            horizontalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            horizontalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
-        ])
-        horizontalStackView.addArrangedSubview(cancelButton)
-        horizontalStackView.addArrangedSubview(createButton)
     }
 }
