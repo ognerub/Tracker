@@ -7,13 +7,7 @@
 
 import UIKit
 
-protocol TrackerCardCollectionViewCellDelegate: AnyObject {
-    func didSelectCell(at indexPath: IndexPath)
-}
-
 final class TrackerCardCollectionViewCell: UICollectionViewCell {
-    
-    weak var delegate: TrackerCardCollectionViewCellDelegate?
     
     private let colors: [UIColor] = [
         .black, .blue, .brown,
@@ -21,7 +15,7 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
         .red, .purple, .yellow
     ]
     
-    private let cellBackgroundRound: UIView = {
+    let cellBackgroundRound: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +49,6 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
     ) {
         self.cellEmojiLabel.text = emojiLabel
         self.indexPath = indexPath
-        print("indexPath of cell is \(indexPath)")
     }
     
     override func prepareForReuse() {
@@ -76,10 +69,10 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
             cellBackgroundRound.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellBackgroundRound.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             
-            cellEmojiLabel.widthAnchor.constraint(equalToConstant: 38),
-            cellEmojiLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.centerXAnchor, constant: -19),
-            cellEmojiLabel.heightAnchor.constraint(equalToConstant: 38),
-            cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -19)
+            cellEmojiLabel.widthAnchor.constraint(equalToConstant: 52),
+            cellEmojiLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.centerXAnchor, constant: -26),
+            cellEmojiLabel.heightAnchor.constraint(equalToConstant: 52),
+            cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -26)
         ])
     }
 }

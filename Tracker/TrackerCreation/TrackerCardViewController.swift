@@ -24,6 +24,7 @@ final class TrackerCardViewController: UIViewController {
         "😇","😡","🥶","🤔","🙌","🍔",
         "🥦","🏓","🥇","🎸","🏝","😪"
     ]
+    private var emojieSelected: Bool = false
     
     private let colors: [UIColor] = [
         UIColor(named: "CC Blue") ?? .blue,
@@ -249,7 +250,6 @@ extension TrackerCardViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackerCardCollectionViewCell else {
             return UICollectionViewCell()
         }
-        cell.delegate = self
         cell.configure(
             indexPath: indexPath,
             emojiLabel: emojies[indexPath.row]
@@ -258,27 +258,27 @@ extension TrackerCardViewController: UICollectionViewDataSource {
     }
 }
 
-extension TrackerCardViewController: TrackerCardCollectionViewCellDelegate {
-    func didSelectCell(at indexPath: IndexPath) {
-        print("did Select")
-    }
-}
-
 // MARK: - UICollectionViewDelegate
 extension TrackerCardViewController: UICollectionViewDelegate {
     
     /// Did selecet cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell
-        print("Did select cell at \(indexPath)")
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell else {
+            assertionFailure("No cell while didSelectItemAt")
+            return
+        }
+        emojieSelected = true
+        newTrackerEmoji = emojies[indexPath.row]
+        cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP LightGrey")
     }
     
     /// Did deselect cell
         func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-            let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell
-            //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-            //cell?.titleLabel.backgroundColor = .blue
-            print("Did deselect cell at \(indexPath)")
+            guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell else {
+                assertionFailure("No cell while didSelectItemAt")
+                return
+            }
+            cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP White")
         }
 
     
@@ -336,7 +336,7 @@ extension TrackerCardViewController {
     private func createNewTracker() -> Tracker {
         let newTrackerId = UUID()
         newTrackerIdArray.append(0)
-        newTrackerEmoji = emojies.randomElement() ?? ""
+        newTrackerEmoji = emojieSelected ? self.newTrackerEmoji : (emojies.randomElement() ?? "X")
         newTrackerColor = colors.randomElement() ?? .black
             var schedule = Schedule(
                 days: newTrackerDays)
