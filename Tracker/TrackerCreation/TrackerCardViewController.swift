@@ -20,9 +20,9 @@ final class TrackerCardViewController: UIViewController {
     private let newHabit = "New habit"
     
     private let emojies = [
-        "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒",
-        "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️",
-        "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄",
+        "🙂","😻","🌺","🐶","❤️","😱",
+        "😇","😡","🥶","🤔","🙌","🍔",
+        "🥦","🏓","🥇","🎸","🏝","😪"
     ]
     
     private let colors: [UIColor] = [
@@ -194,6 +194,14 @@ final class TrackerCardViewController: UIViewController {
     
     private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: 781)
     
+    private let collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    private let cellIdentifier = "Cell"
+    private let headerIdentifier = "Header"
+    
     // MARK: - viewDidLoad()
     
     override func viewDidLoad() {
@@ -204,6 +212,7 @@ final class TrackerCardViewController: UIViewController {
         scrollViewConfig()
         textFieldConfig()
         textField.delegate = self
+        collectionView.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -212,11 +221,113 @@ final class TrackerCardViewController: UIViewController {
             buttonBottomDivider.removeFromSuperview()
             contentSize = CGSize(width: view.frame.width, height: 706)
             categoryButtonConfig()
+            
+            collectionViewConfig()
         } else {
             categoryButton.removeFromSuperview()
             verticalStackViewConfig()
             scheduleButtonTitleTextConfig()
+            
+            collectionViewConfig()
         }
+    }
+}
+
+// MARK: - CollectionViewDataSource
+extension TrackerCardViewController: UICollectionViewDataSource {
+    /// Number of sections
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    /// Number of items in section
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        18
+    }
+    
+    /// Cell for item
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackerCardCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        cell.delegate = self
+        cell.configure(
+            indexPath: indexPath,
+            emojiLabel: emojies[indexPath.row]
+        )
+        return cell
+    }
+}
+
+extension TrackerCardViewController: TrackerCardCollectionViewCellDelegate {
+    func didSelectCell(at indexPath: IndexPath) {
+        print("did Select")
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension TrackerCardViewController: UICollectionViewDelegate {
+    
+    /// Did selecet cell
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell
+        print("Did select cell at \(indexPath)")
+    }
+    
+    /// Did deselect cell
+        func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+            let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell
+            //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+            //cell?.titleLabel.backgroundColor = .blue
+            print("Did deselect cell at \(indexPath)")
+        }
+
+    
+    /// Switch between header and (footer removed)
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        var id: String
+        switch kind {
+        case UICollectionView.elementKindSectionHeader:
+            id = headerIdentifier
+        default:
+            id = ""
+        }
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? SupplementaryView else {
+            return UICollectionReusableView()
+        }
+        view.titleLabel.text = "Emoji"
+        return view
+    }
+}
+
+// MARK: - CollectionViewDelegateFlowLayout
+extension TrackerCardViewController: UICollectionViewDelegateFlowLayout {
+    /// Set layout width and height
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.bounds.width / 6 - 5, height: 52)
+    }
+    /// Set layout horizontal spacing
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
+    }
+    /// Set layout vertical spacing
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    /// Set header size
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        let indexPath = IndexPath(row: 0, section: section)
+        let headerView = self.collectionView(
+            collectionView,
+            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader,
+            at: indexPath
+        )
+        return headerView.systemLayoutSizeFitting(
+            CGSize(
+                width: collectionView.frame.width,
+                height: 81
+            ),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .required)
     }
 }
 
@@ -437,5 +548,27 @@ private extension TrackerCardViewController {
             scheduleButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
             scheduleButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
         ])
+    }
+    
+    func collectionViewConfig() {
+        let bottomAnchorItem = titleLabel.text != newHabit ? categoryButton : verticalStackView
+        /// Create collectionView with custom layout
+        scrollView.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: bottomAnchorItem.bottomAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+        /// Make VC a dataSource of collectionView, to config Cell
+        collectionView.dataSource = self
+        /// Register Cell
+        collectionView.register(TrackerCardCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        /// Make VC a delegate of collectionView, to config Header and Footer
+        collectionView.delegate = self
+        /// Register Header
+        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+        /// disable multiple selection
+        collectionView.allowsMultipleSelection = false
     }
 }
