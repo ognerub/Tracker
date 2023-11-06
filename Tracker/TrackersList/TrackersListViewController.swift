@@ -212,7 +212,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
     
     /// Cell for item
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? CollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackersListCollectionViewCell else {
             return UICollectionViewCell()
         }
         
@@ -245,7 +245,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
     }
 }
 
-extension TrackersListViewController: CollectionViewCellDelegate {
+extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
@@ -338,7 +338,7 @@ private extension TrackersListViewController {
         /// Make VC a dataSource of collectionView, to config Cell
         collectionView.dataSource = self
         /// Register Cell
-        collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        collectionView.register(TrackersListCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
         /// Make VC a delegate of collectionView, to config Header and Footer
         collectionView.delegate = self
         /// Register Header

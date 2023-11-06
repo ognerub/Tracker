@@ -7,14 +7,14 @@
 
 import UIKit
 
-protocol CollectionViewCellDelegate: AnyObject {
+protocol TrackersListCollectionViewCellDelegate: AnyObject {
     func uncompleteTracker(id: UUID, at indexPath: IndexPath)
     func completeTracker(id: UUID, at indexPath: IndexPath)
 }
 
-final class CollectionViewCell: UICollectionViewCell {
+final class TrackersListCollectionViewCell: UICollectionViewCell {
     
-    weak var delegate: CollectionViewCellDelegate?
+    weak var delegate: TrackersListCollectionViewCellDelegate?
     
     let cellBackgroundSquare: UIView = {
         let view = UIView()

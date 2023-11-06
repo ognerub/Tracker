@@ -86,6 +86,8 @@ final class TrackerCardViewController: UIViewController {
     private var newTrackerDate: Date = Date()
     private var newTrackerDays: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
     
+    private var newTrackerCategories: [Category] = []
+    
     // MARK: - Mutable properties
     
     var titleLabel: UILabel = {
@@ -467,7 +469,9 @@ extension TrackerCardViewController {
     
     @objc
     func didTapCategoryButton() {
-        print("did tap category button")
+        let vc = TrackerCategoryViewController(newCategoriesArray: newTrackerCategories)
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
     }
     
     @objc
@@ -495,6 +499,13 @@ extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
         newTrackerDays = array
         scheduleButtonTitleTextConfig()
         createButtonIsActive(newTrackerName.count > 0)
+    }
+}
+
+// MARK: - TrackerScheduleViewControllerDelegate
+extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
+    func sendCategories(array: [Category]) {
+        print("delegate \(array)")
     }
 }
 

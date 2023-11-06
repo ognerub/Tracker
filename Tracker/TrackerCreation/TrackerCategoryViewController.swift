@@ -1,24 +1,25 @@
 //
-//  TrackerScheduleViewController.swift
+//  TrackerCategoryViewController.swift
 //  Tracker
 //
-//  Created by Admin on 10/19/23.
+//  Created by Admin on 11/6/23.
 //
+
 
 import UIKit
 
-protocol TrackerScheduleViewControllerDelegate: AnyObject {
-    func sendArray(array: [WeekDay])
+protocol TrackerCategoryViewControllerDelegate: AnyObject {
+    func sendCategories(array: [Category])
 }
 
-final class TrackerScheduleViewController: UIViewController {
+final class TrackerCategoryViewController: UIViewController {
     
-    weak var delegate: TrackerScheduleViewControllerDelegate?
+    weak var delegate: TrackerCategoryViewControllerDelegate?
     
-    var newWeekDaysNamesArray: [WeekDay]
+    var newCategoriesArray: [Category]
     
-    init(newWeekDaysNamesArray: [WeekDay]) {
-        self.newWeekDaysNamesArray = newWeekDaysNamesArray
+    init(newCategoriesArray: [Category]) {
+        self.newCategoriesArray = newCategoriesArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -36,7 +37,7 @@ final class TrackerScheduleViewController: UIViewController {
     
     var titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Schedule"
+        label.text = "Category"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,13 +55,13 @@ final class TrackerScheduleViewController: UIViewController {
         return table
     }()
     
-    private lazy var acceptScheduleButton: UIButton = {
+    private lazy var newCategoryButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapAcceptScheduleButton)
+            action: #selector(didTapNewCategoryButton)
         )
-        button.setTitle("Accept", for: .normal)
+        button.setTitle("Add new category", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -86,85 +87,53 @@ final class TrackerScheduleViewController: UIViewController {
     
     // MARK: - Objective-C functions
     @objc
-    func didTapAcceptScheduleButton() {
-        self.delegate?.sendArray(array: newWeekDaysNamesArray)
+    func didTapNewCategoryButton() {
+        self.delegate?.sendCategories(array: newCategoriesArray)
         dismiss(animated: true, completion: { })
     }
     
 }
 
 // MARK: - UITableViewDelegate
-extension TrackerScheduleViewController: UITableViewDelegate {
+extension TrackerCategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 75
     }
 }
 
 // MARK: - UITableViewDataSource
-extension TrackerScheduleViewController: UITableViewDataSource {
+extension TrackerCategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         7
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TrackerScheduleTableViewCell.reuseIdentifier, for: indexPath)
-        guard let TrackerScheduleTableViewCell = cell as? TrackerScheduleTableViewCell else {
+        let cell = tableView.dequeueReusableCell(withIdentifier: TrackerCategoryTableViewCell.reuseIdentifier, for: indexPath)
+        guard let TrackerCategoryTableViewCell = cell as? TrackerCategoryTableViewCell else {
             return UITableViewCell()
         }
-        TrackerScheduleTableViewCell.delegate = self
-        let cellViewModel = TrackerScheduleTableViewCellViewModel(
-            scheduleView: TrackerScheduleTableViewCell.scheduleView,
-            scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch,
-            scheduleLabel: TrackerScheduleTableViewCell.scheduleLabel,
+        let cellViewModel = TrackerCategoryTableViewCellViewModel(
+            scheduleView: TrackerCategoryTableViewCell.scheduleView,
+            scheduleLabel: TrackerCategoryTableViewCell.scheduleLabel,
             scheduleFooterView:
-                TrackerScheduleTableViewCell.scheduleFooterView)
+                TrackerCategoryTableViewCell.scheduleFooterView)
         configCell(at: indexPath, cell: cellViewModel)
-        return TrackerScheduleTableViewCell
+        return TrackerCategoryTableViewCell
     }
-    func configCell(at indexPath: IndexPath, cell: TrackerScheduleTableViewCellViewModel) {
-        let items = TrackerScheduleTableViewCellViewModel(
+    func configCell(at indexPath: IndexPath, cell: TrackerCategoryTableViewCellViewModel) {
+        let items = TrackerCategoryTableViewCellViewModel(
             scheduleView: cell.scheduleView,
-            scheduleSwitch: cell.scheduleSwitch,
             scheduleLabel: cell.scheduleLabel,
             scheduleFooterView: cell.scheduleFooterView)
         let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
         items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
         let daysArray: [WeekDay] = WeekDay.allCases
         items.scheduleLabel.text = daysArray[indexPath.row].rawValue
-        items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != .empty)
         let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
         items.scheduleFooterView.alpha = alpha[indexPath.row]
     }
 }
 
-// MARK: - TrackerScheduleTableViewCellDelegate (extension)
-extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
-    func TrackerScheduleTableViewCellSwitchDidChange(_ cell: TrackerScheduleTableViewCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let currentArrayNumber = newWeekDaysNamesArray[indexPath.row]
-        if currentArrayNumber != WeekDay.empty {
-            newWeekDaysNamesArray[indexPath.row] = WeekDay.empty
-            } else {
-                switch indexPath.row {
-                case 1:
-                    newWeekDaysNamesArray[indexPath.row] = .tuesday
-                case 2:
-                    newWeekDaysNamesArray[indexPath.row] = .wednesday
-                case 3:
-                    newWeekDaysNamesArray[indexPath.row] = .thursday
-                case 4:
-                    newWeekDaysNamesArray[indexPath.row] = .friday
-                case 5:
-                    newWeekDaysNamesArray[indexPath.row] = .saturday
-                case 6:
-                    newWeekDaysNamesArray[indexPath.row] = .sunday
-                default:
-                    newWeekDaysNamesArray[indexPath.row] = .monday
-                }
-            }
-    }
-}
-
-extension TrackerScheduleViewController {
+extension TrackerCategoryViewController {
     // MARK: - Constraints configuration
     
     func titleConfig() {
@@ -184,12 +153,12 @@ extension TrackerScheduleViewController {
     }
     
     func acceptScheduleButtonConfig() {
-        view.addSubview(acceptScheduleButton)
+        view.addSubview(newCategoryButton)
         NSLayoutConstraint.activate([
-            acceptScheduleButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-            acceptScheduleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            acceptScheduleButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            acceptScheduleButton.heightAnchor.constraint(equalToConstant: 60)
+            newCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            newCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            newCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            newCategoryButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     
@@ -199,10 +168,10 @@ extension TrackerScheduleViewController {
             tableView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: acceptScheduleButton.topAnchor)
+            tableView.bottomAnchor.constraint(equalTo: newCategoryButton.topAnchor)
         ])
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(TrackerScheduleTableViewCell.self, forCellReuseIdentifier: TrackerScheduleTableViewCell.reuseIdentifier)
+        tableView.register(TrackerCategoryTableViewCell.self, forCellReuseIdentifier: TrackerCategoryTableViewCell.reuseIdentifier)
     }
 }
