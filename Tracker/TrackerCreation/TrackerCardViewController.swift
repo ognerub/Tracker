@@ -66,6 +66,7 @@ final class TrackerCardViewController: UIViewController {
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
+        textField.addDoneButtonOnKeyboard()
         return textField
     }()
     
@@ -207,6 +208,7 @@ final class TrackerCardViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         horizontalStackViewConfig()

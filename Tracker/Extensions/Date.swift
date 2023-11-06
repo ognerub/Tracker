@@ -57,5 +57,4 @@ extension String {
         }
         return isoDateFormatter.date(from: self) ?? Date()
     }
-    
 }

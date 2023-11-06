@@ -51,6 +51,7 @@ final class TrackersListViewController: UIViewController {
         datePicker.datePickerMode = UIDatePicker.Mode.date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.translatesAutoresizingMaskIntoConstraints = false
+        
         return datePicker
     }()
     private var trackersLabel: UILabel = {
@@ -91,6 +92,7 @@ final class TrackersListViewController: UIViewController {
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.toggleAppearance(isDark: TabBarController().isDark)
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
         addTopBar()

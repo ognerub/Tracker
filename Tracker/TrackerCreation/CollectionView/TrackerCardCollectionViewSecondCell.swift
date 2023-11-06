@@ -1,27 +1,19 @@
 //
-//  TrackerCardCollectionViewCell.swift
+//  TrackerCardCollectionViewSecondCell.swift
 //  Tracker
 //
-//  Created by Admin on 11/5/23.
+//  Created by Admin on 11/6/23.
 //
 
 import UIKit
 
-final class TrackerCardCollectionViewCell: UICollectionViewCell {
+final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
     
     let cellBackgroundRound: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
-    }()
-    
-    let cellEmojiLabel: UILabel = {
-        var label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 38)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
     }()
     
     private var indexPath: IndexPath?
@@ -38,10 +30,8 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(
-        indexPath: IndexPath,
-        emojiLabel: String
+        indexPath: IndexPath
     ) {
-        self.cellEmojiLabel.text = emojiLabel
         self.indexPath = indexPath
     }
     
@@ -52,7 +42,6 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
     // MARK: - Configure Constraints
     func addSubviews() {
         addSubview(cellBackgroundRound)
-        addSubview(cellEmojiLabel)
     }
     
     func configureConstraints() {
@@ -61,12 +50,7 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
             cellBackgroundRound.widthAnchor.constraint(equalToConstant: 52),
             cellBackgroundRound.heightAnchor.constraint(equalToConstant: 52),
             cellBackgroundRound.topAnchor.constraint(equalTo: contentView.topAnchor),
-            cellBackgroundRound.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            
-            cellEmojiLabel.widthAnchor.constraint(equalToConstant: 52),
-            cellEmojiLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.centerXAnchor, constant: -26),
-            cellEmojiLabel.heightAnchor.constraint(equalToConstant: 52),
-            cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -26)
+            cellBackgroundRound.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
 }

@@ -16,12 +16,6 @@ final class CollectionViewCell: UICollectionViewCell {
     
     weak var delegate: CollectionViewCellDelegate?
     
-    private let colors: [UIColor] = [
-        .black, .blue, .brown,
-        .cyan, .green, .orange,
-        .red, .purple, .yellow
-    ]
-    
     let cellBackgroundSquare: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
