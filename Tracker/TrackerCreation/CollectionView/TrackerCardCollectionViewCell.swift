@@ -39,10 +39,12 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
     
     func configure(
         indexPath: IndexPath,
-        emojiLabel: String
+        emojiLabel: String,
+        backgroundColor: UIColor
     ) {
         self.cellEmojiLabel.text = emojiLabel
         self.indexPath = indexPath
+        self.cellBackgroundRound.backgroundColor = backgroundColor
     }
     
     override func prepareForReuse() {

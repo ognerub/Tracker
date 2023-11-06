@@ -19,12 +19,42 @@ final class TrackerCardViewController: UIViewController {
     private let scheduleButtonTitle = "Schedule"
     private let newHabit = "New habit"
     
+    // MARK: - CollectionView properties
+    
+    private let collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    private let cellIdentifier = "Cell"
+    private let secondCellIdentifier = "SecondCell"
+    private let headerIdentifier = "Header"
+    
+    private lazy var scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.contentSize = contentSize
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        return scroll
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.frame.size = contentSize
+        return view
+    }()
+    
+    private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: titleLabel.text == newHabit ? 781 : 706)
+    
+    private var activeSection: Int?
+    private var previousSection: Int?
+    
     private let emojies = [
         "🙂","😻","🌺","🐶","❤️","😱",
         "😇","😡","🥶","🤔","🙌","🍔",
         "🥦","🏓","🥇","🎸","🏝","😪"
     ]
-    private var emojieSelected: Bool = false
+    private var emojieSelectedAt: Int?
+    private var previousEmojiWas: Int?
     
     private let colors: [UIColor] = [
         UIColor(named: "CC Red") ?? .red,
@@ -46,7 +76,8 @@ final class TrackerCardViewController: UIViewController {
         UIColor(named: "CC LightPurple") ?? .purple,
         UIColor(named: "CC MiddleGreen") ?? .green
     ]
-    private var colorSelected: Bool = false
+    private var colorSelectedAt: Int?
+    private var previousColorWas: Int?
     
     private var newTrackerIdArray: [Int] = []
     private var newTrackerName: String = ""
@@ -194,29 +225,6 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    private lazy var scrollView: UIScrollView = {
-        let scroll = UIScrollView()
-        scroll.contentSize = contentSize
-        scroll.translatesAutoresizingMaskIntoConstraints = false
-        return scroll
-    }()
-    
-    private lazy var contentView: UIView = {
-        let view = UIView()
-        view.frame.size = contentSize
-        return view
-    }()
-    
-    private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: titleLabel.text == newHabit ? 781 : 706)
-    
-    private let collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-    private let cellIdentifier = "Cell"
-    private let secondCellIdentifier = "SecondCell"
-    private let headerIdentifier = "Header"
     
     // MARK: - viewDidLoad()
     
@@ -266,9 +274,11 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackerCardCollectionViewCell else {
                 return UICollectionViewCell()
             }
+            
             cell.configure(
                 indexPath: indexPath,
-                emojiLabel: emojies[indexPath.row]
+                emojiLabel: emojies[indexPath.row],
+                backgroundColor: UIColor(named: "YP White") ?? .white
             )
             return cell
         } else {
@@ -291,44 +301,52 @@ extension TrackerCardViewController: UICollectionViewDelegate {
     
     /// Did selecet cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         if indexPath.section == 0 {
+            
             guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell else {
                 assertionFailure("No cell while didSelectItemAt")
                 return
             }
-            emojieSelected = true
+            if emojieSelectedAt == nil {
+                previousEmojiWas = indexPath.row
+                emojieSelectedAt = indexPath.row
+            } else {
+                previousEmojiWas = emojieSelectedAt
+                emojieSelectedAt = indexPath.row
+                if previousEmojiWas != emojieSelectedAt {
+                    guard let previousEmojiWas = previousEmojiWas else { return }
+                    let previousIndexPath = IndexPath(row: previousEmojiWas, section: 0)
+                    collectionView.reloadItems(at: [previousIndexPath])
+                }
+            }
             newTrackerEmoji = emojies[indexPath.row]
-            cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP LightGrey")
+            cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP LightGrey") ?? .gray
+            
         } else {
+            
             guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewSecondCell else {
                 assertionFailure("No cell while didSelectItemAt")
                 return
             }
-            colorSelected = true
+            
+            if colorSelectedAt == nil {
+                previousColorWas = indexPath.row
+                colorSelectedAt = indexPath.row
+            } else {
+                previousColorWas = colorSelectedAt
+                colorSelectedAt = indexPath.row
+                if previousColorWas != colorSelectedAt {
+                    guard let previousColorWas = previousColorWas else { return }
+                    let previousIndexPath = IndexPath(row: previousColorWas, section: 1)
+                    collectionView.reloadItems(at: [previousIndexPath])
+                }
+            }
             newTrackerColor = colors[indexPath.row]
             cell.cellBackgroundRectangle.layer.borderWidth = 3
             cell.cellBackgroundRectangle.alpha = 0.3
         }
     }
-    
-    /// Did deselect cell
-        func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-            if indexPath.section == 0 {
-                guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell else {
-                    assertionFailure("No cell while didSelectItemAt")
-                    return
-                }
-                cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP White")
-            } else {
-                guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewSecondCell else {
-                    assertionFailure("No cell while didSelectItemAt")
-                    return
-                }
-                cell.cellBackgroundRectangle.layer.borderWidth = 0
-                cell.cellBackgroundRectangle.alpha = 0
-            }
-        }
-
     
     /// Switch between header and (footer removed)
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -384,8 +402,17 @@ extension TrackerCardViewController {
     private func createNewTracker() -> Tracker {
         let newTrackerId = UUID()
         newTrackerIdArray.append(0)
-        newTrackerEmoji = emojieSelected ? self.newTrackerEmoji : (emojies.randomElement() ?? "X")
-        newTrackerColor = colorSelected ? self.newTrackerColor : (colors.randomElement() ?? .black)
+        if let emojieSelectedAt = emojieSelectedAt {
+            newTrackerEmoji = emojies[emojieSelectedAt]
+        } else {
+            newTrackerEmoji = emojies.randomElement() ?? "X"
+        }
+        
+        if let colorSelectedAt = colorSelectedAt {
+            newTrackerColor = colors[colorSelectedAt]
+        } else {
+            newTrackerColor = colors.randomElement() ?? .black
+        }
             var schedule = Schedule(
                 days: newTrackerDays)
             if titleLabel.text != newHabit {
