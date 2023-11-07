@@ -8,7 +8,7 @@
 import UIKit
 
 struct TrackerCategoryTableViewCellViewModel {
-    var scheduleView: UIView
-    var scheduleLabel: UILabel
-    var scheduleFooterView: UIView
+    var categoryView: UIView
+    var categoryLabel: UILabel
+    var categoryFooterView: UIView
 }

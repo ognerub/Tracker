@@ -11,16 +11,16 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
     
     static let reuseIdentifier = "TrackerCategoryTableViewCell"
     
-    var scheduleView: UIView = {
+    var categoryView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        view.backgroundColor = UIColor(named: "YP Red")?.withAlphaComponent(1.0)
         return view
     }()
     
-    var scheduleLabel: UILabel = {
+    var categoryLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = UIColor(named: "YP Black")
@@ -29,10 +29,10 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         return label
     }()
     
-    var scheduleFooterView: UIView = {
+    var categoryFooterView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP Grey")
+        view.backgroundColor = UIColor(named: "YP Green")
         return view
     }()
     
@@ -50,24 +50,24 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
     
     // MARK: - Configure constraints
     private func addSubviews() {
-        addSubview(scheduleView)
-        addSubview(scheduleFooterView)
-        scheduleView.addSubview(scheduleLabel)
+        addSubview(categoryView)
+        addSubview(categoryFooterView)
+        categoryView.addSubview(categoryLabel)
     }
     
     private func configureConstraints() {
         NSLayoutConstraint.activate([
-            scheduleView.topAnchor.constraint(equalTo: topAnchor),
-            scheduleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            scheduleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            scheduleView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scheduleLabel.heightAnchor.constraint(equalToConstant: 22),
-            scheduleLabel.topAnchor.constraint(equalTo: scheduleView.centerYAnchor, constant: -11),
-            scheduleLabel.leadingAnchor.constraint(equalTo: scheduleView.leadingAnchor, constant: 16),
-            scheduleFooterView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scheduleFooterView.heightAnchor.constraint(equalToConstant: 0.5),
-            scheduleFooterView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
-            scheduleFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
+            categoryView.topAnchor.constraint(equalTo: topAnchor),
+            categoryView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            categoryView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            categoryView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            categoryLabel.heightAnchor.constraint(equalToConstant: 22),
+            categoryLabel.topAnchor.constraint(equalTo: categoryView.centerYAnchor, constant: -11),
+            categoryLabel.leadingAnchor.constraint(equalTo: categoryView.leadingAnchor, constant: 16),
+            categoryFooterView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            categoryFooterView.heightAnchor.constraint(equalToConstant: 5),
+            categoryFooterView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
+            categoryFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
         ])
     }
 }

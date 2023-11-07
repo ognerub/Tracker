@@ -86,8 +86,6 @@ final class TrackerCardViewController: UIViewController {
     private var newTrackerDate: Date = Date()
     private var newTrackerDays: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
     
-    private var newTrackerCategories: [Category] = []
-    
     // MARK: - Mutable properties
     
     var titleLabel: UILabel = {
@@ -227,6 +225,10 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    // MARK: - Category properties
+    
+    private var category: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
+    private var trackerCategories: [TrackerCategory] = []
     
     // MARK: - viewDidLoad()
     
@@ -239,7 +241,7 @@ final class TrackerCardViewController: UIViewController {
         scrollViewConfig()
         textFieldConfig()
         textField.delegate = self
-        collectionView.delegate = self
+        collectionView.delegate = self        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -255,6 +257,143 @@ final class TrackerCardViewController: UIViewController {
             scheduleButtonTitleTextConfig()
             contentSize = CGSize(width: view.frame.width, height: 781)
             collectionViewConfig()
+        }
+    }
+}
+
+extension TrackerCardViewController {
+    // MARK: - CreateNewTracker
+    private func createNewTracker() -> Tracker {
+        let newTrackerId = UUID()
+        newTrackerIdArray.append(0)
+        if let emojieSelectedAt = emojieSelectedAt {
+            newTrackerEmoji = emojies[emojieSelectedAt]
+        } else {
+            newTrackerEmoji = emojies.randomElement() ?? "X"
+        }
+        
+        if let colorSelectedAt = colorSelectedAt {
+            newTrackerColor = colors[colorSelectedAt]
+        } else {
+            newTrackerColor = colors.randomElement() ?? .black
+        }
+            var schedule = Schedule(
+                days: newTrackerDays)
+            if titleLabel.text != newHabit {
+                let unregularSchedule = Schedule(
+                    days: WeekDay.allCases.filter { $0 != WeekDay.empty })
+                schedule = unregularSchedule
+            }
+            let newTracker: Tracker = Tracker(
+                id: newTrackerId,
+                name: newTrackerName,
+                color: newTrackerColor,
+                emoji: newTrackerEmoji,
+                schedule: schedule)
+            return newTracker
+        
+    }
+    
+    private func scheduleButtonTitleTextConfig() {
+        
+        var stringArray: [String] = []
+        for item in 0..<newTrackerDays.count {
+            let value = newTrackerDays[item].rawValue
+            stringArray.append(value)
+        }
+        
+        let weekEnds: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .saturday,.sunday]
+        let weekDays: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .empty, .empty]
+        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        
+        var scheduleButtonTitleText: String = ""
+        switch newTrackerDays {
+        case WeekDay.allCases:
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Everyday"
+        case weekDays:
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekdays"
+        case weekEnds:
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekends"
+        case empty:
+            scheduleButtonTitleText = scheduleButtonTitle
+        default:
+            let filteredAndShuffledArray = stringArray.filter({ $0 != "" })
+            let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
+            let joinedString = prefixedArray.joined(separator: ", ")
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
+        }
+        let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: scheduleButtonTitle.count))
+        scheduleButton.setAttributedTitle(mutableString, for: .normal)
+    }
+    
+    // MARK: - Objective-C functions
+    
+    @objc
+    func didTapCategoryButton() {
+        let vc = TrackerCategoryViewController(array: trackerCategories)
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    @objc
+    func didTapScheduleButton() {
+        let vc = TrackerScheduleViewController(newWeekDaysNamesArray: newTrackerDays)
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    @objc
+    func didTapCancelButton() {
+        dismiss(animated: true)
+    }
+    
+    @objc
+    func didTapCreateButton() {
+        let newTracker = createNewTracker()
+        self.delegate?.didReceiveTracker(tracker: newTracker)
+    }
+}
+
+// MARK: - TrackerSchedule Delegate
+extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
+    func sendArray(array: [WeekDay]) {
+        newTrackerDays = array
+        scheduleButtonTitleTextConfig()
+        createButtonIsActive(newTrackerName.count > 0)
+    }
+}
+
+// MARK: - TrackerCard Delegate
+extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
+    func sendCategories(array: [TrackerCategory]) {
+        print("delegate \(array)")
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackerCardViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
+        guard let updatedString = updatedString else { return false }
+        newTrackerName = updatedString
+        createButtonIsActive(newTrackerName.count > 0)
+        return true
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        createButtonIsActive(false)
+        return true
+    }
+    
+    func createButtonIsActive(_ bool: Bool) {
+        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        if bool && newTrackerDays != empty || titleLabel.text != newHabit {
+            createButton.isEnabled = true
+            createButton.backgroundColor = UIColor(named: "YP Black")
+        } else {
+            createButton.isEnabled = false
+            createButton.backgroundColor = UIColor(named: "YP Grey")
         }
     }
 }
@@ -396,143 +535,6 @@ extension TrackerCardViewController: UICollectionViewDelegateFlowLayout {
             ),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .required)
-    }
-}
-
-extension TrackerCardViewController {
-    // MARK: - CreateNewTracker
-    private func createNewTracker() -> Tracker {
-        let newTrackerId = UUID()
-        newTrackerIdArray.append(0)
-        if let emojieSelectedAt = emojieSelectedAt {
-            newTrackerEmoji = emojies[emojieSelectedAt]
-        } else {
-            newTrackerEmoji = emojies.randomElement() ?? "X"
-        }
-        
-        if let colorSelectedAt = colorSelectedAt {
-            newTrackerColor = colors[colorSelectedAt]
-        } else {
-            newTrackerColor = colors.randomElement() ?? .black
-        }
-            var schedule = Schedule(
-                days: newTrackerDays)
-            if titleLabel.text != newHabit {
-                let unregularSchedule = Schedule(
-                    days: WeekDay.allCases.filter { $0 != WeekDay.empty })
-                schedule = unregularSchedule
-            }
-            let newTracker: Tracker = Tracker(
-                id: newTrackerId,
-                name: newTrackerName,
-                color: newTrackerColor,
-                emoji: newTrackerEmoji,
-                schedule: schedule)
-            return newTracker
-        
-    }
-    
-    private func scheduleButtonTitleTextConfig() {
-        
-        var stringArray: [String] = []
-        for item in 0..<newTrackerDays.count {
-            let value = newTrackerDays[item].rawValue
-            stringArray.append(value)
-        }
-        
-        let weekEnds: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .saturday,.sunday]
-        let weekDays: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .empty, .empty]
-        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        
-        var scheduleButtonTitleText: String = ""
-        switch newTrackerDays {
-        case WeekDay.allCases:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Everyday"
-        case weekDays:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekdays"
-        case weekEnds:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekends"
-        case empty:
-            scheduleButtonTitleText = scheduleButtonTitle
-        default:
-            let filteredAndShuffledArray = stringArray.filter({ $0 != "" })
-            let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
-            let joinedString = prefixedArray.joined(separator: ", ")
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
-        }
-        let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: scheduleButtonTitle.count))
-        scheduleButton.setAttributedTitle(mutableString, for: .normal)
-    }
-    
-    // MARK: - Objective-C functions
-    
-    @objc
-    func didTapCategoryButton() {
-        let vc = TrackerCategoryViewController(newCategoriesArray: newTrackerCategories)
-        vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
-    }
-    
-    @objc
-    func didTapScheduleButton() {
-        let vc = TrackerScheduleViewController(newWeekDaysNamesArray: newTrackerDays)
-        vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
-    }
-    
-    @objc
-    func didTapCancelButton() {
-        dismiss(animated: true)
-    }
-    
-    @objc
-    func didTapCreateButton() {
-        let newTracker = createNewTracker()
-        self.delegate?.didReceiveTracker(tracker: newTracker)
-    }
-}
-
-// MARK: - TrackerScheduleViewControllerDelegate
-extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
-    func sendArray(array: [WeekDay]) {
-        newTrackerDays = array
-        scheduleButtonTitleTextConfig()
-        createButtonIsActive(newTrackerName.count > 0)
-    }
-}
-
-// MARK: - TrackerScheduleViewControllerDelegate
-extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendCategories(array: [Category]) {
-        print("delegate \(array)")
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension TrackerCardViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-        guard let updatedString = updatedString else { return false }
-        newTrackerName = updatedString
-        createButtonIsActive(newTrackerName.count > 0)
-        return true
-    }
-    
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        createButtonIsActive(false)
-        return true
-    }
-    
-    func createButtonIsActive(_ bool: Bool) {
-        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        if bool && newTrackerDays != empty || titleLabel.text != newHabit {
-            createButton.isEnabled = true
-            createButton.backgroundColor = UIColor(named: "YP Black")
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = UIColor(named: "YP Grey")
-        }
     }
 }
 

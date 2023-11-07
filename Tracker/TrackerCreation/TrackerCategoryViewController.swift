@@ -9,23 +9,12 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategories(array: [Category])
+    func sendCategories(array: [TrackerCategory])
 }
 
 final class TrackerCategoryViewController: UIViewController {
     
     weak var delegate: TrackerCategoryViewControllerDelegate?
-    
-    var newCategoriesArray: [Category]
-    
-    init(newCategoriesArray: [Category]) {
-        self.newCategoriesArray = newCategoriesArray
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     // MARK: - Mutable properties:
     
@@ -70,6 +59,25 @@ final class TrackerCategoryViewController: UIViewController {
         return button
     }()
     
+    private var cornersArray: [CACornerMask] = []
+    private var alpha: [CGFloat] = []
+    
+    var array: [TrackerCategory] {
+        didSet {
+            computeCornersAndAlpha()
+            tableView.reloadData()
+        }
+    }
+    
+    init(array: [TrackerCategory]) {
+        self.array = array
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - viewDidLoad()
     
     override func viewDidLoad() {
@@ -88,8 +96,39 @@ final class TrackerCategoryViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapNewCategoryButton() {
-        self.delegate?.sendCategories(array: newCategoriesArray)
-        dismiss(animated: true, completion: { })
+        print("didTap NewCategory Button")
+//        self.delegate?.sendCategories(array: array)
+//        dismiss(animated: true, completion: { })
+        array.append(TrackerCategory(name: "New one", trackers: []))
+    }
+    
+    func computeCornersAndAlpha() {
+        let allCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        let firstCellCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        let lastCellCornersArray: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        switch array.count {
+        case 0:
+            alpha = [0]
+            return cornersArray = []
+        case 1:
+            alpha = [0]
+            return cornersArray = [allCornersArray]
+        case 2:
+            alpha = [1.0,0]
+            return cornersArray = [firstCellCornersArray, lastCellCornersArray]
+        default:
+            var combineArray: [CACornerMask] = [firstCellCornersArray]
+            var alphaArray: [CGFloat] = [1.0]
+            for _ in 0 ..< (array.count-2) {
+                let emptyArray: CACornerMask = []
+                combineArray.append(emptyArray)
+                alphaArray.append(1.0)
+            }
+            combineArray.append(lastCellCornersArray)
+            alphaArray.append(0)
+            alpha = alphaArray
+            return cornersArray = combineArray
+        }
     }
     
 }
@@ -97,14 +136,18 @@ final class TrackerCategoryViewController: UIViewController {
 // MARK: - UITableViewDelegate
 extension TrackerCategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        if array.count == 0 {
+            return 0
+        } else {
+            return 75
+        }
     }
 }
 
 // MARK: - UITableViewDataSource
 extension TrackerCategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        7
+        array.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TrackerCategoryTableViewCell.reuseIdentifier, for: indexPath)
@@ -112,24 +155,22 @@ extension TrackerCategoryViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         let cellViewModel = TrackerCategoryTableViewCellViewModel(
-            scheduleView: TrackerCategoryTableViewCell.scheduleView,
-            scheduleLabel: TrackerCategoryTableViewCell.scheduleLabel,
-            scheduleFooterView:
-                TrackerCategoryTableViewCell.scheduleFooterView)
+            categoryView: TrackerCategoryTableViewCell.categoryView,
+            categoryLabel: TrackerCategoryTableViewCell.categoryLabel,
+            categoryFooterView:
+                TrackerCategoryTableViewCell.categoryFooterView)
         configCell(at: indexPath, cell: cellViewModel)
         return TrackerCategoryTableViewCell
     }
     func configCell(at indexPath: IndexPath, cell: TrackerCategoryTableViewCellViewModel) {
         let items = TrackerCategoryTableViewCellViewModel(
-            scheduleView: cell.scheduleView,
-            scheduleLabel: cell.scheduleLabel,
-            scheduleFooterView: cell.scheduleFooterView)
-        let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
-        items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
-        let daysArray: [WeekDay] = WeekDay.allCases
-        items.scheduleLabel.text = daysArray[indexPath.row].rawValue
-        let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
-        items.scheduleFooterView.alpha = alpha[indexPath.row]
+            categoryView: cell.categoryView,
+            categoryLabel: cell.categoryLabel,
+            categoryFooterView: cell.categoryFooterView)
+        items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
+        let numbers: [Int] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        items.categoryLabel.text = String(numbers[indexPath.row])
+        items.categoryFooterView.alpha = alpha[indexPath.row]
     }
 }
 
@@ -173,5 +214,6 @@ extension TrackerCategoryViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(TrackerCategoryTableViewCell.self, forCellReuseIdentifier: TrackerCategoryTableViewCell.reuseIdentifier)
+        tableView.isScrollEnabled = true
     }
 }
