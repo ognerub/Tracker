@@ -16,7 +16,7 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP Red")?.withAlphaComponent(1.0)
+        view.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         return view
     }()
     
@@ -32,8 +32,16 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
     var categoryFooterView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(named: "YP Green")
+        view.backgroundColor = UIColor(named: "YP Grey")
         return view
+    }()
+    
+    var categoryCheckMark: UIImageView = {
+        let image = UIImage(named: "CategoryCheckmark")
+        let imageView = UIImageView(image: image)
+        imageView.alpha = 0
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     // MARK: - override init
@@ -53,6 +61,7 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         addSubview(categoryView)
         addSubview(categoryFooterView)
         categoryView.addSubview(categoryLabel)
+        categoryView.addSubview(categoryCheckMark)
     }
     
     private func configureConstraints() {
@@ -65,9 +74,13 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
             categoryLabel.topAnchor.constraint(equalTo: categoryView.centerYAnchor, constant: -11),
             categoryLabel.leadingAnchor.constraint(equalTo: categoryView.leadingAnchor, constant: 16),
             categoryFooterView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            categoryFooterView.heightAnchor.constraint(equalToConstant: 5),
+            categoryFooterView.heightAnchor.constraint(equalToConstant: 0.5),
             categoryFooterView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
-            categoryFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
+            categoryFooterView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32),
+            categoryCheckMark.heightAnchor.constraint(equalToConstant: 14.19),
+            categoryCheckMark.widthAnchor.constraint(equalToConstant: 14.3),
+            categoryCheckMark.topAnchor.constraint(equalTo: categoryView.centerYAnchor, constant: -7.95),
+            categoryCheckMark.trailingAnchor.constraint(equalTo: categoryView.trailingAnchor, constant: -20.7)
         ])
     }
 }

@@ -37,8 +37,9 @@ final class TrackerCategoryViewController: UIViewController {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         table.allowsMultipleSelection = false
-        table.isScrollEnabled = false
-        table.allowsSelection = false
+        table.isScrollEnabled = true
+        table.allowsSelection = true
+        
         table.separatorColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
         return table
@@ -65,6 +66,11 @@ final class TrackerCategoryViewController: UIViewController {
     var array: [TrackerCategory] {
         didSet {
             computeCornersAndAlpha()
+        }
+    }
+    
+    var selectionArray: [CGFloat] = [] {
+        didSet {
             tableView.reloadData()
         }
     }
@@ -103,6 +109,11 @@ final class TrackerCategoryViewController: UIViewController {
     }
     
     func computeCornersAndAlpha() {
+        
+        var selectionArray = self.selectionArray
+        selectionArray.append(0)
+        self.selectionArray = selectionArray
+        
         let allCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         let firstCellCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         let lastCellCornersArray: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -142,6 +153,13 @@ extension TrackerCategoryViewController: UITableViewDelegate {
             return 75
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let i = selectionArray.firstIndex(of: 1.0) {
+            selectionArray[i] = 0.0
+        }
+        selectionArray[indexPath.row] = 1.0
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -151,6 +169,7 @@ extension TrackerCategoryViewController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TrackerCategoryTableViewCell.reuseIdentifier, for: indexPath)
+        cell.selectionStyle = .none
         guard let TrackerCategoryTableViewCell = cell as? TrackerCategoryTableViewCell else {
             return UITableViewCell()
         }
@@ -158,7 +177,8 @@ extension TrackerCategoryViewController: UITableViewDataSource {
             categoryView: TrackerCategoryTableViewCell.categoryView,
             categoryLabel: TrackerCategoryTableViewCell.categoryLabel,
             categoryFooterView:
-                TrackerCategoryTableViewCell.categoryFooterView)
+                TrackerCategoryTableViewCell.categoryFooterView,
+            categoryCheckMark: TrackerCategoryTableViewCell.categoryCheckMark)
         configCell(at: indexPath, cell: cellViewModel)
         return TrackerCategoryTableViewCell
     }
@@ -166,11 +186,13 @@ extension TrackerCategoryViewController: UITableViewDataSource {
         let items = TrackerCategoryTableViewCellViewModel(
             categoryView: cell.categoryView,
             categoryLabel: cell.categoryLabel,
-            categoryFooterView: cell.categoryFooterView)
+            categoryFooterView: cell.categoryFooterView,
+            categoryCheckMark: cell.categoryCheckMark)
         items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
         let numbers: [Int] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
         items.categoryLabel.text = String(numbers[indexPath.row])
         items.categoryFooterView.alpha = alpha[indexPath.row]
+        items.categoryCheckMark.alpha = selectionArray[indexPath.row]
     }
 }
 
@@ -214,6 +236,5 @@ extension TrackerCategoryViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(TrackerCategoryTableViewCell.self, forCellReuseIdentifier: TrackerCategoryTableViewCell.reuseIdentifier)
-        tableView.isScrollEnabled = true
     }
 }
