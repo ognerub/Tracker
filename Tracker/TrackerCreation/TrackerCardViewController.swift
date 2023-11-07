@@ -227,8 +227,8 @@ final class TrackerCardViewController: UIViewController {
     
     // MARK: - Category properties
     
-    private var category: TrackerCategory = TrackerCategory(name: "First category", trackers: [])
-    private var trackerCategories: [TrackerCategory] = []
+    private var trackerCategories: [TrackerCategory]?
+    private var selectedCategory: Int?
     
     // MARK: - viewDidLoad()
     
@@ -241,7 +241,7 @@ final class TrackerCardViewController: UIViewController {
         scrollViewConfig()
         textFieldConfig()
         textField.delegate = self
-        collectionView.delegate = self        
+        collectionView.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -331,7 +331,7 @@ extension TrackerCardViewController {
     
     @objc
     func didTapCategoryButton() {
-        let vc = TrackerCategoryViewController(array: trackerCategories)
+        let vc = TrackerCategoryViewController(array: trackerCategories ?? [], selectedCategory: selectedCategory ?? nil)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -366,8 +366,9 @@ extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendCategories(array: [TrackerCategory]) {
-        print("delegate \(array)")
+    func sendCategories(array: [TrackerCategory], selectedCategory: Int) {
+        self.trackerCategories = array
+        self.selectedCategory = selectedCategory
     }
 }
 

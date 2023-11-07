@@ -9,7 +9,7 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategories(array: [TrackerCategory])
+    func sendCategories(array: [TrackerCategory], selectedCategory: Int)
 }
 
 final class TrackerCategoryViewController: UIViewController {
@@ -68,6 +68,7 @@ final class TrackerCategoryViewController: UIViewController {
             computeCornersAndAlpha()
         }
     }
+    var selectedCategory: Int?
     
     var selectionArray: [CGFloat] = [] {
         didSet {
@@ -75,8 +76,9 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
-    init(array: [TrackerCategory]) {
+    init(array: [TrackerCategory], selectedCategory: Int?) {
         self.array = array
+        self.selectedCategory = selectedCategory
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -92,6 +94,7 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         acceptScheduleButtonConfig()
+        computeCornersAndAlpha()
         tableViewConfig()
     }
     
@@ -102,18 +105,27 @@ final class TrackerCategoryViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapNewCategoryButton() {
-        print("didTap NewCategory Button")
-//        self.delegate?.sendCategories(array: array)
-//        dismiss(animated: true, completion: { })
+        clearTableViewSelection()
         array.append(TrackerCategory(name: "New one", trackers: []))
     }
     
     func computeCornersAndAlpha() {
-        
+        /// create and change selectionArray for selection of category button
         var selectionArray = self.selectionArray
-        selectionArray.append(0)
+        if selectionArray.count == 0 && array.count > 0 {
+            for _ in 0 ..< array.count {
+                selectionArray.append(0)
+            }
+        } else {
+            selectionArray.append(0)
+        }
+        /// set selectedCategory if it is not nil
+        if let selectedCategory = selectedCategory {
+            selectionArray.remove(at: selectedCategory)
+            selectionArray.insert(1.0, at: selectedCategory)
+        }
         self.selectionArray = selectionArray
-        
+        /// switch corners of category button depending on array.count
         let allCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         let firstCellCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         let lastCellCornersArray: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -142,6 +154,19 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
+    func clearTableViewSelection() {
+        if let i = selectionArray.firstIndex(of: 1.0) {
+            selectionArray[i] = 0
+        }
+    }
+    
+    func closeCategorySelection() {
+        if let i = selectionArray.firstIndex(of: 1.0) {
+            self.delegate?.sendCategories(array: array, selectedCategory: i)
+            dismiss(animated: true, completion: { })
+        }
+    }
+    
 }
 
 // MARK: - UITableViewDelegate
@@ -155,10 +180,9 @@ extension TrackerCategoryViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let i = selectionArray.firstIndex(of: 1.0) {
-            selectionArray[i] = 0.0
-        }
+        clearTableViewSelection()
         selectionArray[indexPath.row] = 1.0
+        closeCategorySelection()
     }
 }
 
@@ -189,8 +213,7 @@ extension TrackerCategoryViewController: UITableViewDataSource {
             categoryFooterView: cell.categoryFooterView,
             categoryCheckMark: cell.categoryCheckMark)
         items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
-        let numbers: [Int] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-        items.categoryLabel.text = String(numbers[indexPath.row])
+        items.categoryLabel.text = String(indexPath.row)
         items.categoryFooterView.alpha = alpha[indexPath.row]
         items.categoryCheckMark.alpha = selectionArray[indexPath.row]
     }
