@@ -45,11 +45,11 @@ final class TrackerCategoryViewController: UIViewController {
         return table
     }()
     
-    private lazy var newCategoryButton: UIButton = {
+    private lazy var addNewCategoryButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapCreateNewCategoryButton)
+            action: #selector(didTapAddNewCategoryButton)
         )
         button.setTitle("Add new category", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -65,7 +65,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     var categoriesNames: [String] {
         didSet {
-            computeCornersAndAlpha()
+            computeCornersAndAlphaForTableView()
         }
     }
     var selectedCategory: Int?
@@ -93,8 +93,8 @@ final class TrackerCategoryViewController: UIViewController {
         self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        acceptScheduleButtonConfig()
-        computeCornersAndAlpha()
+        addNewCategoryButtonConfig()
+        computeCornersAndAlphaForTableView()
         tableViewConfig()
     }
     
@@ -104,15 +104,13 @@ final class TrackerCategoryViewController: UIViewController {
     
     // MARK: - Objective-C functions
     @objc
-    func didTapCreateNewCategoryButton() {
-        clearTableViewSelection()
-        //categoriesNames.append("New \(categoriesNames.count)")
+    func didTapAddNewCategoryButton() {
         let vc = TrackerCategoryNameViewController()
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
     
-    func computeCornersAndAlpha() {
+    func computeCornersAndAlphaForTableView() {
         /// create and change selectionArray for selection of category button
         var selectionArray = self.selectionArray
         if selectionArray.count == 0 && categoriesNames.count > 0 {
@@ -163,7 +161,8 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
-    func closeCategorySelection() {
+    /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
+    func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
             self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategory: i)
             dismiss(animated: true, completion: { })
@@ -176,6 +175,8 @@ final class TrackerCategoryViewController: UIViewController {
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
     func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
         print("delegate sended category name: \(categoryName)")
+        clearTableViewSelection()
+        categoriesNames.append("\(categoryName)")
     }
 }
 
@@ -192,7 +193,7 @@ extension TrackerCategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         clearTableViewSelection()
         selectionArray[indexPath.row] = 1.0
-        closeCategorySelection()
+        dismissTrackerCategoryViewController()
     }
 }
 
@@ -223,7 +224,7 @@ extension TrackerCategoryViewController: UITableViewDataSource {
             categoryFooterView: cell.categoryFooterView,
             categoryCheckMark: cell.categoryCheckMark)
         items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
-        items.categoryLabel.text = String(indexPath.row)
+        items.categoryLabel.text = categoriesNames[indexPath.row]
         items.categoryFooterView.alpha = alpha[indexPath.row]
         items.categoryCheckMark.alpha = selectionArray[indexPath.row]
     }
@@ -248,13 +249,13 @@ extension TrackerCategoryViewController {
         ])
     }
     
-    func acceptScheduleButtonConfig() {
-        view.addSubview(newCategoryButton)
+    func         addNewCategoryButtonConfig() {
+        view.addSubview(addNewCategoryButton)
         NSLayoutConstraint.activate([
-            newCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-            newCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            newCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            newCategoryButton.heightAnchor.constraint(equalToConstant: 60)
+            addNewCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            addNewCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            addNewCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            addNewCategoryButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     
@@ -264,7 +265,7 @@ extension TrackerCategoryViewController {
             tableView.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: newCategoryButton.topAnchor)
+            tableView.bottomAnchor.constraint(equalTo: addNewCategoryButton.topAnchor)
         ])
         tableView.dataSource = self
         tableView.delegate = self

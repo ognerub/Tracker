@@ -116,7 +116,7 @@ final class TrackerCardViewController: UIViewController {
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
-        textField.addDoneButtonOnKeyboard()
+        textField.clearButtonMode = .whileEditing
         return textField
     }()
     
@@ -216,7 +216,7 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    private lazy var createButton: UIButton = {
+    private lazy var createNewTrackerButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
@@ -428,7 +428,7 @@ extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
     func sendScheduleToTrackerCardViewController(array: [WeekDay]) {
         newTrackerDays = array
         scheduleButtonTitleTextConfig()
-        createButtonIsActive(newTrackerName.count > 0)
+        createNewTrackerButtonIsActive(newTrackerName.count > 0)
     }
 }
 
@@ -438,23 +438,28 @@ extension TrackerCardViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newTrackerName = updatedString
-        createButtonIsActive(newTrackerName.count > 0)
+        createNewTrackerButtonIsActive(newTrackerName.count > 0)
         return true
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        createButtonIsActive(false)
+        createNewTrackerButtonIsActive(false)
+        textField.text = ""
         return true
     }
     
-    func createButtonIsActive(_ bool: Bool) {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.endEditing(true)
+    }
+    
+    func createNewTrackerButtonIsActive(_ bool: Bool) {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
         if bool && newTrackerDays != empty || titleLabel.text != newHabit {
-            createButton.isEnabled = true
-            createButton.backgroundColor = UIColor(named: "YP Black")
+            createNewTrackerButton.isEnabled = true
+            createNewTrackerButton.backgroundColor = UIColor(named: "YP Black")
         } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = UIColor(named: "YP Grey")
+            createNewTrackerButton.isEnabled = false
+            createNewTrackerButton.backgroundColor = UIColor(named: "YP Grey")
         }
     }
 }
@@ -626,7 +631,7 @@ private extension TrackerCardViewController {
             horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
         horizontalStackView.addArrangedSubview(cancelButton)
-        horizontalStackView.addArrangedSubview(createButton)
+        horizontalStackView.addArrangedSubview(createNewTrackerButton)
     }
     
     func scrollViewConfig() {

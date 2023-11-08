@@ -27,7 +27,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     
     var titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Category"
+        label.text = "New category"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +41,6 @@ final class TrackerCategoryNameViewController: UIViewController {
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
-        textField.addDoneButtonOnKeyboard()
         return textField
     }()
     
@@ -67,7 +66,9 @@ final class TrackerCategoryNameViewController: UIViewController {
         self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        acceptScheduleButtonConfig()
+        textFieldConfig()
+        textField.delegate = self
+        createNewCategoryButtonConfig()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -77,9 +78,9 @@ final class TrackerCategoryNameViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapCreateNewCategoryButton() {
-        print("create new category button pressed")
         if let newCategoryName = newCategoryName {
             self.delegate?.sendCategoryNameToTrackerCategoryViewController(categoryName: newCategoryName)
+            print("create new category button pressed \(newCategoryName)")
         }
         dismiss(animated: true, completion: { })
     }
@@ -92,16 +93,16 @@ extension TrackerCategoryNameViewController: UITextFieldDelegate {
         guard let updatedString = updatedString else { return false }
         newCategoryName = updatedString
         guard let newCategoryName = newCategoryName else { return true }
-        createButtonIsActive(newCategoryName.count > 0)
+        createNewCategoryButtonIsActive(newCategoryName.count > 0)
         return true
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        createButtonIsActive(false)
+        createNewCategoryButtonIsActive(false)
         return true
     }
     
-    func createButtonIsActive(_ bool: Bool) {
+    func createNewCategoryButtonIsActive(_ bool: Bool) {
         if bool {
             createNewCategoryButton.isEnabled = true
             createNewCategoryButton.backgroundColor = UIColor(named: "YP Black")
@@ -141,7 +142,7 @@ extension TrackerCategoryNameViewController {
         ])
     }
     
-    func acceptScheduleButtonConfig() {
+    func         createNewCategoryButtonConfig() {
         view.addSubview(createNewCategoryButton)
         NSLayoutConstraint.activate([
             createNewCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
