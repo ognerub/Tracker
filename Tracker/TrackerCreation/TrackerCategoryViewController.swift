@@ -174,7 +174,6 @@ final class TrackerCategoryViewController: UIViewController {
 // MARK: - TrackerCategoryNameViewControllerDelegate
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
     func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
-        print("delegate sended category name: \(categoryName)")
         clearTableViewSelection()
         categoriesNames.append("\(categoryName)")
     }

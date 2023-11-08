@@ -15,7 +15,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     
     weak var delegate: TrackerCategoryNameViewControllerDelegate?
     
-    private var newCategoryName: String?
+    private var newCategoryName: String = ""
     
     // MARK: - Mutable properties:
     
@@ -50,7 +50,7 @@ final class TrackerCategoryNameViewController: UIViewController {
             target: self,
             action: #selector(didTapCreateNewCategoryButton)
         )
-        button.setTitle("Add new category", for: .normal)
+        button.setTitle("OK", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -69,6 +69,7 @@ final class TrackerCategoryNameViewController: UIViewController {
         textFieldConfig()
         textField.delegate = self
         createNewCategoryButtonConfig()
+        createNewCategoryButtonIsActive(newCategoryName.count > 0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,10 +79,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapCreateNewCategoryButton() {
-        if let newCategoryName = newCategoryName {
-            self.delegate?.sendCategoryNameToTrackerCategoryViewController(categoryName: newCategoryName)
-            print("create new category button pressed \(newCategoryName)")
-        }
+        self.delegate?.sendCategoryNameToTrackerCategoryViewController(categoryName: newCategoryName)
         dismiss(animated: true, completion: { })
     }
 }
@@ -92,13 +90,19 @@ extension TrackerCategoryNameViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newCategoryName = updatedString
-        guard let newCategoryName = newCategoryName else { return true }
         createNewCategoryButtonIsActive(newCategoryName.count > 0)
         return true
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        textField.text = ""
         createNewCategoryButtonIsActive(false)
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        createNewCategoryButtonIsActive(newCategoryName.count > 0)
+        textField.endEditing(true)
         return true
     }
     
