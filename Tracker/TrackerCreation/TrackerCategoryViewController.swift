@@ -9,7 +9,7 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategories(array: [TrackerCategory], selectedCategory: Int)
+    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategory: Int)
 }
 
 final class TrackerCategoryViewController: UIViewController {
@@ -49,7 +49,7 @@ final class TrackerCategoryViewController: UIViewController {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapNewCategoryButton)
+            action: #selector(didTapCreateNewCategoryButton)
         )
         button.setTitle("Add new category", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -63,7 +63,7 @@ final class TrackerCategoryViewController: UIViewController {
     private var cornersArray: [CACornerMask] = []
     private var alpha: [CGFloat] = []
     
-    var array: [TrackerCategory] {
+    var categoriesNames: [String] {
         didSet {
             computeCornersAndAlpha()
         }
@@ -76,8 +76,8 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
-    init(array: [TrackerCategory], selectedCategory: Int?) {
-        self.array = array
+    init(array: [String], selectedCategory: Int?) {
+        self.categoriesNames = array
         self.selectedCategory = selectedCategory
         super.init(nibName: nil, bundle: nil)
     }
@@ -104,16 +104,19 @@ final class TrackerCategoryViewController: UIViewController {
     
     // MARK: - Objective-C functions
     @objc
-    func didTapNewCategoryButton() {
+    func didTapCreateNewCategoryButton() {
         clearTableViewSelection()
-        array.append(TrackerCategory(name: "New one", trackers: []))
+        //categoriesNames.append("New \(categoriesNames.count)")
+        let vc = TrackerCategoryNameViewController()
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
     }
     
     func computeCornersAndAlpha() {
         /// create and change selectionArray for selection of category button
         var selectionArray = self.selectionArray
-        if selectionArray.count == 0 && array.count > 0 {
-            for _ in 0 ..< array.count {
+        if selectionArray.count == 0 && categoriesNames.count > 0 {
+            for _ in 0 ..< categoriesNames.count {
                 selectionArray.append(0)
             }
         } else {
@@ -129,7 +132,7 @@ final class TrackerCategoryViewController: UIViewController {
         let allCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         let firstCellCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         let lastCellCornersArray: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        switch array.count {
+        switch categoriesNames.count {
         case 0:
             alpha = [0]
             return cornersArray = []
@@ -142,7 +145,7 @@ final class TrackerCategoryViewController: UIViewController {
         default:
             var combineArray: [CACornerMask] = [firstCellCornersArray]
             var alphaArray: [CGFloat] = [1.0]
-            for _ in 0 ..< (array.count-2) {
+            for _ in 0 ..< (categoriesNames.count-2) {
                 let emptyArray: CACornerMask = []
                 combineArray.append(emptyArray)
                 alphaArray.append(1.0)
@@ -162,17 +165,24 @@ final class TrackerCategoryViewController: UIViewController {
     
     func closeCategorySelection() {
         if let i = selectionArray.firstIndex(of: 1.0) {
-            self.delegate?.sendCategories(array: array, selectedCategory: i)
+            self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategory: i)
             dismiss(animated: true, completion: { })
         }
     }
     
 }
 
+// MARK: - TrackerCategoryNameViewControllerDelegate
+extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
+    func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
+        print("delegate sended category name: \(categoryName)")
+    }
+}
+
 // MARK: - UITableViewDelegate
 extension TrackerCategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if array.count == 0 {
+        if categoriesNames.count == 0 {
             return 0
         } else {
             return 75
@@ -189,7 +199,7 @@ extension TrackerCategoryViewController: UITableViewDelegate {
 // MARK: - UITableViewDataSource
 extension TrackerCategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        array.count
+        categoriesNames.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TrackerCategoryTableViewCell.reuseIdentifier, for: indexPath)

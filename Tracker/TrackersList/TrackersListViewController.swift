@@ -13,7 +13,11 @@ final class TrackersListViewController: UIViewController {
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
+    
+    private var selectedCategory: Int?
+    
     private var completedTrackers: [TrackerRecord] = []
+    
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -102,11 +106,14 @@ final class TrackersListViewController: UIViewController {
     
     private func reloadVisibleCategories() {
         
-        let category = TrackerCategory(
-            name: "New category",
-            trackers: trackersArray)
-        let categories = [category]
-        self.categories = categories
+        if categories.count == 0 {
+            let category = TrackerCategory(
+                name: "New category",
+                trackers: trackersArray)
+            let categories = [category]
+            self.categories = categories
+        }
+        
         
         let filterWeekDay = datePicker.date.dayOfWeek()
         let filterText = (searchBar.text ?? "").lowercased()
@@ -160,8 +167,13 @@ final class TrackersListViewController: UIViewController {
 
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
-    func didReceiveTracker(tracker: Tracker) {
+    func sendTrackerToTrackersListViewController(tracker: Tracker, categories: [TrackerCategory]?, selectedCategory: Int?) {
         trackersArray.append(tracker)
+        if let categories = categories,
+           let selectedCategory = selectedCategory {
+            self.categories = categories
+            self.selectedCategory = selectedCategory
+        }
         reloadVisibleCategories()
         dismiss(animated: true)
     }

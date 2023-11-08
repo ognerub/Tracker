@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func didReceiveTracker(tracker: Tracker)
+    func sendTrackerToTrackersListViewController(tracker: Tracker, categories: [TrackerCategory]?, selectedCategory: Int?)
 }
 
 // MARK: - TrackerCardViewController
@@ -16,8 +16,14 @@ final class TrackerCardViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
+    private let categoryButtonTitle = "Category"
     private let scheduleButtonTitle = "Schedule"
     private let newHabit = "New habit"
+    
+    
+    // MARK: - Category properties
+    private var newCategories: [TrackerCategory]?
+    private var selectedCategory: Int?
     
     // MARK: - CollectionView properties
     
@@ -129,8 +135,10 @@ final class TrackerCardViewController: UIViewController {
             target: self,
             action: #selector(didTapCategoryButton)
         )
-        button.setTitle("Category", for: .normal)
-        button.setTitleColor(UIColor(named: "YP Black"), for: .normal)
+        button.setTitle(categoryButtonTitle, for: .normal)
+        button.titleLabel?.lineBreakMode = .byWordWrapping
+        button.contentHorizontalAlignment = .left
+        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
         button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -225,13 +233,7 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    // MARK: - Category properties
-    
-    private var trackerCategories: [TrackerCategory]?
-    private var selectedCategory: Int?
-    
     // MARK: - viewDidLoad()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.toggleAppearance(isDark: TabBarController().isDark)
@@ -249,15 +251,14 @@ final class TrackerCardViewController: UIViewController {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
             categoryButtonConfig()
-            
-            collectionViewConfig()
         } else {
             categoryButton.removeFromSuperview()
             verticalStackViewConfig()
             scheduleButtonTitleTextConfig()
             contentSize = CGSize(width: view.frame.width, height: 781)
-            collectionViewConfig()
         }
+        categoryBattonTitleTextConfig()
+        collectionViewConfig()
     }
 }
 
@@ -294,6 +295,17 @@ extension TrackerCardViewController {
         
     }
     
+    // MARK: - Set category and schedule buttons titles
+    private func categoryBattonTitleTextConfig() {
+        var categoryButtonTitleText = "\(categoryButtonTitle)"
+        if let selectedCategory = selectedCategory,
+           let trackerCategories = newCategories {
+            categoryButtonTitleText = "\(categoryButtonTitle)\n\(trackerCategories[selectedCategory].name)"
+        }
+        let mutableString = createMutableString(from: categoryButtonTitleText, forButtonWithTitle: categoryButtonTitle)
+        categoryButton.setAttributedTitle(mutableString, for: .normal)
+    }
+    
     private func scheduleButtonTitleTextConfig() {
         
         var stringArray: [String] = []
@@ -322,16 +334,27 @@ extension TrackerCardViewController {
             let joinedString = prefixedArray.joined(separator: ", ")
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
         }
-        let mutableString = NSMutableAttributedString(string: scheduleButtonTitleText)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: scheduleButtonTitle.count))
+        let mutableString = createMutableString(from: scheduleButtonTitleText, forButtonWithTitle: scheduleButtonTitle)
         scheduleButton.setAttributedTitle(mutableString, for: .normal)
+    }
+    
+    func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
+        let mutableString = NSMutableAttributedString(string: string)
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
+        return mutableString
     }
     
     // MARK: - Objective-C functions
     
     @objc
     func didTapCategoryButton() {
-        let vc = TrackerCategoryViewController(array: trackerCategories ?? [], selectedCategory: selectedCategory ?? nil)
+        var categoriesNames: [String] = []
+        if let newCategories = newCategories {
+            for item in 0 ..< newCategories.count {
+                categoriesNames.append(newCategories[item].name)
+            }
+        }
+        let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategory: selectedCategory ?? nil)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -351,24 +374,61 @@ extension TrackerCardViewController {
     @objc
     func didTapCreateButton() {
         let newTracker = createNewTracker()
-        self.delegate?.didReceiveTracker(tracker: newTracker)
-    }
-}
-
-// MARK: - TrackerSchedule Delegate
-extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
-    func sendArray(array: [WeekDay]) {
-        newTrackerDays = array
-        scheduleButtonTitleTextConfig()
-        createButtonIsActive(newTrackerName.count > 0)
+        self.delegate?.sendTrackerToTrackersListViewController(tracker: newTracker, categories: newCategories, selectedCategory: selectedCategory)
     }
 }
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendCategories(array: [TrackerCategory], selectedCategory: Int) {
-        self.trackerCategories = array
+    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategory: Int) {
+        /// if current categories array is nil we need to set categories names
+        if self.newCategories == nil {
+            /// create empty array with categories
+            var emptyCategories: [TrackerCategory] = []
+            /// create an optional category
+            var trackerCategory: TrackerCategory?
+            /// start for loop if array with categories names not empty
+            for item in 0 ..< arrayWithCategoriesNames.count {
+                /// create empty tracker category with name from received array
+                 trackerCategory = TrackerCategory(
+                    name: arrayWithCategoriesNames[item],
+                    trackers: [])
+                /// force unwrap optional category
+                guard let trackerCategory = trackerCategory else { return }
+                /// append category with name to empty array
+                emptyCategories.append(trackerCategory)
+            }
+            /// make current categories array equal to empty array (alredy with names)
+            self.newCategories = emptyCategories
+        } else {
+            /// force unwrap optional current categories
+            guard let newCategories = newCategories else { return }
+            /// if user added new categories, we need to append them to the current categories
+            if arrayWithCategoriesNames.count > newCategories.count {
+                /// start for loop array with names
+                for item in 0 ..< arrayWithCategoriesNames.count {
+                    /// if index of name is bigger then current array count, append in it new category with new name
+                    if item > (newCategories.count-1) {
+                        let trackerCategory = TrackerCategory(
+                           name: arrayWithCategoriesNames[item],
+                           trackers: [])
+                        self.newCategories?.append(trackerCategory)
+                    }
+                }
+            }
+        }
+        /// set selected category index
         self.selectedCategory = selectedCategory
+        categoryBattonTitleTextConfig()
+    }
+}
+
+// MARK: - TrackerSchedule Delegate
+extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
+    func sendScheduleToTrackerCardViewController(array: [WeekDay]) {
+        newTrackerDays = array
+        scheduleButtonTitleTextConfig()
+        createButtonIsActive(newTrackerName.count > 0)
     }
 }
 

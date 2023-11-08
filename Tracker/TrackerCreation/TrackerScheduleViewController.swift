@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerScheduleViewControllerDelegate: AnyObject {
-    func sendArray(array: [WeekDay])
+    func sendScheduleToTrackerCardViewController(array: [WeekDay])
 }
 
 final class TrackerScheduleViewController: UIViewController {
@@ -87,7 +87,7 @@ final class TrackerScheduleViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapAcceptScheduleButton() {
-        self.delegate?.sendArray(array: newWeekDaysNamesArray)
+        self.delegate?.sendScheduleToTrackerCardViewController(array: newWeekDaysNamesArray)
         dismiss(animated: true, completion: { })
     }
     
