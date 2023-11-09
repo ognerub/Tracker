@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol TrackersListViewControllerDelegate: AnyObject {
+    func sendCategoriesToTrackerCardViewController(_ categories: [TrackerCategory])
+}
+
 final class TrackersListViewController: UIViewController {
+    
+    weak var delegate: TrackersListViewControllerDelegate?
     
     //MARK: - Properties for CollectionView
     private var trackersArray: [Tracker] = []
@@ -91,8 +97,6 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    private var collectionViewNeedsReloadData: Bool = true
-    
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,19 +110,17 @@ final class TrackersListViewController: UIViewController {
     
     private func reloadVisibleCategories() {
         
-//        if categories.count == 0 {
-//            let category = TrackerCategory(
-//                name: "New category",
-//                trackers: trackersArray)
-//            let categories = [category]
-//            self.categories = categories
-//        }
-        
-        
         let filterWeekDay = datePicker.date.dayOfWeek()
         let filterText = (searchBar.text ?? "").lowercased()
         
-        visibleCategories = categories.map { category in
+        var notEmptyCategories: [TrackerCategory] = []
+        for category in 0 ..< categories.count {
+            if categories[category].trackers.count != 0 {
+                notEmptyCategories.append(categories[category])
+            }
+        }
+        
+        visibleCategories = notEmptyCategories.map { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty ||
                 tracker.name.lowercased().contains(filterText)
@@ -131,8 +133,7 @@ final class TrackersListViewController: UIViewController {
                 name: category.name,
                 trackers: trackers)
         }
-        collectionViewNeedsReloadData = true
-        performCollectionViewUpdate()
+        collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
     
@@ -144,24 +145,13 @@ final class TrackersListViewController: UIViewController {
         }
     }
     
-    private func performCollectionViewUpdate() {
-        if collectionViewNeedsReloadData {
-            collectionView.reloadData()
-            collectionViewNeedsReloadData = false
-        } else {
-            print("do nothing")
-//            let nextIndex = visibleCategories[0].trackers.count - 1
-//            collectionView.performBatchUpdates {
-//                collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
-//            }
-        }
-    }
-    
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
         let vc = TrackerTypeViewController()
         vc.delegate = self
+        self.delegate = vc
+        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
         present(vc, animated: true)
     }
 }
@@ -189,10 +179,7 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
                 newCategoriesNames = currentCategoriesNames
                 /// check that array contains received names
                 for name in 0 ..< categoriesNames.count {
-                    if currentCategoriesNames.contains(categoriesNames[name]) {
-                        print("do nothing with currentCategories array")
-                    } else {
-                        print("append currentCategories with new category name")
+                    if !currentCategoriesNames.contains(categoriesNames[name]) {
                         /// if array not contains received names, add them to new array
                         newCategoriesNames.append(categoriesNames[name])
                     }

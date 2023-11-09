@@ -22,6 +22,7 @@ final class TrackerCardViewController: UIViewController {
     
     
     // MARK: - Category properties
+    var categories: [TrackerCategory]?
     private var newCategoriesNames: [String]?
     private var selectedCategoryRow: Int?
     
@@ -348,10 +349,20 @@ extension TrackerCardViewController {
     
     @objc
     func didTapCategoryButton() {
+        let categories = self.categories ?? []
         var categoriesNames: [String] = []
-        if let newCategories = newCategoriesNames {
-            for item in 0 ..< newCategories.count {
-                categoriesNames.append(newCategories[item])
+        if categories.count != 0 {
+            for category in 0 ..< categories.count {
+                categoriesNames.append(categories[category].name)
+            }
+        } else {
+            categoriesNames = []
+        }
+        if let newCategoriesNames = newCategoriesNames {
+            for item in 0 ..< newCategoriesNames.count {
+                if item > (categoriesNames.count - 1) && !categoriesNames.contains(newCategoriesNames[item]) {
+                    categoriesNames.append(newCategoriesNames[item])
+                }
             }
         }
         let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategoryRow: selectedCategoryRow ?? nil)

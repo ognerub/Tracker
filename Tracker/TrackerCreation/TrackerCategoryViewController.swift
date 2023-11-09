@@ -105,7 +105,7 @@ final class TrackerCategoryViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapAddNewCategoryButton() {
-        let vc = TrackerCategoryNameViewController()
+        let vc = TrackerCategoryNameViewController(currentCategoriesNames: self.categoriesNames)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }

@@ -17,6 +17,17 @@ final class TrackerCategoryNameViewController: UIViewController {
     
     private var newCategoryName: String = ""
     
+    private var currentCategoriesNames: [String]
+    
+    init(currentCategoriesNames: [String]) {
+        self.currentCategoriesNames = currentCategoriesNames
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Mutable properties:
     
     private var titleBackground: UIView = {
@@ -90,7 +101,7 @@ extension TrackerCategoryNameViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newCategoryName = updatedString
-        createNewCategoryButtonIsActive(newCategoryName.count > 0)
+        createNewCategoryButtonIsActive(newCategoryName.count > 0 && !currentCategoriesNames.contains(newCategoryName))
         return true
     }
     
