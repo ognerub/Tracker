@@ -9,7 +9,7 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategory: Int)
+    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
 }
 
 final class TrackerCategoryViewController: UIViewController {
@@ -68,7 +68,7 @@ final class TrackerCategoryViewController: UIViewController {
             computeCornersAndAlphaForTableView()
         }
     }
-    var selectedCategory: Int?
+    var selectedCategoryRow: Int?
     
     var selectionArray: [CGFloat] = [] {
         didSet {
@@ -76,9 +76,9 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
-    init(array: [String], selectedCategory: Int?) {
+    init(array: [String], selectedCategoryRow: Int?) {
         self.categoriesNames = array
-        self.selectedCategory = selectedCategory
+        self.selectedCategoryRow = selectedCategoryRow
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -121,9 +121,9 @@ final class TrackerCategoryViewController: UIViewController {
             selectionArray.append(0)
         }
         /// set selectedCategory if it is not nil
-        if let selectedCategory = selectedCategory {
-            selectionArray.remove(at: selectedCategory)
-            selectionArray.insert(1.0, at: selectedCategory)
+        if let selectedCategoryRow = selectedCategoryRow {
+            selectionArray.remove(at: selectedCategoryRow)
+            selectionArray.insert(1.0, at: selectedCategoryRow)
         }
         self.selectionArray = selectionArray
         /// switch corners of category button depending on array.count
@@ -164,7 +164,7 @@ final class TrackerCategoryViewController: UIViewController {
     /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
     func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
-            self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategory: i)
+            self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
             dismiss(animated: true, completion: { })
         }
     }

@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendTrackerToTrackersListViewController(tracker: Tracker, categories: [TrackerCategory]?, selectedCategory: Int?)
+    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
 }
 
 // MARK: - TrackerCardViewController
@@ -22,8 +22,8 @@ final class TrackerCardViewController: UIViewController {
     
     
     // MARK: - Category properties
-    private var newCategories: [TrackerCategory]?
-    private var selectedCategory: Int?
+    private var newCategoriesNames: [String]?
+    private var selectedCategoryRow: Int?
     
     // MARK: - CollectionView properties
     
@@ -220,7 +220,7 @@ final class TrackerCardViewController: UIViewController {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapCreateButton)
+            action: #selector(didTapCreateNewTrackerButton)
         )
         button.setTitle("Create", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -298,9 +298,9 @@ extension TrackerCardViewController {
     // MARK: - Set category and schedule buttons titles
     private func categoryBattonTitleTextConfig() {
         var categoryButtonTitleText = "\(categoryButtonTitle)"
-        if let selectedCategory = selectedCategory,
-           let trackerCategories = newCategories {
-            categoryButtonTitleText = "\(categoryButtonTitle)\n\(trackerCategories[selectedCategory].name)"
+        if let selectedCategory = selectedCategoryRow,
+           let newCategoriesNames = newCategoriesNames {
+            categoryButtonTitleText = "\(categoryButtonTitle)\n\(newCategoriesNames[selectedCategory])"
         }
         let mutableString = createMutableString(from: categoryButtonTitleText, forButtonWithTitle: categoryButtonTitle)
         categoryButton.setAttributedTitle(mutableString, for: .normal)
@@ -349,12 +349,12 @@ extension TrackerCardViewController {
     @objc
     func didTapCategoryButton() {
         var categoriesNames: [String] = []
-        if let newCategories = newCategories {
+        if let newCategories = newCategoriesNames {
             for item in 0 ..< newCategories.count {
-                categoriesNames.append(newCategories[item].name)
+                categoriesNames.append(newCategories[item])
             }
         }
-        let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategory: selectedCategory ?? nil)
+        let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategoryRow: selectedCategoryRow ?? nil)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -372,53 +372,41 @@ extension TrackerCardViewController {
     }
     
     @objc
-    func didTapCreateButton() {
+    func didTapCreateNewTrackerButton() {
         let newTracker = createNewTracker()
-        self.delegate?.sendTrackerToTrackersListViewController(tracker: newTracker, categories: newCategories, selectedCategory: selectedCategory)
+        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
     }
 }
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategory: Int) {
+    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
         /// if current categories array is nil we need to set categories names
-        if self.newCategories == nil {
+        if self.newCategoriesNames == nil {
             /// create empty array with categories
-            var emptyCategories: [TrackerCategory] = []
-            /// create an optional category
-            var trackerCategory: TrackerCategory?
+            var emptyCategoriesNames: [String] = []
             /// start for loop if array with categories names not empty
             for item in 0 ..< arrayWithCategoriesNames.count {
-                /// create empty tracker category with name from received array
-                 trackerCategory = TrackerCategory(
-                    name: arrayWithCategoriesNames[item],
-                    trackers: [])
-                /// force unwrap optional category
-                guard let trackerCategory = trackerCategory else { return }
-                /// append category with name to empty array
-                emptyCategories.append(trackerCategory)
+                emptyCategoriesNames.append(arrayWithCategoriesNames[item])
             }
             /// make current categories array equal to empty array (alredy with names)
-            self.newCategories = emptyCategories
+            self.newCategoriesNames = emptyCategoriesNames
         } else {
             /// force unwrap optional current categories
-            guard let newCategories = newCategories else { return }
+            guard let newCategoriesNames = newCategoriesNames else { return }
             /// if user added new categories, we need to append them to the current categories
-            if arrayWithCategoriesNames.count > newCategories.count {
+            if arrayWithCategoriesNames.count > newCategoriesNames.count {
                 /// start for loop array with names
                 for item in 0 ..< arrayWithCategoriesNames.count {
                     /// if index of name is bigger then current array count, append in it new category with new name
-                    if item > (newCategories.count-1) {
-                        let trackerCategory = TrackerCategory(
-                           name: arrayWithCategoriesNames[item],
-                           trackers: [])
-                        self.newCategories?.append(trackerCategory)
+                    if item > (newCategoriesNames.count-1) {
+                        self.newCategoriesNames?.append(arrayWithCategoriesNames[item])
                     }
                 }
             }
         }
         /// set selected category index
-        self.selectedCategory = selectedCategory
+        self.selectedCategoryRow = selectedCategoryRow
         categoryBattonTitleTextConfig()
     }
 }

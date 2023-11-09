@@ -14,7 +14,7 @@ final class TrackersListViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
     
-    private var selectedCategory: Int?
+    private var selectedCategoryRow: Int?
     
     private var completedTrackers: [TrackerRecord] = []
     
@@ -106,13 +106,13 @@ final class TrackersListViewController: UIViewController {
     
     private func reloadVisibleCategories() {
         
-        if categories.count == 0 {
-            let category = TrackerCategory(
-                name: "New category",
-                trackers: trackersArray)
-            let categories = [category]
-            self.categories = categories
-        }
+//        if categories.count == 0 {
+//            let category = TrackerCategory(
+//                name: "New category",
+//                trackers: trackersArray)
+//            let categories = [category]
+//            self.categories = categories
+//        }
         
         
         let filterWeekDay = datePicker.date.dayOfWeek()
@@ -167,12 +167,68 @@ final class TrackersListViewController: UIViewController {
 
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
-    func sendTrackerToTrackersListViewController(tracker: Tracker, categories: [TrackerCategory]?, selectedCategory: Int?) {
-        trackersArray.append(tracker)
-        if let categories = categories,
-           let selectedCategory = selectedCategory {
-            self.categories = categories
-            self.selectedCategory = selectedCategory
+    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
+        trackersArray.append(newTracker)
+        
+        if let categoriesNames = categoriesNames,
+           let selectedCategoryRow = selectedCategoryRow {
+            /// create new array with categories for processing
+            var currentCategories = self.categories
+            /// current array with names
+            var currentCategoriesNames: [String] = []
+            /// new array with names
+            var newCategoriesNames: [String] = []
+            /// if current categories is not empty
+            if currentCategories.count > 0 {
+                /// append array with names from current categories
+                for category in 0 ..< currentCategories.count {
+                    currentCategoriesNames.append(currentCategories[category].name)
+                }
+                /// set new array equal to current array
+                currentCategoriesNames = newCategoriesNames
+                /// check that array contains received names
+                for name in 0 ..< categoriesNames.count {
+                    if currentCategoriesNames.contains(categoriesNames[name]) {
+                        print("do nothing with currentCategories array")
+                    } else {
+                        print("append currentCategories with new category name")
+                        /// if array not contains received names, add them to new array
+                        newCategoriesNames.append(categoriesNames[name])
+                    }
+                }
+                /// add new categories if needed
+                for item in 0 ..< newCategoriesNames.count {
+                    if item > (currentCategoriesNames.count-1) {
+                        let category = TrackerCategory(
+                            name: newCategoriesNames[item],
+                            trackers: item == selectedCategoryRow ? [newTracker] : [])
+                        currentCategories.append(category)
+                    } else {
+                        /// or append existing category with trackers
+                        if item == selectedCategoryRow {
+                            var trackers = currentCategories[item].trackers
+                            trackers.append(newTracker)
+                            let name = currentCategories[item].name
+                            let category = TrackerCategory(
+                                name: name,
+                                trackers: trackers)
+                            currentCategories.remove(at: item)
+                            currentCategories.insert(category, at: item)
+                        }
+                    }
+                }
+                /// set self.categories equal to computed category
+                self.categories = currentCategories
+            } else {
+                /// self.categories is empty, need to append with new names
+                for item in 0 ..< newCategoriesNames.count {
+                    let category = TrackerCategory(
+                        name: newCategoriesNames[item],
+                        trackers: item == selectedCategoryRow ? [newTracker] : [])
+                    currentCategories.append(category)
+                }
+            }            /// ???
+            self.selectedCategoryRow = selectedCategoryRow
         }
         reloadVisibleCategories()
         dismiss(animated: true)
