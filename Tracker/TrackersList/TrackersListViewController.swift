@@ -137,7 +137,7 @@ final class TrackersListViewController: UIViewController {
     }
     
     private func showOrHideEmptyTrackersInfo() {
-        if visibleCategories[0].trackers.count == 0 {
+        if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
         } else {
             hideEmptyTrackersInfo()
@@ -149,10 +149,11 @@ final class TrackersListViewController: UIViewController {
             collectionView.reloadData()
             collectionViewNeedsReloadData = false
         } else {
-            let nextIndex = visibleCategories[0].trackers.count - 1
-            collectionView.performBatchUpdates {
-                collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
-            }
+            print("do nothing")
+//            let nextIndex = visibleCategories[0].trackers.count - 1
+//            collectionView.performBatchUpdates {
+//                collectionView.insertItems(at: [IndexPath(item: nextIndex, section: 0)])
+//            }
         }
     }
     
@@ -185,7 +186,7 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
                     currentCategoriesNames.append(currentCategories[category].name)
                 }
                 /// set new array equal to current array
-                currentCategoriesNames = newCategoriesNames
+                newCategoriesNames = currentCategoriesNames
                 /// check that array contains received names
                 for name in 0 ..< categoriesNames.count {
                     if currentCategoriesNames.contains(categoriesNames[name]) {
@@ -221,15 +222,18 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
                 self.categories = currentCategories
             } else {
                 /// self.categories is empty, need to append with new names
-                for item in 0 ..< newCategoriesNames.count {
+                for item in 0 ..< categoriesNames.count {
                     let category = TrackerCategory(
-                        name: newCategoriesNames[item],
+                        name: categoriesNames[item],
                         trackers: item == selectedCategoryRow ? [newTracker] : [])
                     currentCategories.append(category)
                 }
-            }            /// ???
-            self.selectedCategoryRow = selectedCategoryRow
+            }
+            self.categories = currentCategories
         }
+        
+        self.selectedCategoryRow = selectedCategoryRow
+        
         reloadVisibleCategories()
         dismiss(animated: true)
     }
@@ -270,12 +274,12 @@ extension TrackersListViewController: UISearchBarDelegate {
 extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return visibleCategories.count
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard visibleCategories[0].trackers.count != 0 else { return 0 }
-        return visibleCategories[0].trackers.count
+        guard visibleCategories[section].trackers.count != 0 else { return 0 }
+        return visibleCategories[section].trackers.count
     }
     
     /// Cell for item
@@ -286,7 +290,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
-        let tracker = visibleCategories[0].trackers[indexPath.row]
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
@@ -354,8 +358,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? SupplementaryView else {
             return UICollectionReusableView()
         }
-        guard visibleCategories[0].trackers.count != 0 else { return view }
-        view.titleLabel.text = "\(categories[0].name)"
+        guard visibleCategories.count != 0 else { return view }
+        view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
         return view
     }
 }
