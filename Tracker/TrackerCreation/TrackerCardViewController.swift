@@ -419,6 +419,8 @@ extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
         /// set selected category index
         self.selectedCategoryRow = selectedCategoryRow
         categoryBattonTitleTextConfig()
+        
+        dismiss(animated: true, completion: { })
     }
 }
 

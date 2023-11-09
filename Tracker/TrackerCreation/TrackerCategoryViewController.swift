@@ -63,18 +63,32 @@ final class TrackerCategoryViewController: UIViewController {
     private var cornersArray: [CACornerMask] = []
     private var alpha: [CGFloat] = []
     
-    var categoriesNames: [String] {
-        didSet {
-            computeCornersAndAlphaForTableView()
-        }
-    }
-    var selectedCategoryRow: Int?
+    private var categoriesNames: [String] { didSet { computeCornersAndAlphaForTableView() } }
+    private var selectedCategoryRow: Int?
     
-    var selectionArray: [CGFloat] = [] {
-        didSet {
-            tableView.reloadData()
-        }
-    }
+    private var selectionArray: [CGFloat] = [] { didSet { tableView.reloadData() } }
+    
+    // MARK: - Properties for Empty Categories Page
+    private let emptyCategoriesBackground: UIView = {
+        var view = UIView()
+        view.backgroundColor = UIColor(named: "YP White")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    private let emptyCategoriesImageView: UIImageView = {
+        var image = UIImage(named: "TrackersEmpty")
+        var imageView = UIImageView(image: image)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    private let emptyCategoriesLabel: UILabel = {
+        var label = UILabel()
+        label.text = "Habits and unregular events \n can be combined by meaning"
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     init(array: [String], selectedCategoryRow: Int?) {
         self.categoriesNames = array
@@ -100,6 +114,11 @@ final class TrackerCategoryViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        if categoriesNames.count == 0 {
+            showEmptyCategoriesInfo()
+        } else {
+            hideEmptyCategoriesInfo()
+        }
     }
     
     // MARK: - Objective-C functions
@@ -110,7 +129,7 @@ final class TrackerCategoryViewController: UIViewController {
         self.present(vc, animated: true, completion: nil)
     }
     
-    func computeCornersAndAlphaForTableView() {
+    private func computeCornersAndAlphaForTableView() {
         /// create and change selectionArray for selection of category button
         var selectionArray = self.selectionArray
         if selectionArray.count == 0 && categoriesNames.count > 0 {
@@ -155,17 +174,16 @@ final class TrackerCategoryViewController: UIViewController {
         }
     }
     
-    func clearTableViewSelection() {
+    private func clearTableViewSelection() {
         if let i = selectionArray.firstIndex(of: 1.0) {
             selectionArray[i] = 0
         }
     }
     
     /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
-    func dismissTrackerCategoryViewController() {
+    private func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
             self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
-            dismiss(animated: true, completion: { })
         }
     }
     
@@ -174,8 +192,10 @@ final class TrackerCategoryViewController: UIViewController {
 // MARK: - TrackerCategoryNameViewControllerDelegate
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
     func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
+        dismiss(animated: true, completion: { })
         clearTableViewSelection()
         categoriesNames.append("\(categoryName)")
+        hideEmptyCategoriesInfo()
     }
 }
 
@@ -229,7 +249,7 @@ extension TrackerCategoryViewController: UITableViewDataSource {
     }
 }
 
-extension TrackerCategoryViewController {
+private extension TrackerCategoryViewController {
     // MARK: - Constraints configuration
     
     func titleConfig() {
@@ -269,5 +289,27 @@ extension TrackerCategoryViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(TrackerCategoryTableViewCell.self, forCellReuseIdentifier: TrackerCategoryTableViewCell.reuseIdentifier)
+    }
+    
+    func showEmptyCategoriesInfo() {
+        view.addSubview(emptyCategoriesBackground)
+        view.addSubview(emptyCategoriesImageView)
+        view.addSubview(emptyCategoriesLabel)
+        NSLayoutConstraint.activate([
+            emptyCategoriesBackground.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            emptyCategoriesBackground.topAnchor.constraint(equalTo: titleBackground.bottomAnchor),
+            emptyCategoriesBackground.widthAnchor.constraint(equalToConstant: view.frame.width),
+            emptyCategoriesBackground.bottomAnchor.constraint(equalTo: addNewCategoryButton.topAnchor),
+            emptyCategoriesImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -40),
+            emptyCategoriesImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -40),
+            emptyCategoriesLabel.topAnchor.constraint(equalTo: emptyCategoriesImageView.bottomAnchor, constant: 8),
+            emptyCategoriesLabel.widthAnchor.constraint(equalToConstant: 343),
+            emptyCategoriesLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -171.5)
+        ])
+    }
+    func hideEmptyCategoriesInfo() {
+        emptyCategoriesBackground.removeFromSuperview()
+        emptyCategoriesImageView.removeFromSuperview()
+        emptyCategoriesLabel.removeFromSuperview()
     }
 }

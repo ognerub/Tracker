@@ -91,7 +91,6 @@ final class TrackerCategoryNameViewController: UIViewController {
     @objc
     func didTapCreateNewCategoryButton() {
         self.delegate?.sendCategoryNameToTrackerCategoryViewController(categoryName: newCategoryName)
-        dismiss(animated: true, completion: { })
     }
 }
 
