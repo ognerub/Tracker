@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct Schedule {
+struct Schedule: Codable {
     let days: [WeekDay]
 }
 
-enum WeekDay: String, CaseIterable {
+enum WeekDay: String, CaseIterable, Codable {
     case monday = "Monday"
     case tuesday = "Tuesday"
     case wednesday = "Wednesday"
