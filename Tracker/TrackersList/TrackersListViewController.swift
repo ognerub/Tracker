@@ -97,6 +97,9 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerStore = TrackerStore()
+    
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -105,8 +108,61 @@ final class TrackersListViewController: UIViewController {
         view.backgroundColor = .white
         addTopBar()
         collectionViewConfig()
-        reloadVisibleCategories()
+        //reloadVisibleCategories()
+        
+        // MARK: - CoreData
+        
+        trackerStore.delegate = self
+        trackersArray = trackerStore.trackers
+       
+        //trackerCategoryStore.delegate = self
+        //visibleCategories = trackerCategoryStore.categories
     }
+}
+
+extension TrackersListViewController: TrackerStoreDelegate {
+    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
+        trackersArray = trackerStore.trackers
+        collectionView.performBatchUpdates {
+            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
+            collectionView.insertItems(at: insertedIndexPaths)
+            collectionView.insertItems(at: deletedIndexPaths)
+            collectionView.insertItems(at: updatedIndexPaths)
+            for move in update.movedIndexes {
+                collectionView.moveItem(
+                    at: IndexPath(item: move.oldIndex, section: 0),
+                    to: IndexPath(item: move.newIndex, section: 0)
+                )
+            }
+        }
+    }
+}
+
+//extension TrackersListViewController: TrackerCategoryStoreDelegate {
+//
+//    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
+//        visibleCategories = trackerCategoryStore.categories
+//        collectionView.performBatchUpdates {
+//            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+//            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+//            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
+//            collectionView.insertItems(at: insertedIndexPaths)
+//            collectionView.insertItems(at: deletedIndexPaths)
+//            collectionView.insertItems(at: updatedIndexPaths)
+//            for move in update.movedIndexes {
+//                collectionView.moveItem(
+//                    at: IndexPath(item: move.oldIndex, section: 0),
+//                    to: IndexPath(item: move.newIndex, section: 0)
+//                )
+//            }
+//        }
+//    }
+//}
+    
+
+extension TrackersListViewController {
     
     private func reloadVisibleCategories() {
         
@@ -148,11 +204,16 @@ final class TrackersListViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
-        let vc = TrackerTypeViewController()
-        vc.delegate = self
-        self.delegate = vc
-        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
-        present(vc, animated: true)
+        
+        let tracker = Tracker(id: UUID(), name: "New", color: .blue
+                              , emoji: "😋", schedule: Schedule(days: [WeekDay.saturday, WeekDay.sunday]))
+        try! trackerStore.addNewTracker(tracker)
+        
+//        let vc = TrackerTypeViewController()
+//        vc.delegate = self
+//        self.delegate = vc
+//        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
+//        present(vc, animated: true)
     }
 }
 
@@ -261,12 +322,12 @@ extension TrackersListViewController: UISearchBarDelegate {
 extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return visibleCategories.count
+        1
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard visibleCategories[section].trackers.count != 0 else { return 0 }
-        return visibleCategories[section].trackers.count
+        guard trackersArray.count != 0 else { return 0 }
+        return trackersArray.count
     }
     
     /// Cell for item
@@ -277,9 +338,8 @@ extension TrackersListViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
-        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
+        let tracker = trackersArray[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
-        
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
         cell.configure(
@@ -346,7 +406,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return UICollectionReusableView()
         }
         guard visibleCategories.count != 0 else { return view }
-        view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
+        view.titleLabel.text = "Section name"
         return view
     }
 }

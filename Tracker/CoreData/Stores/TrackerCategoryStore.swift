@@ -94,7 +94,7 @@ final class TrackerCategoryStore: NSObject {
         return trackers.compactMap({ $0 as? Tracker })
     }
     
-    func trackersForCoreCata(from category: TrackerCategory) throws -> NSSet? {
+    func trackersForCoreData(from category: TrackerCategory) throws -> NSSet? {
         var trackersForCoreData: [TrackerForCoreData] = []
         let trackers = category.trackers
         trackers.forEach { tracker in
@@ -116,7 +116,7 @@ final class TrackerCategoryStore: NSObject {
         return trackersNSSet
     }
 
-    func addNewTracker(_ trackerCategory: TrackerCategory) throws {
+    func addNewTrackerCategory(_ trackerCategory: TrackerCategory) throws {
         let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
         updateExistingTrackerCategory(trackerCategoryCoreData, with: trackerCategory)
         try context.save()
@@ -128,7 +128,7 @@ final class TrackerCategoryStore: NSObject {
             trackers: trackerCategory.trackers
         )
         trackerCategoryCoreData.name = category.name
-        trackerCategoryCoreData.trackers = try? trackersForCoreCata(from: category)
+        trackerCategoryCoreData.trackers = try? trackersForCoreData(from: category)
     }
     
     

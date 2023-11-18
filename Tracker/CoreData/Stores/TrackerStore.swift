@@ -91,15 +91,31 @@ final class TrackerStore: NSObject {
         guard let emoji = trackerCoreData.emoji else {
             throw TrackerStoreError.decodingErrorInvalidEmoji
         }
-        guard let schedule = DaysValueTransformer().reverseTransformedValue(trackerCoreData.schedule) else {
+        guard let scheduleFromCoreData = trackerCoreData.schedule else {
             throw TrackerStoreError.decodingErrorInvalidSchedule
         }
+        var weekDays: [WeekDay] = []
+        scheduleFromCoreData.components(separatedBy: ",").forEach{ day in
+            switch day {
+            case WeekDay.monday.rawValue: return weekDays.append(WeekDay.monday)
+            case WeekDay.tuesday.rawValue: weekDays.append(WeekDay.tuesday)
+            case WeekDay.wednesday.rawValue: weekDays.append(WeekDay.wednesday)
+            case WeekDay.thursday.rawValue: weekDays.append(WeekDay.thursday)
+            case WeekDay.friday.rawValue: weekDays.append(WeekDay.friday)
+            case WeekDay.saturday.rawValue: weekDays.append(WeekDay.saturday)
+            case WeekDay.sunday.rawValue: weekDays.append(WeekDay.sunday)
+            default: weekDays.append(WeekDay.empty)
+            }
+        }
+        let schedule = Schedule(days: weekDays)
+        
         return Tracker(
             id: id,
             name: name,
             color: color as? UIColor ?? .black,
             emoji: emoji,
-            schedule: schedule as? Schedule ?? Schedule(days: [WeekDay.monday]))
+            schedule: schedule
+        )
     }
 
     func addNewTracker(_ tracker: Tracker) throws {
@@ -113,7 +129,13 @@ final class TrackerStore: NSObject {
         trackerCoreData.name = tracker.name
         trackerCoreData.color = tracker.color
         trackerCoreData.emoji = tracker.emoji
-        trackerCoreData.schedule = trackerCoreData.schedule
+        
+        var scheduleString: [String] = []
+        tracker.schedule.days.forEach { day in
+            let string = day.rawValue
+            scheduleString.append(string)
+        }
+        trackerCoreData.schedule = scheduleString.joined(separator: ",")
     }
 
     
