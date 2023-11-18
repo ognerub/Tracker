@@ -36,24 +36,26 @@ protocol TrackerStoreDelegate: AnyObject {
 
 final class TrackerStore: NSObject {
     
+    private let uiColorMarshalling = UIColorMarshalling()
+    
     private let context: NSManagedObjectContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
-
+    
     weak var delegate: TrackerStoreDelegate?
     private var insertedIndexes: IndexSet?
     private var deletedIndexes: IndexSet?
     private var updatedIndexes: IndexSet?
     private var movedIndexes: Set<TrackerStoreUpdate.Move>?
-
+    
     convenience override init() {
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         try! self.init(context: context)
     }
-
+    
     init(context: NSManagedObjectContext) throws {
         self.context = context
         super.init()
-
+        
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerCoreData.objectID, ascending: true)
@@ -68,7 +70,7 @@ final class TrackerStore: NSObject {
         self.fetchedResultsController = controller
         try controller.performFetch()
     }
-
+    
     var trackers: [Tracker] {
         guard
             let objects = self.fetchedResultsController.fetchedObjects,
@@ -84,18 +86,29 @@ final class TrackerStore: NSObject {
         guard let name = trackerCoreData.name else {
             throw TrackerStoreError.decodingErrorInvalidName
         }
-        guard let color = UIColorValueTransformer().reverseTransformedValue(trackerCoreData.color)
-                 else {
+        guard let color = trackerCoreData.color else {
             throw TrackerStoreError.decodingErrorInvalidColor
         }
         guard let emoji = trackerCoreData.emoji else {
             throw TrackerStoreError.decodingErrorInvalidEmoji
         }
-        guard let scheduleFromCoreData = trackerCoreData.schedule else {
+        guard let scheduleString = trackerCoreData.schedule else {
             throw TrackerStoreError.decodingErrorInvalidSchedule
         }
+        
+        let schedule = Schedule(days: weekDays(from: scheduleString))
+        return Tracker(
+            id: id,
+            name: name,
+            color: uiColorMarshalling.color(from:color),
+            emoji: emoji,
+            schedule: schedule
+        )
+    }
+    
+    func weekDays(from scheduleString: String) -> [WeekDay] {
         var weekDays: [WeekDay] = []
-        scheduleFromCoreData.components(separatedBy: ",").forEach{ day in
+        scheduleString.components(separatedBy: ",").forEach{ day in
             switch day {
             case WeekDay.monday.rawValue: return weekDays.append(WeekDay.monday)
             case WeekDay.tuesday.rawValue: weekDays.append(WeekDay.tuesday)
@@ -107,38 +120,31 @@ final class TrackerStore: NSObject {
             default: weekDays.append(WeekDay.empty)
             }
         }
-        let schedule = Schedule(days: weekDays)
-        
-        return Tracker(
-            id: id,
-            name: name,
-            color: color as? UIColor ?? .black,
-            emoji: emoji,
-            schedule: schedule
-        )
+        return weekDays
     }
-
+    
     func addNewTracker(_ tracker: Tracker) throws {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker)
         try context.save()
     }
-
+    
     func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
-        trackerCoreData.color = tracker.color
+        trackerCoreData.color = uiColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.emoji = tracker.emoji
-        
-        var scheduleString: [String] = []
-        tracker.schedule.days.forEach { day in
-            let string = day.rawValue
-            scheduleString.append(string)
-        }
-        trackerCoreData.schedule = scheduleString.joined(separator: ",")
+        trackerCoreData.schedule = scheduleString(from: tracker.schedule)
     }
-
     
+    func scheduleString(from schedule: Schedule) -> String {
+        var scheduleString: [String] = []
+        schedule.days.forEach { day in
+                    let string = day.rawValue
+                    scheduleString.append(string)
+        }
+        return scheduleString.joined(separator: ",")
+    }
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
@@ -148,7 +154,7 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         updatedIndexes = IndexSet()
         movedIndexes = Set<TrackerStoreUpdate.Move>()
     }
-
+    
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         delegate?.store(
             self,
@@ -164,7 +170,7 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         updatedIndexes = nil
         movedIndexes = nil
     }
-
+    
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChange anObject: Any,

@@ -97,7 +97,7 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    private let trackerCategoryStore = TrackerCategoryStore()
+//    private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
     
     // MARK: - viewDidLoad
@@ -123,20 +123,21 @@ final class TrackersListViewController: UIViewController {
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         trackersArray = trackerStore.trackers
-        collectionView.performBatchUpdates {
-            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
-            collectionView.insertItems(at: insertedIndexPaths)
-            collectionView.insertItems(at: deletedIndexPaths)
-            collectionView.insertItems(at: updatedIndexPaths)
-            for move in update.movedIndexes {
-                collectionView.moveItem(
-                    at: IndexPath(item: move.oldIndex, section: 0),
-                    to: IndexPath(item: move.newIndex, section: 0)
-                )
-            }
-        }
+        collectionView.reloadData()
+//        collectionView.performBatchUpdates {
+//            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+//            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+//            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
+//            collectionView.insertItems(at: insertedIndexPaths)
+//            collectionView.insertItems(at: deletedIndexPaths)
+//            collectionView.insertItems(at: updatedIndexPaths)
+//            for move in update.movedIndexes {
+//                collectionView.moveItem(
+//                    at: IndexPath(item: move.oldIndex, section: 0),
+//                    to: IndexPath(item: move.newIndex, section: 0)
+//                )
+//            }
+//        }
     }
 }
 
@@ -166,35 +167,36 @@ extension TrackersListViewController {
     
     private func reloadVisibleCategories() {
         
-        let filterWeekDay = datePicker.date.dayOfWeek()
-        let filterText = (searchBar.text ?? "").lowercased()
-        
-        var notEmptyCategories: [TrackerCategory] = []
-        for category in 0 ..< categories.count {
-            if categories[category].trackers.count != 0 {
-                notEmptyCategories.append(categories[category])
-            }
-        }
-        
-        visibleCategories = notEmptyCategories.map { category in
-            let trackers = category.trackers.filter { tracker in
-                let textCondition = filterText.isEmpty ||
-                tracker.name.lowercased().contains(filterText)
-                let dateCondition = tracker.schedule.days.contains { WeekDay in
-                    WeekDay.rawValue == filterWeekDay
-                }
-                return textCondition && dateCondition
-            }
-            return TrackerCategory(
-                name: category.name,
-                trackers: trackers)
-        }
+//        let filterWeekDay = datePicker.date.dayOfWeek()
+//        let filterText = (searchBar.text ?? "").lowercased()
+//
+//        var notEmptyCategories: [TrackerCategory] = []
+//        for category in 0 ..< categories.count {
+//            if categories[category].trackers.count != 0 {
+//                notEmptyCategories.append(categories[category])
+//            }
+//        }
+//
+//        visibleCategories = notEmptyCategories.map { category in
+//            let trackers = category.trackers.filter { tracker in
+//                let textCondition = filterText.isEmpty ||
+//                tracker.name.lowercased().contains(filterText)
+//                let dateCondition = tracker.schedule.days.contains { WeekDay in
+//                    WeekDay.rawValue == filterWeekDay
+//                }
+//                return textCondition && dateCondition
+//            }
+//            return TrackerCategory(
+//                name: category.name,
+//                trackers: trackers)
+//        }
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
     
     private func showOrHideEmptyTrackersInfo() {
-        if visibleCategories.count == 0 {
+        //if visibleCategories.count == 0 {
+        if trackersArray.count == 0 {
             showEmptyTrackersInfo()
         } else {
             hideEmptyTrackersInfo()
@@ -206,7 +208,7 @@ extension TrackersListViewController {
     func didTapPlusButton() {
         
         let tracker = Tracker(id: UUID(), name: "New", color: .blue
-                              , emoji: "😋", schedule: Schedule(days: [WeekDay.saturday, WeekDay.sunday]))
+                              , emoji: "😋", schedule: Schedule(days: [WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.saturday, WeekDay.sunday]))
         try! trackerStore.addNewTracker(tracker)
         
 //        let vc = TrackerTypeViewController()
@@ -322,10 +324,13 @@ extension TrackersListViewController: UISearchBarDelegate {
 extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
+        //return visibleCategories.count
+        return 1
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        guard visibleCategories[section].trackers.count != 0 else { return 0 }
+//        return visibleCategories[section].trackers.count
         guard trackersArray.count != 0 else { return 0 }
         return trackersArray.count
     }
@@ -338,6 +343,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
+        //let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         let tracker = trackersArray[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
@@ -406,6 +412,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return UICollectionReusableView()
         }
         guard visibleCategories.count != 0 else { return view }
+        //view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
         view.titleLabel.text = "Section name"
         return view
     }
