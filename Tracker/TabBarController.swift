@@ -9,7 +9,7 @@ import UIKit
 
 final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    var selectedTabBar: Int = 0
+    private var selectedTabBar: Int = 0
     
     var isDark = true { didSet { setNeedsStatusBarAppearanceUpdate() }}
     override var preferredStatusBarStyle: UIStatusBarStyle {

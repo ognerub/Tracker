@@ -15,7 +15,7 @@ final class TrackersListViewController: UIViewController {
     
     weak var delegate: TrackersListViewControllerDelegate?
     
-    // MARK: - Properties for CoreData
+    // MARK: - Properties for CoreData    
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
@@ -100,7 +100,7 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    // MARK: - viewDidLoad
+    // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         self.toggleAppearance(isDark: TabBarController().isDark)
@@ -302,7 +302,6 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
         )
         if isNotFutureDate {
             try? trackerRecordStore.addNewTrackerRecord(trackerRecord)
-            //collectionView.reloadItems(at: [indexPath])
         } else {
             return
         }
@@ -313,7 +312,6 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
         completedTrackers.enumerated().forEach { (index, trackerRecord) in
             if isSameTrackerRecord(trackerRecord: trackerRecord, id: id) {
                 try? trackerRecordStore.removeTrackerRecord(trackerRecord)
-                //collectionView.reloadItems(at: [indexPath])
             }
         }
         
@@ -336,8 +334,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return UICollectionReusableView()
         }
         guard visibleCategories.count != 0 else { return view }
-        view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
-        //view.titleLabel.text = "Section name"
+        view.changeTitle(title: "\(visibleCategories[indexPath.section].name)")
         return view
     }
 }

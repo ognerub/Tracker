@@ -16,7 +16,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
     static let reuseIdentifier = "TrackerScheduleTableViewCell"
     weak var delegate: TrackerScheduleTableViewCellDelegate?
     
-    var scheduleView: UIView = {
+    private var scheduleView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
@@ -25,7 +25,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         return view
     }()
     
-    var scheduleSwitch: UISwitch = {
+    private var scheduleSwitch: UISwitch = {
         let sswitch = UISwitch()
         sswitch.setOn(false, animated: false)
         sswitch.tintColor = UIColor(named: "YP Grey")
@@ -35,7 +35,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         return sswitch
     }()
     
-    var scheduleLabel: UILabel = {
+    private var scheduleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = UIColor(named: "YP Black")
@@ -44,7 +44,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         return label
     }()
     
-    var scheduleFooterView: UIView = {
+    private var scheduleFooterView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(named: "YP Grey")
@@ -58,10 +58,29 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         addSubviews()
         configureConstraints()
         scheduleSwitch.addTarget(self, action: #selector(switchChanged(sender: )), for: UIControl.Event.valueChanged)
+        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configCell(
+        at indexPath: IndexPath,
+        array: [WeekDay]
+    ) {
+        let items = TrackerScheduleTableViewCellViewModel(
+            scheduleView: scheduleView,
+            scheduleSwitch: scheduleSwitch,
+            scheduleLabel: scheduleLabel,
+            scheduleFooterView: scheduleFooterView)
+        let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
+        items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
+        let daysArray: [WeekDay] = WeekDay.allCases
+        items.scheduleLabel.text = daysArray[indexPath.row].rawValue
+        items.scheduleSwitch.isOn = (array[indexPath.row] != .empty)
+        let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
+        items.scheduleFooterView.alpha = alpha[indexPath.row]
     }
     
     // MARK: - Obj-C methods

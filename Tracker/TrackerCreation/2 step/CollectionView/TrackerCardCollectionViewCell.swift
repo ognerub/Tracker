@@ -9,14 +9,14 @@ import UIKit
 
 final class TrackerCardCollectionViewCell: UICollectionViewCell {
     
-    let cellBackgroundRound: UIView = {
+    private let cellBackgroundRound: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    let cellEmojiLabel: UILabel = {
+    private let cellEmojiLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 38)
         label.textAlignment = .center
@@ -47,17 +47,21 @@ final class TrackerCardCollectionViewCell: UICollectionViewCell {
         self.cellBackgroundRound.backgroundColor = backgroundColor
     }
     
+    func changeCellBackgroundColor(color: UIColor) {
+        cellBackgroundRound.backgroundColor = color
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
     }
     
     // MARK: - Configure Constraints
-    func addSubviews() {
+    private func addSubviews() {
         addSubview(cellBackgroundRound)
         addSubview(cellEmojiLabel)
     }
     
-    func configureConstraints() {
+    private func configureConstraints() {
         
         NSLayoutConstraint.activate([
             cellBackgroundRound.widthAnchor.constraint(equalToConstant: 52),

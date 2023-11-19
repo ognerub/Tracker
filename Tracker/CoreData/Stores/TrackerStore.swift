@@ -48,15 +48,29 @@ final class TrackerStore: NSObject {
     private var updatedIndexes: IndexSet?
     private var movedIndexes: Set<TrackerStoreUpdate.Move>?
     
-    convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        try! self.init(context: context)
+    var trackers: [Tracker] {
+        guard
+            let objects = self.fetchedResultsController?.fetchedObjects,
+            let trackers = try? objects.map({ try self.tracker(from: $0) })
+        else { return [] }
+        return trackers
     }
     
-    init(context: NSManagedObjectContext) throws {
+    convenience override init() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("AppDelegate init error")
+        }
+        let context = appDelegate.persistentContainer.viewContext
+        self.init(context: context)
+    }
+    
+    init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
-        
+        fetch()
+    }
+    
+    private func fetch() {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerCoreData.objectID, ascending: true)
@@ -69,15 +83,7 @@ final class TrackerStore: NSObject {
         )
         controller.delegate = self
         self.fetchedResultsController = controller
-        try controller.performFetch()
-    }
-    
-    var trackers: [Tracker] {
-        guard
-            let objects = self.fetchedResultsController?.fetchedObjects,
-            let trackers = try? objects.map({ try self.tracker(from: $0) })
-        else { return [] }
-        return trackers
+        try? controller.performFetch()
     }
     
     func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
@@ -107,7 +113,7 @@ final class TrackerStore: NSObject {
         )
     }
     
-    func weekDays(from scheduleString: String) -> [WeekDay] {
+    private func weekDays(from scheduleString: String) -> [WeekDay] {
         var weekDays: [WeekDay] = []
         scheduleString.components(separatedBy: ",").forEach{ day in
             switch day {
@@ -130,7 +136,7 @@ final class TrackerStore: NSObject {
         try context.save()
     }
     
-    func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
+    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
         trackerCoreData.id = trackerForCoreData(from: tracker).id
         trackerCoreData.name = trackerForCoreData(from: tracker).name
         trackerCoreData.color = trackerForCoreData(from: tracker).color
@@ -148,7 +154,7 @@ final class TrackerStore: NSObject {
         return object
     }
     
-    func trackerForCoreData(from tracker: Tracker) -> TrackerForCoreData {
+    private func trackerForCoreData(from tracker: Tracker) -> TrackerForCoreData {
         let id = tracker.id
         let name = tracker.name
         let color = uiColorMarshalling.hexString(from: tracker.color)
@@ -162,7 +168,7 @@ final class TrackerStore: NSObject {
             schedule: schedule)
     }
     
-    func scheduleString(from schedule: Schedule) -> String {
+    private func scheduleString(from schedule: Schedule) -> String {
         var scheduleString: [String] = []
         schedule.days.forEach { day in
                     let string = day.rawValue

@@ -234,7 +234,7 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    // MARK: - viewDidLoad()
+    // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         self.toggleAppearance(isDark: TabBarController().isDark)
@@ -339,7 +339,7 @@ extension TrackerCardViewController {
         scheduleButton.setAttributedTitle(mutableString, for: .normal)
     }
     
-    func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
+    private func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
         let mutableString = NSMutableAttributedString(string: string)
         mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
         return mutableString
@@ -529,7 +529,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                 }
             }
             newTrackerEmoji = emojies[indexPath.row]
-            cell.cellBackgroundRound.backgroundColor = UIColor(named: "YP LightGrey") ?? .gray
+            cell.changeCellBackgroundColor(color: UIColor(named: "YP LightGrey") ?? .gray)
             
         } else {
             
@@ -551,8 +551,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                 }
             }
             newTrackerColor = colors[indexPath.row]
-            cell.cellBackgroundRectangle.layer.borderWidth = 3
-            cell.cellBackgroundRectangle.alpha = 0.3
+            cell.changeCellBackground(borderWidth: 3, alpha: 0.3)
         }
     }
     
@@ -568,7 +567,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? SupplementaryView else {
             return UICollectionReusableView()
         }
-        view.titleLabel.text = indexPath.section == 0 ? "Emoji" : "Color"
+        view.changeTitle(title: indexPath.section == 0 ? "Emoji" : "Color")
         return view
     }
 }

@@ -31,7 +31,7 @@ final class StatisticsViewController: UIViewController {
         return bar
     }()
     
-    var statisticsLabel: UILabel = {
+    private var statisticsLabel: UILabel = {
         var label = UILabel()
         label.text = "Statistics"
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
@@ -64,7 +64,7 @@ final class StatisticsViewController: UIViewController {
     }
     
     // MARK: - Configure constraints
-    func showEmptyStatisticsInfo() {
+    private func showEmptyStatisticsInfo() {
         view.addSubview(emptyStatisticsLabel)
         view.addSubview(emptyStatisticsImageView)
         NSLayoutConstraint.activate([

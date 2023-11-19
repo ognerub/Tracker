@@ -44,16 +44,30 @@ final class TrackerCategoryStore: NSObject {
     private var deletedIndexes: IndexSet?
     private var updatedIndexes: IndexSet?
     private var movedIndexes: Set<TrackerCategoryStoreUpdate.Move>?
-
-    convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        try! self.init(context: context)
+    
+    var categories: [TrackerCategory] {
+        guard
+            let objects = self.fetchedResultsController?.fetchedObjects,
+            let categories = try? objects.map({ try self.category(from: $0) })
+        else { return [] }
+        return categories
     }
 
-    init(context: NSManagedObjectContext) throws {
+    convenience override init() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("AppDelegate init error")
+        }
+        let context = appDelegate.persistentContainer.viewContext
+        self.init(context: context)
+    }
+
+    init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
-
+        fetch()
+    }
+    
+    private func fetch() {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerCategoryCoreData.objectID, ascending: true)
@@ -66,18 +80,10 @@ final class TrackerCategoryStore: NSObject {
         )
         controller.delegate = self
         self.fetchedResultsController = controller
-        try controller.performFetch()
-    }
-
-    var categories: [TrackerCategory] {
-        guard
-            let objects = self.fetchedResultsController?.fetchedObjects,
-            let categories = try? objects.map({ try self.category(from: $0) })
-        else { return [] }
-        return categories
+        try? controller.performFetch()
     }
     
-    func category(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
+    private func category(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
         guard let name = trackerCategoryCoreData.name else {
             throw TrackerCategoryStoreError.decodingErrorInvalidName
         }
@@ -90,11 +96,11 @@ final class TrackerCategoryStore: NSObject {
         )
     }
     
-    func trackers(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> [Tracker] {
+    private func trackers(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> [Tracker] {
         guard let trackersFromCoreData = trackerCategoryCoreData.trackers else {
             throw TrackerCategoryStoreError.decodingErrorInvalidTrackers
         }
-        guard let trackers = try? trackersFromCoreData.map({ try trackerStore.tracker(from: $0 as! TrackerCoreData) }) else {
+        guard let trackers = try? trackersFromCoreData.map({ try trackerStore.tracker(from: $0 as? TrackerCoreData ?? TrackerCoreData()) }) else {
             return []
         }
         return trackers
@@ -106,7 +112,7 @@ final class TrackerCategoryStore: NSObject {
         try context.save()
     }
 
-    func updateExistingTrackerCategories(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
+    private func updateExistingTrackerCategories(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
         let category = TrackerCategory(
             name: trackerCategory.name,
             trackers: trackerCategory.trackers

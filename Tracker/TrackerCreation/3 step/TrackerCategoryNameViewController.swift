@@ -70,8 +70,7 @@ final class TrackerCategoryNameViewController: UIViewController {
         return button
     }()
     
-    // MARK: - viewDidLoad()
-    
+    // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.toggleAppearance(isDark: TabBarController().isDark)
@@ -156,7 +155,7 @@ extension TrackerCategoryNameViewController {
         ])
     }
     
-    func         createNewCategoryButtonConfig() {
+    func createNewCategoryButtonConfig() {
         view.addSubview(createNewCategoryButton)
         NSLayoutConstraint.activate([
             createNewCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),

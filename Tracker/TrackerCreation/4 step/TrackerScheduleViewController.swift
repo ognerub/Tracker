@@ -34,7 +34,7 @@ final class TrackerScheduleViewController: UIViewController {
         return background
     }()
     
-    var titleLabel: UILabel = {
+    private var titleLabel: UILabel = {
         var label = UILabel()
         label.text = "Schedule"
         label.textAlignment = .center
@@ -69,8 +69,7 @@ final class TrackerScheduleViewController: UIViewController {
         return button
     }()
     
-    // MARK: - viewDidLoad()
-    
+    // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.toggleAppearance(isDark: TabBarController().isDark)
@@ -111,29 +110,10 @@ extension TrackerScheduleViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         TrackerScheduleTableViewCell.delegate = self
-        let cellViewModel = TrackerScheduleTableViewCellViewModel(
-            scheduleView: TrackerScheduleTableViewCell.scheduleView,
-            scheduleSwitch: TrackerScheduleTableViewCell.scheduleSwitch,
-            scheduleLabel: TrackerScheduleTableViewCell.scheduleLabel,
-            scheduleFooterView:
-                TrackerScheduleTableViewCell.scheduleFooterView)
-        configCell(at: indexPath, cell: cellViewModel)
+        TrackerScheduleTableViewCell.configCell(at: indexPath, array: newWeekDaysNamesArray)
         return TrackerScheduleTableViewCell
     }
-    func configCell(at indexPath: IndexPath, cell: TrackerScheduleTableViewCellViewModel) {
-        let items = TrackerScheduleTableViewCellViewModel(
-            scheduleView: cell.scheduleView,
-            scheduleSwitch: cell.scheduleSwitch,
-            scheduleLabel: cell.scheduleLabel,
-            scheduleFooterView: cell.scheduleFooterView)
-        let cornersArray: [CACornerMask] = [[.layerMinXMinYCorner, .layerMaxXMinYCorner],[],[],[],[],[],[.layerMinXMaxYCorner, .layerMaxXMaxYCorner]]
-        items.scheduleView.layer.maskedCorners = cornersArray[indexPath.row]
-        let daysArray: [WeekDay] = WeekDay.allCases
-        items.scheduleLabel.text = daysArray[indexPath.row].rawValue
-        items.scheduleSwitch.isOn = (newWeekDaysNamesArray[indexPath.row] != .empty)
-        let alpha = [1.0,1.0,1.0,1.0,1.0,1.0,0]
-        items.scheduleFooterView.alpha = alpha[indexPath.row]
-    }
+    
 }
 
 // MARK: - TrackerScheduleTableViewCellDelegate (extension)

@@ -9,7 +9,7 @@ import UIKit
 
 final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
     
-    let cellBackgroundRectangle: UIView = {
+    private let cellBackgroundRectangle: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 8
         view.layer.borderWidth = 3
@@ -18,7 +18,7 @@ final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
         return view
     }()
     
-    let cellMiddleRectangle: UIView = {
+    private let cellMiddleRectangle: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 8
         view.layer.borderWidth = 3
@@ -54,17 +54,22 @@ final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
         cellMiddleRectangle.backgroundColor = color
     }
     
+    func changeCellBackground(borderWidth: CGFloat, alpha: CGFloat) {
+        cellBackgroundRectangle.layer.borderWidth = borderWidth
+        cellBackgroundRectangle.alpha = alpha
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
     }
     
     // MARK: - Configure Constraints
-    func addSubviews() {
+    private func addSubviews() {
         addSubview(cellBackgroundRectangle)
         addSubview(cellMiddleRectangle)
     }
     
-    func configureConstraints() {
+    private func configureConstraints() {
         
         NSLayoutConstraint.activate([
             cellBackgroundRectangle.widthAnchor.constraint(equalToConstant: 52),

@@ -14,6 +14,7 @@ enum TrackerRecordStoreError: Error {
     case decodingErrorInvalidColor
     case decodingErrorInvalidEmoji
     case decodingErrorInvalidSchedule
+    case contextInitError
 }
 
 struct TrackerRecordStoreUpdate {
@@ -44,16 +45,30 @@ final class TrackerRecordStore: NSObject {
     private var deletedIndexes: IndexSet?
     private var updatedIndexes: IndexSet?
     private var movedIndexes: Set<TrackerRecordStoreUpdate.Move>?
-
-    convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        try! self.init(context: context)
+    
+    var completedTrackers: [TrackerRecord] {
+        guard
+            let objects = self.fetchedResultsController.fetchedObjects,
+            let trackers = try? objects.map({ try self.trackerRecord(from: $0) })
+        else { return [] }
+        return trackers
     }
 
-    init(context: NSManagedObjectContext) throws {
+    convenience override init() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("AppDelegate init error")
+        }
+        let context = appDelegate.persistentContainer.viewContext
+        self.init(context: context)
+    }
+
+    init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
-
+        fetch()
+    }
+    
+    private func fetch() {
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerRecordCoreData.objectID, ascending: true)
@@ -66,18 +81,10 @@ final class TrackerRecordStore: NSObject {
         )
         controller.delegate = self
         self.fetchedResultsController = controller
-        try controller.performFetch()
-    }
-
-    var completedTrackers: [TrackerRecord] {
-        guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let trackers = try? objects.map({ try self.trackerRecord(from: $0) })
-        else { return [] }
-        return trackers
+        try? controller.performFetch()
     }
     
-    func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
+    private func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard let id = trackerRecordCoreData.id else {
             throw TrackerRecordStoreError.decodingErrorInvalidID
         }
@@ -95,7 +102,7 @@ final class TrackerRecordStore: NSObject {
         try context.save()
     }
 
-    func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
+    private func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
         
         trackerRecordCoreData.id = trackerRecord.id
         trackerRecordCoreData.date = trackerRecord.date
@@ -141,10 +148,10 @@ extension TrackerRecordStore: NSFetchedResultsControllerDelegate {
         delegate?.store(
             self,
             didUpdate: TrackerRecordStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!,
-                updatedIndexes: updatedIndexes!,
-                movedIndexes: movedIndexes!
+                insertedIndexes: insertedIndexes ?? IndexSet(),
+                deletedIndexes: deletedIndexes ?? IndexSet(),
+                updatedIndexes: updatedIndexes ?? IndexSet(),
+                movedIndexes: movedIndexes ?? Set()
             )
         )
         insertedIndexes = nil

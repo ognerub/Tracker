@@ -14,8 +14,8 @@
             filePath = "Tracker/TrackersList/TrackersListViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "313"
-            endingLineNumber = "313"
+            startingLineNumber = "312"
+            endingLineNumber = "312"
             landmarkName = "uncompleteTracker(id:at:)"
             landmarkType = "7">
             <Locations>

@@ -18,13 +18,13 @@ final class TrackerCategoryViewController: UIViewController {
     
     // MARK: - Mutable properties:
     
-    private var titleBackground: UIView = {
+    private let titleBackground: UIView = {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
         return background
     }()
     
-    var titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         var label = UILabel()
         label.text = "Category"
         label.textAlignment = .center
@@ -33,7 +33,7 @@ final class TrackerCategoryViewController: UIViewController {
         return label
     }()
     
-    private var tableView: UITableView = {
+    private let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         table.allowsMultipleSelection = false
@@ -63,7 +63,7 @@ final class TrackerCategoryViewController: UIViewController {
     private var cornersArray: [CACornerMask] = []
     private var alpha: [CGFloat] = []
     
-    private var categoriesNames: [String] { didSet { computeCornersAndAlphaForTableView() } }
+    private var categoriesNames: [String] { didSet { computeTableViewStyle() } }
     private var selectedCategoryRow: Int?
     
     private var selectionArray: [CGFloat] = [] { didSet { tableView.reloadData() } }
@@ -100,7 +100,7 @@ final class TrackerCategoryViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - viewDidLoad()
+    // MARK: - View controller lifecycle methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,7 +108,7 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
-        computeCornersAndAlphaForTableView()
+        computeTableViewStyle()
         tableViewConfig()
     }
     
@@ -129,7 +129,7 @@ final class TrackerCategoryViewController: UIViewController {
         self.present(vc, animated: true, completion: nil)
     }
     
-    private func computeCornersAndAlphaForTableView() {
+    private func computeTableViewStyle() {
         /// create and change selectionArray for selection of category button
         var selectionArray = self.selectionArray
         if selectionArray.count == 0 && categoriesNames.count > 0 {
@@ -145,20 +145,25 @@ final class TrackerCategoryViewController: UIViewController {
             selectionArray.insert(1.0, at: selectedCategoryRow)
         }
         self.selectionArray = selectionArray
+        
+        cornersArray = getCornersArray(categoriesCount: categoriesNames.count)
+    }
+    
+    private func getCornersArray(categoriesCount: Int) -> [CACornerMask] {
         /// switch corners of category button depending on array.count
         let allCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         let firstCellCornersArray: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         let lastCellCornersArray: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        switch categoriesNames.count {
+        switch categoriesCount {
         case 0:
             alpha = [0]
-            return cornersArray = []
+            return []
         case 1:
             alpha = [0]
-            return cornersArray = [allCornersArray]
+            return [allCornersArray]
         case 2:
             alpha = [1.0,0]
-            return cornersArray = [firstCellCornersArray, lastCellCornersArray]
+            return [firstCellCornersArray, lastCellCornersArray]
         default:
             var combineArray: [CACornerMask] = [firstCellCornersArray]
             var alphaArray: [CGFloat] = [1.0]
@@ -170,7 +175,7 @@ final class TrackerCategoryViewController: UIViewController {
             combineArray.append(lastCellCornersArray)
             alphaArray.append(0)
             alpha = alphaArray
-            return cornersArray = combineArray
+            return combineArray
         }
     }
     
@@ -227,30 +232,20 @@ extension TrackerCategoryViewController: UITableViewDataSource {
         guard let TrackerCategoryTableViewCell = cell as? TrackerCategoryTableViewCell else {
             return UITableViewCell()
         }
-        let cellViewModel = TrackerCategoryTableViewCellViewModel(
-            categoryView: TrackerCategoryTableViewCell.categoryView,
-            categoryLabel: TrackerCategoryTableViewCell.categoryLabel,
-            categoryFooterView:
-                TrackerCategoryTableViewCell.categoryFooterView,
-            categoryCheckMark: TrackerCategoryTableViewCell.categoryCheckMark)
-        configCell(at: indexPath, cell: cellViewModel)
+        
+        TrackerCategoryTableViewCell.configCell(
+            at: indexPath,
+            cornersArray: cornersArray,
+            categoriesNames: categoriesNames,
+            alpha: alpha,
+            selectionArray: selectionArray)
         return TrackerCategoryTableViewCell
-    }
-    func configCell(at indexPath: IndexPath, cell: TrackerCategoryTableViewCellViewModel) {
-        let items = TrackerCategoryTableViewCellViewModel(
-            categoryView: cell.categoryView,
-            categoryLabel: cell.categoryLabel,
-            categoryFooterView: cell.categoryFooterView,
-            categoryCheckMark: cell.categoryCheckMark)
-        items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
-        items.categoryLabel.text = categoriesNames[indexPath.row]
-        items.categoryFooterView.alpha = alpha[indexPath.row]
-        items.categoryCheckMark.alpha = selectionArray[indexPath.row]
     }
 }
 
+// MARK: - Private methods
+
 private extension TrackerCategoryViewController {
-    // MARK: - Constraints configuration
     
     func titleConfig() {
         view.addSubview(titleBackground)
@@ -268,7 +263,7 @@ private extension TrackerCategoryViewController {
         ])
     }
     
-    func         addNewCategoryButtonConfig() {
+    func addNewCategoryButtonConfig() {
         view.addSubview(addNewCategoryButton)
         NSLayoutConstraint.activate([
             addNewCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),

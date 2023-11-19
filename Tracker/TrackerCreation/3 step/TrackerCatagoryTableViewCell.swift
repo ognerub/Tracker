@@ -11,7 +11,7 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
     
     static let reuseIdentifier = "TrackerCategoryTableViewCell"
     
-    var categoryView: UIView = {
+    private var categoryView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
@@ -20,7 +20,7 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         return view
     }()
     
-    var categoryLabel: UILabel = {
+    private var categoryLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = UIColor(named: "YP Black")
@@ -29,14 +29,14 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         return label
     }()
     
-    var categoryFooterView: UIView = {
+    private var categoryFooterView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(named: "YP Grey")
         return view
     }()
     
-    var categoryCheckMark: UIImageView = {
+    private var categoryCheckMark: UIImageView = {
         let image = UIImage(named: "CategoryCheckmark")
         let imageView = UIImageView(image: image)
         imageView.alpha = 0
@@ -50,6 +50,24 @@ final class TrackerCategoryTableViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "YP White")
         addSubviews()
         configureConstraints()
+    }
+    
+    func configCell(
+        at indexPath: IndexPath,
+        cornersArray: [CACornerMask],
+        categoriesNames: [String],
+        alpha: [CGFloat],
+        selectionArray: [CGFloat]
+    ) {
+        let items = TrackerCategoryTableViewCellViewModel(
+            categoryView: categoryView,
+            categoryLabel: categoryLabel,
+            categoryFooterView: categoryFooterView,
+            categoryCheckMark: categoryCheckMark)
+        items.categoryView.layer.maskedCorners = cornersArray[indexPath.row]
+        items.categoryLabel.text = categoriesNames[indexPath.row]
+        items.categoryFooterView.alpha = alpha[indexPath.row]
+        items.categoryCheckMark.alpha = selectionArray[indexPath.row]
     }
     
     required init?(coder: NSCoder) {
