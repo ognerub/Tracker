@@ -112,20 +112,7 @@ final class TrackerCategoryStore: NSObject {
             trackers: trackerCategory.trackers
         )
         trackerCategoryCoreData.name = category.name
-    }
-    
-//    func trackersForCoreData(from category: TrackerCategory) -> [TrackerForCoreData] {
-//        var trackersForCoreData: [TrackerForCoreData] = []
-//        let trackers = category.trackers
-//        trackers.forEach { tracker in
-//            let trackerForCoreData = trackerStore.trackerForCoreData(from: tracker)
-//            trackersForCoreData.append(trackerForCoreData)
-//        }
-//        //let trackersNSSet: NSSet? = NSSet(array: trackersForCoreData)
-//        //return trackersNSSet
-//        return trackersForCoreData
-//    }
-    
+    }    
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

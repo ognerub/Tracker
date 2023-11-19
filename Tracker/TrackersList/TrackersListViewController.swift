@@ -15,13 +15,16 @@ final class TrackersListViewController: UIViewController {
     
     weak var delegate: TrackersListViewControllerDelegate?
     
+    // MARK: - Properties for CoreData
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerStore = TrackerStore()
+    private let trackerRecordStore = TrackerRecordStore()
+    
     //MARK: - Properties for CollectionView
     private var trackersArray: [Tracker] = []
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
-    
     private var selectedCategoryRow: Int?
-    
     private var completedTrackers: [TrackerRecord] = []
     
     private let collectionView: UICollectionView = {
@@ -97,10 +100,6 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-      private let trackerCategoryStore = TrackerCategoryStore()
-      private let trackerStore = TrackerStore()
-    private let trackerRecordStore = TrackerRecordStore()
-    
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -116,6 +115,7 @@ final class TrackersListViewController: UIViewController {
         trackerCategoryStore.delegate = self
         trackerRecordStore.delegate = self
         
+        // TODO: - 16 Sprint - Replace mock category
         if trackerCategoryStore.categories.isEmpty {
             let mockCategory = TrackerCategory(name: "New mock category", trackers: [])
             try? trackerCategoryStore.addNewTrackerCategory(mockCategory)
@@ -128,6 +128,7 @@ final class TrackersListViewController: UIViewController {
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         reloadVisibleCategories()
+        // TODO: - 16 Sprint - PerformBatchUpdates
         //collectionViewPerformBatchUpdates(using: update)
     }
 }
@@ -135,7 +136,7 @@ extension TrackersListViewController: TrackerStoreDelegate {
 extension TrackersListViewController: TrackerCategoryStoreDelegate {
 
     func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
-        
+        // TODO: - 16 Sprint - Categories update
     }
 }
 
@@ -145,26 +146,6 @@ extension TrackersListViewController: TrackerRecordStoreDelegate {
         reloadVisibleCategories()
     }
 }
-
-
-//    func collectionViewPerformBatchUpdates(using update: TrackerStoreUpdate) {
-//        collectionView.performBatchUpdates {
-//            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-//            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-//            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
-//            collectionView.insertItems(at: insertedIndexPaths)
-//            collectionView.insertItems(at: deletedIndexPaths)
-//            collectionView.insertItems(at: updatedIndexPaths)
-//            for move in update.movedIndexes {
-//                collectionView.moveItem(
-//                    at: IndexPath(item: move.oldIndex, section: 0),
-//                    to: IndexPath(item: move.newIndex, section: 0)
-//                )
-//            }
-//        }
-//    }
-
-    
 
 extension TrackersListViewController {
     
@@ -217,7 +198,7 @@ extension TrackersListViewController {
         let vc = TrackerTypeViewController()
         vc.delegate = self
         self.delegate = vc
-        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
+        self.delegate?.sendCategoriesToTrackerCardViewController(trackerCategoryStore.categories)
         present(vc, animated: true)
     }
 }
@@ -274,8 +255,6 @@ extension TrackersListViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard visibleCategories[section].trackers.count != 0 else { return 0 }
         return visibleCategories[section].trackers.count
-//        guard trackersArray.count != 0 else { return 0 }
-//        return trackersArray.count
     }
     
     /// Cell for item
@@ -287,7 +266,6 @@ extension TrackersListViewController: UICollectionViewDataSource {
         cell.delegate = self
         
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
-        //let tracker = trackersArray[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
