@@ -97,8 +97,8 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-//    private let trackerCategoryStore = TrackerCategoryStore()
-    private let trackerStore = TrackerStore()
+      private let trackerCategoryStore = TrackerCategoryStore()
+      private let trackerStore = TrackerStore()
     
     // MARK: - viewDidLoad
     override func viewDidLoad() {
@@ -108,43 +108,28 @@ final class TrackersListViewController: UIViewController {
         view.backgroundColor = .white
         addTopBar()
         collectionViewConfig()
-        //reloadVisibleCategories()
         
         // MARK: - CoreData
         
         trackerStore.delegate = self
-        trackersArray = trackerStore.trackers
-       
-        //trackerCategoryStore.delegate = self
-        //visibleCategories = trackerCategoryStore.categories
+        
+        if trackerCategoryStore.categories.isEmpty {
+            let mockCategory = TrackerCategory(name: "New mock category", trackers: [])
+            try? trackerCategoryStore.addNewTrackerCategory(mockCategory)
+        }
+        trackerCategoryStore.delegate = self
+        
+        reloadVisibleCategories()
     }
 }
 
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
-        trackersArray = trackerStore.trackers
-        collectionView.reloadData()
-//        collectionView.performBatchUpdates {
-//            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-//            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-//            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
-//            collectionView.insertItems(at: insertedIndexPaths)
-//            collectionView.insertItems(at: deletedIndexPaths)
-//            collectionView.insertItems(at: updatedIndexPaths)
-//            for move in update.movedIndexes {
-//                collectionView.moveItem(
-//                    at: IndexPath(item: move.oldIndex, section: 0),
-//                    to: IndexPath(item: move.newIndex, section: 0)
-//                )
-//            }
-//        }
+        reloadVisibleCategories()
+        //collectionViewPerformBatchUpdates(using: update)
     }
-}
 
-//extension TrackersListViewController: TrackerCategoryStoreDelegate {
-//
-//    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
-//        visibleCategories = trackerCategoryStore.categories
+//    func collectionViewPerformBatchUpdates(using update: TrackerStoreUpdate) {
 //        collectionView.performBatchUpdates {
 //            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
 //            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
@@ -160,131 +145,150 @@ extension TrackersListViewController: TrackerStoreDelegate {
 //            }
 //        }
 //    }
-//}
+}
+
+extension TrackersListViewController: TrackerCategoryStoreDelegate {
+
+    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
+        
+    }
+}
     
 
 extension TrackersListViewController {
     
+    // MARK: - Reload
     private func reloadVisibleCategories() {
-        
-//        let filterWeekDay = datePicker.date.dayOfWeek()
-//        let filterText = (searchBar.text ?? "").lowercased()
-//
-//        var notEmptyCategories: [TrackerCategory] = []
-//        for category in 0 ..< categories.count {
-//            if categories[category].trackers.count != 0 {
-//                notEmptyCategories.append(categories[category])
-//            }
-//        }
-//
-//        visibleCategories = notEmptyCategories.map { category in
-//            let trackers = category.trackers.filter { tracker in
-//                let textCondition = filterText.isEmpty ||
-//                tracker.name.lowercased().contains(filterText)
-//                let dateCondition = tracker.schedule.days.contains { WeekDay in
-//                    WeekDay.rawValue == filterWeekDay
-//                }
-//                return textCondition && dateCondition
-//            }
-//            return TrackerCategory(
-//                name: category.name,
-//                trackers: trackers)
-//        }
+        let filterWeekDay = datePicker.date.dayOfWeek()
+        let filterText = (searchBar.text ?? "").lowercased()
+
+        var notEmptyCategories: [TrackerCategory] = []
+        for category in 0 ..< trackerCategoryStore.categories.count {
+            if trackerCategoryStore.categories[category].trackers.count != 0 {
+                notEmptyCategories.append(trackerCategoryStore.categories[category])
+            }
+        }
+        visibleCategories = notEmptyCategories.map { category in
+            let trackers = category.trackers.filter { tracker in
+                let textCondition = filterText.isEmpty ||
+                tracker.name.lowercased().contains(filterText)
+                let dateCondition = tracker.schedule.days.contains { WeekDay in
+                    WeekDay.rawValue == filterWeekDay
+                }
+                return textCondition && dateCondition
+            }
+            return TrackerCategory(
+                name: category.name,
+                trackers: trackers)
+        }
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
     
     private func showOrHideEmptyTrackersInfo() {
-        //if visibleCategories.count == 0 {
-        if trackersArray.count == 0 {
+        if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
         } else {
-            hideEmptyTrackersInfo()
+            if visibleCategories[0].trackers.count == 0 {
+                showEmptyTrackersInfo()
+            } else {
+                hideEmptyTrackersInfo()
+            }
         }
     }
     
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
-        
-        let tracker = Tracker(id: UUID(), name: "New", color: .blue
-                              , emoji: "😋", schedule: Schedule(days: [WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.empty,WeekDay.saturday, WeekDay.sunday]))
-        try! trackerStore.addNewTracker(tracker)
-        
-//        let vc = TrackerTypeViewController()
-//        vc.delegate = self
-//        self.delegate = vc
-//        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
-//        present(vc, animated: true)
+        let vc = TrackerTypeViewController()
+        vc.delegate = self
+        self.delegate = vc
+        self.delegate?.sendCategoriesToTrackerCardViewController(categories)
+        present(vc, animated: true)
     }
 }
 
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
-        trackersArray.append(newTracker)
+//        var categoryForStore = trackerCategoryStore.categories
+//        if categoryForStore.isEmpty {
+//            let category: TrackerCategory = TrackerCategory(name: "New category \(String(describing: [0,1,2].randomElement()))", trackers: [newTracker])
+//            categoryForStore = [category]
+//        } else {
+//            var trackers = categoryForStore[0].trackers
+//            trackers.append(newTracker)
+//            let category = TrackerCategory(name: categories[0].name, trackers: trackers)
+//            categoryForStore = [category]
+//        }
         
-        if let categoriesNames = categoriesNames,
-           let selectedCategoryRow = selectedCategoryRow {
-            /// create new array with categories for processing
-            var currentCategories = self.categories
-            /// current array with names
-            var currentCategoriesNames: [String] = []
-            /// new array with names
-            var newCategoriesNames: [String] = []
-            /// if current categories is not empty
-            if currentCategories.count > 0 {
-                /// append array with names from current categories
-                for category in 0 ..< currentCategories.count {
-                    currentCategoriesNames.append(currentCategories[category].name)
-                }
-                /// set new array equal to current array
-                newCategoriesNames = currentCategoriesNames
-                /// check that array contains received names
-                for name in 0 ..< categoriesNames.count {
-                    if !currentCategoriesNames.contains(categoriesNames[name]) {
-                        /// if array not contains received names, add them to new array
-                        newCategoriesNames.append(categoriesNames[name])
-                    }
-                }
-                /// add new categories if needed
-                for item in 0 ..< newCategoriesNames.count {
-                    if item > (currentCategoriesNames.count-1) {
-                        let category = TrackerCategory(
-                            name: newCategoriesNames[item],
-                            trackers: item == selectedCategoryRow ? [newTracker] : [])
-                        currentCategories.append(category)
-                    } else {
-                        /// or append existing category with trackers
-                        if item == selectedCategoryRow {
-                            var trackers = currentCategories[item].trackers
-                            trackers.append(newTracker)
-                            let name = currentCategories[item].name
-                            let category = TrackerCategory(
-                                name: name,
-                                trackers: trackers)
-                            currentCategories.remove(at: item)
-                            currentCategories.insert(category, at: item)
-                        }
-                    }
-                }
-                /// set self.categories equal to computed category
-                self.categories = currentCategories
-            } else {
-                /// self.categories is empty, need to append with new names
-                for item in 0 ..< categoriesNames.count {
-                    let category = TrackerCategory(
-                        name: categoriesNames[item],
-                        trackers: item == selectedCategoryRow ? [newTracker] : [])
-                    currentCategories.append(category)
-                }
-            }
-            self.categories = currentCategories
-        }
+        try? trackerStore.addNewTracker(newTracker)
         
-        self.selectedCategoryRow = selectedCategoryRow
         
-        reloadVisibleCategories()
+        //trackersArray.append(newTracker)
+        
+//        if let categoriesNames = categoriesNames,
+//           let selectedCategoryRow = selectedCategoryRow {
+//            /// create new array with categories for processing
+//            var currentCategories = self.categories
+//            /// current array with names
+//            var currentCategoriesNames: [String] = []
+//            /// new array with names
+//            var newCategoriesNames: [String] = []
+//            /// if current categories is not empty
+//            if currentCategories.count > 0 {
+//                /// append array with names from current categories
+//                for category in 0 ..< currentCategories.count {
+//                    currentCategoriesNames.append(currentCategories[category].name)
+//                }
+//                /// set new array equal to current array
+//                newCategoriesNames = currentCategoriesNames
+//                /// check that array contains received names
+//                for name in 0 ..< categoriesNames.count {
+//                    if !currentCategoriesNames.contains(categoriesNames[name]) {
+//                        /// if array not contains received names, add them to new array
+//                        newCategoriesNames.append(categoriesNames[name])
+//                    }
+//                }
+//                /// add new categories if needed
+//                for item in 0 ..< newCategoriesNames.count {
+//                    if item > (currentCategoriesNames.count-1) {
+//                        let category = TrackerCategory(
+//                            name: newCategoriesNames[item],
+//                            trackers: item == selectedCategoryRow ? [newTracker] : [])
+//                        currentCategories.append(category)
+//                    } else {
+//                        /// or append existing category with trackers
+//                        if item == selectedCategoryRow {
+//                            var trackers = currentCategories[item].trackers
+//                            trackers.append(newTracker)
+//                            let name = currentCategories[item].name
+//                            let category = TrackerCategory(
+//                                name: name,
+//                                trackers: trackers)
+//                            currentCategories.remove(at: item)
+//                            currentCategories.insert(category, at: item)
+//                        }
+//                    }
+//                }
+//                /// set self.categories equal to computed category
+//                self.categories = currentCategories
+//            } else {
+//                /// self.categories is empty, need to append with new names
+//                for item in 0 ..< categoriesNames.count {
+//                    let category = TrackerCategory(
+//                        name: categoriesNames[item],
+//                        trackers: item == selectedCategoryRow ? [newTracker] : [])
+//                    currentCategories.append(category)
+//                }
+//            }
+//            self.categories = currentCategories
+//        }
+//
+//        self.selectedCategoryRow = selectedCategoryRow
+//
+//        reloadVisibleCategories()
+        
         dismiss(animated: true)
     }
 }
@@ -324,15 +328,15 @@ extension TrackersListViewController: UISearchBarDelegate {
 extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        //return visibleCategories.count
-        return 1
+        return visibleCategories.count
+        //return 1
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        guard visibleCategories[section].trackers.count != 0 else { return 0 }
-//        return visibleCategories[section].trackers.count
-        guard trackersArray.count != 0 else { return 0 }
-        return trackersArray.count
+        guard visibleCategories[section].trackers.count != 0 else { return 0 }
+        return visibleCategories[section].trackers.count
+//        guard trackersArray.count != 0 else { return 0 }
+//        return trackersArray.count
     }
     
     /// Cell for item
@@ -343,8 +347,8 @@ extension TrackersListViewController: UICollectionViewDataSource {
         
         cell.delegate = self
         
-        //let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
-        let tracker = trackersArray[indexPath.row]
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
+        //let tracker = trackersArray[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
@@ -412,8 +416,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return UICollectionReusableView()
         }
         guard visibleCategories.count != 0 else { return view }
-        //view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
-        view.titleLabel.text = "Section name"
+        view.titleLabel.text = "\(visibleCategories[indexPath.section].name)"
+        //view.titleLabel.text = "Section name"
         return view
     }
 }

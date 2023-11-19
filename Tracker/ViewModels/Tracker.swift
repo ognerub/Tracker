@@ -18,7 +18,7 @@ struct Tracker: Identifiable {
 struct TrackerForCoreData: Identifiable {
     let id: UUID
     let name: String
-    let color: NSData
+    let color: String
     let emoji: String
-    let schedule: NSData
+    let schedule: String
 }

@@ -11,6 +11,7 @@ import CoreData
 enum TrackerCategoryStoreError: Error {
     case decodingErrorInvalidName
     case decodingErrorInvalidTrackers
+    case encodingErrorInvalidTrackers
 }
 
 struct TrackerCategoryStoreUpdate {
@@ -33,8 +34,10 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
 
 final class TrackerCategoryStore: NSObject {
     
+    private let trackerStore = TrackerStore()
+    
     private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>!
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>?
 
     weak var delegate: TrackerCategoryStoreDelegate?
     private var insertedIndexes: IndexSet?
@@ -68,10 +71,10 @@ final class TrackerCategoryStore: NSObject {
 
     var categories: [TrackerCategory] {
         guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let trackers = try? objects.map({ try self.category(from: $0) })
+            let objects = self.fetchedResultsController?.fetchedObjects,
+            let categories = try? objects.map({ try self.category(from: $0) })
         else { return [] }
-        return trackers
+        return categories
     }
     
     func category(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
@@ -88,49 +91,40 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func trackers(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> [Tracker] {
-        guard let trackers = trackerCategoryCoreData.trackers else {
+        guard let trackersFromCoreData = trackerCategoryCoreData.trackers else {
             throw TrackerCategoryStoreError.decodingErrorInvalidTrackers
         }
-        return trackers.compactMap({ $0 as? Tracker })
-    }
-    
-    func trackersForCoreData(from category: TrackerCategory) throws -> NSSet? {
-        var trackersForCoreData: [TrackerForCoreData] = []
-        let trackers = category.trackers
-        trackers.forEach { tracker in
-            let id = tracker.id
-            let name = tracker.name
-            let color = UIColorValueTransformer().transformedValue(tracker.color)
-            let emoji = tracker.emoji
-            let schedule = DaysValueTransformer().transformedValue(tracker.schedule)
-            let trackerForCoreData = TrackerForCoreData(
-                id: id,
-                name: name,
-                color: color as? NSData ?? NSData(data: Data(count: 0)),
-                emoji: emoji,
-                schedule: schedule as? NSData ?? NSData(data: Data(count: 0))
-                )
-            trackersForCoreData.append(trackerForCoreData)
+        guard let trackers = try? trackersFromCoreData.map({ try trackerStore.tracker(from: $0 as! TrackerCoreData) }) else {
+            return []
         }
-        let trackersNSSet: NSSet? = NSSet(array: trackersForCoreData)
-        return trackersNSSet
+        return trackers
     }
 
     func addNewTrackerCategory(_ trackerCategory: TrackerCategory) throws {
         let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
-        updateExistingTrackerCategory(trackerCategoryCoreData, with: trackerCategory)
+        updateExistingTrackerCategories(trackerCategoryCoreData, with: trackerCategory)
         try context.save()
     }
 
-    func updateExistingTrackerCategory(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
+    func updateExistingTrackerCategories(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
         let category = TrackerCategory(
             name: trackerCategory.name,
             trackers: trackerCategory.trackers
         )
         trackerCategoryCoreData.name = category.name
-        trackerCategoryCoreData.trackers = try? trackersForCoreData(from: category)
     }
     
+//    func trackersForCoreData(from category: TrackerCategory) -> [TrackerForCoreData] {
+//        var trackersForCoreData: [TrackerForCoreData] = []
+//        let trackers = category.trackers
+//        trackers.forEach { tracker in
+//            let trackerForCoreData = trackerStore.trackerForCoreData(from: tracker)
+//            trackersForCoreData.append(trackerForCoreData)
+//        }
+//        //let trackersNSSet: NSSet? = NSSet(array: trackersForCoreData)
+//        //return trackersNSSet
+//        return trackersForCoreData
+//    }
     
 }
 
@@ -146,10 +140,10 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
         delegate?.store(
             self,
             didUpdate: TrackerCategoryStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!,
-                updatedIndexes: updatedIndexes!,
-                movedIndexes: movedIndexes!
+                insertedIndexes: insertedIndexes ?? IndexSet(),
+                deletedIndexes: deletedIndexes ?? IndexSet(),
+                updatedIndexes: updatedIndexes ?? IndexSet(),
+                movedIndexes: movedIndexes ?? Set()
             )
         )
         insertedIndexes = nil

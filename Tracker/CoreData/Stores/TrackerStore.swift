@@ -14,6 +14,7 @@ enum TrackerStoreError: Error {
     case decodingErrorInvalidColor
     case decodingErrorInvalidEmoji
     case decodingErrorInvalidSchedule
+    case initError
 }
 
 struct TrackerStoreUpdate {
@@ -38,9 +39,11 @@ final class TrackerStore: NSObject {
     
     private let uiColorMarshalling = UIColorMarshalling()
     
-    private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
+    //private let trackerCategoryStore = TrackerCategoryStore()
     
+    private let context: NSManagedObjectContext
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
+
     weak var delegate: TrackerStoreDelegate?
     private var insertedIndexes: IndexSet?
     private var deletedIndexes: IndexSet?
@@ -73,7 +76,7 @@ final class TrackerStore: NSObject {
     
     var trackers: [Tracker] {
         guard
-            let objects = self.fetchedResultsController.fetchedObjects,
+            let objects = self.fetchedResultsController?.fetchedObjects,
             let trackers = try? objects.map({ try self.tracker(from: $0) })
         else { return [] }
         return trackers
@@ -130,11 +133,35 @@ final class TrackerStore: NSObject {
     }
     
     func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
-        trackerCoreData.id = tracker.id
-        trackerCoreData.name = tracker.name
-        trackerCoreData.color = uiColorMarshalling.hexString(from: tracker.color)
-        trackerCoreData.emoji = tracker.emoji
-        trackerCoreData.schedule = scheduleString(from: tracker.schedule)
+        trackerCoreData.id = trackerForCoreData(from: tracker).id
+        trackerCoreData.name = trackerForCoreData(from: tracker).name
+        trackerCoreData.color = trackerForCoreData(from: tracker).color
+        trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
+        trackerCoreData.schedule = trackerForCoreData(from: tracker).schedule
+        
+        let categories = fetchTrackerCategoryCoreData(with: context)
+        trackerCoreData.category = categories
+    }
+    
+    private func fetchTrackerCategoryCoreData(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.fetchLimit = 1
+        let object = try? context.fetch(request).first
+        return object
+    }
+    
+    func trackerForCoreData(from tracker: Tracker) -> TrackerForCoreData {
+        let id = tracker.id
+        let name = tracker.name
+        let color = uiColorMarshalling.hexString(from: tracker.color)
+        let emoji = tracker.emoji
+        let schedule = scheduleString(from: tracker.schedule)
+        return TrackerForCoreData(
+            id: id,
+            name: name,
+            color: color,
+            emoji: emoji,
+            schedule: schedule)
     }
     
     func scheduleString(from schedule: Schedule) -> String {
@@ -159,10 +186,10 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         delegate?.store(
             self,
             didUpdate: TrackerStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!,
-                updatedIndexes: updatedIndexes!,
-                movedIndexes: movedIndexes!
+                insertedIndexes: insertedIndexes ?? IndexSet(),
+                deletedIndexes: deletedIndexes ?? IndexSet(),
+                updatedIndexes: updatedIndexes ?? IndexSet(),
+                movedIndexes: movedIndexes ?? Set()
             )
         )
         insertedIndexes = nil
