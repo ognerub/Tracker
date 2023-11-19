@@ -38,7 +38,7 @@ protocol TrackerRecordStoreDelegate: AnyObject {
 final class TrackerRecordStore: NSObject {
     
     private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData>!
+    private var fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData>?
 
     weak var delegate: TrackerRecordStoreDelegate?
     private var insertedIndexes: IndexSet?
@@ -48,7 +48,7 @@ final class TrackerRecordStore: NSObject {
     
     var completedTrackers: [TrackerRecord] {
         guard
-            let objects = self.fetchedResultsController.fetchedObjects,
+            let objects = self.fetchedResultsController?.fetchedObjects,
             let trackers = try? objects.map({ try self.trackerRecord(from: $0) })
         else { return [] }
         return trackers
