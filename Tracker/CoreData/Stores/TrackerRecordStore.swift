@@ -96,10 +96,36 @@ final class TrackerRecordStore: NSObject {
     }
 
     func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
+        
         trackerRecordCoreData.id = trackerRecord.id
         trackerRecordCoreData.date = trackerRecord.date
+        
+        let trackers = fetchTrackers(with: context)
+        
+        trackerRecordCoreData.tracker = trackers?.first(where: {$0.id == trackerRecord.id} )
     }
-
+    
+    private func fetchTrackers(with context: NSManagedObjectContext) -> [TrackerCoreData]? {
+        let request = TrackerCoreData.fetchRequest()
+        let objects = try? context.fetch(request)
+        return objects
+    }
+    
+    func removeTrackerRecord(_ trackerRecord: TrackerRecord) throws {
+        
+        let records = fetchRecords(with: context)
+        
+        guard let recordToDelete = records?.first(where: {$0.id == trackerRecord.id && $0.date == trackerRecord.date} ) else { return }
+        
+        context.delete(recordToDelete)
+        try context.save()
+    }
+    
+    private func fetchRecords(with context: NSManagedObjectContext) -> [TrackerRecordCoreData]? {
+        let request = TrackerRecordCoreData.fetchRequest()
+        let objects = try? context.fetch(request)
+        return objects
+    }
     
 }
 

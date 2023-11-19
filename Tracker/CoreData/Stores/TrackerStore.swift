@@ -39,8 +39,6 @@ final class TrackerStore: NSObject {
     
     private let uiColorMarshalling = UIColorMarshalling()
     
-    //private let trackerCategoryStore = TrackerCategoryStore()
-    
     private let context: NSManagedObjectContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
 
@@ -139,11 +137,11 @@ final class TrackerStore: NSObject {
         trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
         trackerCoreData.schedule = trackerForCoreData(from: tracker).schedule
         
-        let categories = fetchTrackerCategoryCoreData(with: context)
+        let categories = fetchCategory(with: context)
         trackerCoreData.category = categories
     }
     
-    private func fetchTrackerCategoryCoreData(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
+    private func fetchCategory(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.fetchLimit = 1
         let object = try? context.fetch(request).first
