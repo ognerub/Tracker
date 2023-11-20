@@ -7,22 +7,16 @@
 
 import UIKit
 
-protocol CollectionViewCellDelegate: AnyObject {
+protocol TrackersListCollectionViewCellDelegate: AnyObject {
     func uncompleteTracker(id: UUID, at indexPath: IndexPath)
     func completeTracker(id: UUID, at indexPath: IndexPath)
 }
 
-final class CollectionViewCell: UICollectionViewCell {
+final class TrackersListCollectionViewCell: UICollectionViewCell {
     
-    weak var delegate: CollectionViewCellDelegate?
+    weak var delegate: TrackersListCollectionViewCellDelegate?
     
-    private let colors: [UIColor] = [
-        .black, .blue, .brown,
-        .cyan, .green, .orange,
-        .red, .purple, .yellow
-    ]
-    
-    let cellBackgroundSquare: UIView = {
+    private let cellBackgroundSquare: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
@@ -38,7 +32,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return view
     }()
     
-    let cellEmojiLabel: UILabel = {
+    private let cellEmojiLabel: UILabel = {
        var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
@@ -46,7 +40,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    let cellTrackerLabel: UILabel = {
+    private let cellTrackerLabel: UILabel = {
        var label = UILabel()
         label.text = "Something that user printed is shown here"
         label.font = UIFont.systemFont(ofSize: 12)
@@ -59,7 +53,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var cellPlusButton: UIButton = {
+    private lazy var cellPlusButton: UIButton = {
         let resizedImage = (UIImage(named: "PlusButton") ?? UIImage()).resized(to: CGSize(width: 10, height: 10))
         let button = UIButton.systemButton(
             with: resizedImage,
@@ -75,7 +69,7 @@ final class CollectionViewCell: UICollectionViewCell {
         return button
     }()
     
-    let cellDaysCounterLabel: UILabel = {
+    private let cellDaysCounterLabel: UILabel = {
        var label = UILabel()
         label.text = "0 days"
         label.font = UIFont.systemFont(ofSize: 12)
@@ -152,7 +146,7 @@ final class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func changeCellPlussButtonImage(changeValue: Bool) {
+    private func changeCellPlussButtonImage(changeValue: Bool) {
         if changeValue {
             let resizedImage = (UIImage(named: "Checkmark") ?? UIImage()).resized(to: CGSize(width: 10, height: 10))
             cellPlusButton.setImage(resizedImage, for: .normal)

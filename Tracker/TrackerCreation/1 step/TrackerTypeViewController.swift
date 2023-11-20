@@ -14,6 +14,8 @@ final class TrackerTypeViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
+    private var categories: [TrackerCategory]?
+    
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
         var background = UIView()
@@ -69,9 +71,10 @@ final class TrackerTypeViewController: UIViewController {
         return stackView
     }()
     
-    // MARK: - viewDidLoad
+    // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         stackViewConfig()
@@ -90,9 +93,10 @@ final class TrackerTypeViewController: UIViewController {
         regularOrUnregularTrackersChoosen(type: false)
     }
     
-    func regularOrUnregularTrackersChoosen(type: Bool) {
+    private func regularOrUnregularTrackersChoosen(type: Bool) {
         let vc = TrackerCardViewController()
         vc.delegate = self.delegate
+        vc.categories = self.categories
         if type {
             vc.titleLabel.text  = "New habit"
         } else {
@@ -102,9 +106,14 @@ final class TrackerTypeViewController: UIViewController {
     }
 }
 
+extension TrackerTypeViewController: TrackersListViewControllerDelegate {
+    func sendCategoriesToTrackerCardViewController(_ categories: [TrackerCategory]) {
+        self.categories = categories
+    }
+}
 
 // MARK: - Constraints configuration
-extension TrackerTypeViewController {
+private extension TrackerTypeViewController {
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([

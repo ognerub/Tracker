@@ -35,4 +35,3 @@ class TextFieldWithPadding: UITextField {
     private func setMaxLenght() { text = String(text!.prefix(38)) }
     
 }
-
