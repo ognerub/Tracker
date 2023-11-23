@@ -9,6 +9,8 @@ import UIKit
 
 final class OnboardingViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
+    private let userDefaults: UserDefaults = .standard
+    
     private var firstPage: UIViewController = {
         let page = UIViewController()
         let imageView = UIImageView(image: UIImage(named: "On First"))
@@ -24,19 +26,19 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         page.view.contentMode = .scaleToFill
         return page
     }()
-
+    
     private lazy var pages: [UIViewController] = {
         return [firstPage, secondPage]
     }()
-
+    
     private lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
-
+        
         pageControl.currentPageIndicatorTintColor = UIColor(named: "YP Black")
         pageControl.pageIndicatorTintColor = UIColor(named: "YP Black")?.withAlphaComponent(0.3)
-
+        
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
@@ -45,7 +47,7 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapActionButton)
+            action: #selector(didTapActionButton(sender: ))
         )
         button.setTitle("Wow, amazing technologies!", for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -81,66 +83,61 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
 
         dataSource = self
         delegate = self
-
+        configConstraints()
+        
         if let first = pages.first {
             setViewControllers([first], direction: .forward, animated: true, completion: nil)
         }
-
-        view.addSubview(mainLabel)
-        view.addSubview(pageControl)
-        view.addSubview(actionButton)
-
-        NSLayoutConstraint.activate([
-            mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            mainLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -304),
-            pageControl.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -168),
-            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            actionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            actionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -84),
-            actionButton.heightAnchor.constraint(equalToConstant: 60)
-        ])
     }
     
+    // MARK: - Objective-C functions
     @objc
-    func didTapActionButton() {
-        print("Wow button pressed")
+    func didTapActionButton(sender: UIButton) {
+        userDefaults.isNotFirstRun = true
+        setTabBarControllerAsRoot()
     }
+    
+    private func setTabBarControllerAsRoot() {
+        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration of switchToTabBarController") }
+        let tabBarController = TabBarController()
+        window.rootViewController = tabBarController
+    }
+}
 
+//MARK: - UIPageViewController DataSource & Deleagate
+extension OnboardingViewController {
     // MARK: - UIPageViewControllerDataSource
-
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = pages.firstIndex(of: viewController) else {
             return nil
         }
-
+        
         let previousIndex = viewControllerIndex - 1
-
+        
         guard previousIndex >= 0 else {
             return pages.last
         }
-
+        
         return pages[previousIndex]
     }
-
+    
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = pages.firstIndex(of: viewController) else {
             return nil
         }
-
+        
         let nextIndex = viewControllerIndex + 1
-
+        
         guard nextIndex < pages.count else {
             return pages.first
         }
-
+        
         return pages[nextIndex]
     }
-
+    
     // MARK: - UIPageViewControllerDelegate
-
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-
+        
         if let currentViewController = pageViewController.viewControllers?.first,
            let currentIndex = pages.firstIndex(of: currentViewController) {
             pageControl.currentPage = currentIndex
@@ -152,6 +149,26 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         } else {
             mainLabel.text = "Even if it`s not \n liters of water and yoga!"
         }
+    }
+}
+
+// MARK: - Configure constraints
+extension OnboardingViewController {
+    private func configConstraints() {
+        view.addSubview(mainLabel)
+        view.addSubview(pageControl)
+        view.addSubview(actionButton)
+        
+        NSLayoutConstraint.activate([
+            mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            mainLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -304),
+            pageControl.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -168),
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            actionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            actionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -84),
+            actionButton.heightAnchor.constraint(equalToConstant: 60)
+        ])
     }
 }
 
