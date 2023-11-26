@@ -143,15 +143,14 @@ final class TrackerStore: NSObject {
         trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
         trackerCoreData.schedule = trackerForCoreData(from: tracker).schedule
         
-        let categories = fetchCategory(with: context)
-        trackerCoreData.category = categories
+        let category = fetchCategory(with: context)
+        trackerCoreData.category = category
     }
     
     private func fetchCategory(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
         let request = TrackerCategoryCoreData.fetchRequest()
-        request.fetchLimit = 1
-        let object = try? context.fetch(request).first
-        return object
+        let objects = try? context.fetch(request).first
+        return objects
     }
     
     private func trackerForCoreData(from tracker: Tracker) -> TrackerForCoreData {

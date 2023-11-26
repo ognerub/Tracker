@@ -7,13 +7,7 @@
 
 import UIKit
 
-protocol TrackersListViewControllerDelegate: AnyObject {
-    func sendCategoriesToTrackerCardViewController(_ categories: [TrackerCategory])
-}
-
 final class TrackersListViewController: UIViewController {
-    
-    weak var delegate: TrackersListViewControllerDelegate?
     
     // MARK: - Properties for CoreData    
     private let trackerCategoryStore = TrackerCategoryStore()
@@ -116,11 +110,11 @@ final class TrackersListViewController: UIViewController {
         trackerRecordStore.delegate = self
         
         // TODO: - 16 Sprint - Replace mock category
-        if trackerCategoryStore.categories.isEmpty {
-            let mockCategory = TrackerCategory(name: "New mock category", trackers: [])
-            try? trackerCategoryStore.addNewTrackerCategory(mockCategory)
-        }
-        
+//        if trackerCategoryStore.categories.isEmpty {
+//            let mockCategory = TrackerCategory(name: "New mock category", trackers: [])
+//            try? trackerCategoryStore.addNewTrackerCategory(mockCategory)
+//        }
+
         reloadVisibleCategories()
     }
 }
@@ -196,9 +190,6 @@ extension TrackersListViewController {
     @objc
     func didTapPlusButton() {
         let vc = TrackerTypeViewController()
-        vc.delegate = self
-        self.delegate = vc
-        self.delegate?.sendCategoriesToTrackerCardViewController(trackerCategoryStore.categories)
         present(vc, animated: true)
     }
 }

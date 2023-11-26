@@ -18,7 +18,6 @@ final class TrackerCardViewController: UIViewController {
     
     private let categoryButtonTitle = "Category"
     private let scheduleButtonTitle = "Schedule"
-    private let newHabit = "New habit"
     
     
     // MARK: - Category properties
@@ -50,7 +49,7 @@ final class TrackerCardViewController: UIViewController {
         return view
     }()
     
-    private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: titleLabel.text == newHabit ? 781 : 706)
+    private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: regularTracker ? 781 : 706)
     
     private var activeSection: Int?
     private var previousSection: Int?
@@ -95,12 +94,14 @@ final class TrackerCardViewController: UIViewController {
     
     // MARK: - Mutable properties
     
-    var titleLabel: UILabel = {
+    var regularTracker: Bool = false
+    
+    private lazy var titleLabel: UILabel = {
         var label = UILabel()
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "New habit"
+        label.text = regularTracker ? "New habit" : "New unregular tracker"
         return label
     }()
     
@@ -248,7 +249,7 @@ final class TrackerCardViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if titleLabel.text != newHabit {
+        if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
             categoryButtonConfig()
@@ -258,7 +259,7 @@ final class TrackerCardViewController: UIViewController {
             scheduleButtonTitleTextConfig()
             contentSize = CGSize(width: view.frame.width, height: 781)
         }
-        categoryBattonTitleTextConfig()
+        categoryButtonTitleTextConfig()
         collectionViewConfig()
     }
 }
@@ -281,7 +282,7 @@ extension TrackerCardViewController {
         }
             var schedule = Schedule(
                 days: newTrackerDays)
-            if titleLabel.text != newHabit {
+            if !regularTracker {
                 let unregularSchedule = Schedule(
                     days: WeekDay.allCases.filter { $0 != WeekDay.empty })
                 schedule = unregularSchedule
@@ -297,7 +298,7 @@ extension TrackerCardViewController {
     }
     
     // MARK: - Set category and schedule buttons titles
-    private func categoryBattonTitleTextConfig() {
+    private func categoryButtonTitleTextConfig() {
         var categoryButtonTitleText = "\(categoryButtonTitle)"
         if let selectedCategory = selectedCategoryRow,
            let newCategoriesNames = newCategoriesNames {
@@ -391,7 +392,7 @@ extension TrackerCardViewController {
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
         /// if current categories array is nil we need to set categories names
         if self.newCategoriesNames == nil {
             /// create empty array with categories
@@ -418,7 +419,7 @@ extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
         }
         /// set selected category index
         self.selectedCategoryRow = selectedCategoryRow
-        categoryBattonTitleTextConfig()
+        categoryButtonTitleTextConfig()
         
         dismiss(animated: true, completion: { })
     }
@@ -455,7 +456,7 @@ extension TrackerCardViewController: UITextFieldDelegate {
     
     func createNewTrackerButtonIsActive(_ bool: Bool) {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        if bool && newTrackerDays != empty || titleLabel.text != newHabit {
+        if bool && newTrackerDays != empty || !regularTracker {
             createNewTrackerButton.isEnabled = true
             createNewTrackerButton.backgroundColor = UIColor(named: "YP Black")
         } else {
@@ -706,7 +707,7 @@ private extension TrackerCardViewController {
     
     // MARK: - CollectionView configure
     func collectionViewConfig() {
-        let bottomAnchorItem = titleLabel.text != newHabit ? categoryButton : verticalStackView
+        let bottomAnchorItem = !regularTracker ? categoryButton : verticalStackView
         /// Create collectionView with custom layout
         scrollView.addSubview(collectionView)
         NSLayoutConstraint.activate([

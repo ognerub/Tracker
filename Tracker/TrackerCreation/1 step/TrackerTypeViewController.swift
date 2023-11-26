@@ -12,10 +12,6 @@ import UIKit
 // MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
-    weak var delegate: TrackerCardViewControllerDelegate?
-    
-    private var categories: [TrackerCategory]?
-    
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
         var background = UIView()
@@ -95,20 +91,8 @@ final class TrackerTypeViewController: UIViewController {
     
     private func regularOrUnregularTrackersChoosen(type: Bool) {
         let vc = TrackerCardViewController()
-        vc.delegate = self.delegate
-        vc.categories = self.categories
-        if type {
-            vc.titleLabel.text  = "New habit"
-        } else {
-            vc.titleLabel.text  = "New unregular tracker"
-        }
+        vc.regularTracker = type
         present(vc, animated: true)
-    }
-}
-
-extension TrackerTypeViewController: TrackersListViewControllerDelegate {
-    func sendCategoriesToTrackerCardViewController(_ categories: [TrackerCategory]) {
-        self.categories = categories
     }
 }
 

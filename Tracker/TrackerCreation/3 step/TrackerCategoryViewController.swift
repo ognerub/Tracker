@@ -9,12 +9,15 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
 }
 
 final class TrackerCategoryViewController: UIViewController {
     
     weak var delegate: TrackerCategoryViewControllerDelegate?
+    
+    // MARK: - Properties for CoreData
+    private let trackerCategoryStore = TrackerCategoryStore()
     
     // MARK: - Mutable properties:
     
@@ -108,23 +111,36 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
+        categoriesNames = getCategoriesNamesFromStore()
         computeTableViewStyle()
         tableViewConfig()
+                
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if categoriesNames.count == 0 {
+        
+        if trackerCategoryStore.categories.isEmpty {
             showEmptyCategoriesInfo()
         } else {
             hideEmptyCategoriesInfo()
         }
     }
     
+    private func getCategoriesNamesFromStore() -> [String] {
+        let categoriesFromStore = trackerCategoryStore.getSortedCategories()
+        var categoriesNamesFromStore: [String] = []
+        categoriesFromStore.forEach { categoriesFromStore in
+            categoriesNamesFromStore.append(categoriesFromStore.name)
+        }
+        return categoriesNamesFromStore
+    }
+    
     // MARK: - Objective-C functions
     @objc
     func didTapAddNewCategoryButton() {
-        let vc = TrackerCategoryNameViewController(currentCategoriesNames: self.categoriesNames)
+        let vc = TrackerCategoryNameViewController()
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -188,7 +204,7 @@ final class TrackerCategoryViewController: UIViewController {
     /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
     private func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
-            self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
+            self.delegate?.sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
         }
     }
     
@@ -196,10 +212,10 @@ final class TrackerCategoryViewController: UIViewController {
 
 // MARK: - TrackerCategoryNameViewControllerDelegate
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
-    func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
+    func dismissTrackerCategoryNameViewController() {
         dismiss(animated: true, completion: { })
+        categoriesNames = getCategoriesNamesFromStore()
         clearTableViewSelection()
-        categoriesNames.append("\(categoryName)")
         hideEmptyCategoriesInfo()
     }
 }

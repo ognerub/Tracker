@@ -8,25 +8,18 @@
 import UIKit
 
 protocol TrackerCategoryNameViewControllerDelegate: AnyObject {
-    func sendCategoryNameToTrackerCategoryViewController(categoryName: String)
+    func dismissTrackerCategoryNameViewController()
 }
 
 final class TrackerCategoryNameViewController: UIViewController {
     
+    // MARK: - Properties for CoreData
+    private let trackerCategoryStore = TrackerCategoryStore()
+    
+    // MARK: - Properties
     weak var delegate: TrackerCategoryNameViewControllerDelegate?
     
     private var newCategoryName: String = ""
-    
-    private var currentCategoriesNames: [String]
-    
-    init(currentCategoriesNames: [String]) {
-        self.currentCategoriesNames = currentCategoriesNames
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     // MARK: - Mutable properties:
     
@@ -89,7 +82,9 @@ final class TrackerCategoryNameViewController: UIViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapCreateNewCategoryButton() {
-        self.delegate?.sendCategoryNameToTrackerCategoryViewController(categoryName: newCategoryName)
+        let newCategory = TrackerCategory(name: newCategoryName, trackers: [])
+        try? trackerCategoryStore.addNewTrackerCategory(newCategory)
+        self.delegate?.dismissTrackerCategoryNameViewController()
     }
 }
 
@@ -99,7 +94,7 @@ extension TrackerCategoryNameViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newCategoryName = updatedString
-        createNewCategoryButtonIsActive(newCategoryName.count > 0 && !currentCategoriesNames.contains(newCategoryName))
+        createNewCategoryButtonIsActive(newCategoryName.count > 0)
         return true
     }
     
