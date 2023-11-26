@@ -51,9 +51,6 @@ final class TrackerCardViewController: UIViewController {
     
     private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: regularTracker ? 781 : 706)
     
-    private var activeSection: Int?
-    private var previousSection: Int?
-    
     private let emojies = [
         "🙂","😻","🌺","🐶","❤️","😱",
         "😇","😡","🥶","🤔","🙌","🍔",
@@ -89,7 +86,6 @@ final class TrackerCardViewController: UIViewController {
     private var newTrackerName: String = ""
     private var newTrackerColor: UIColor = .clear
     private var newTrackerEmoji: String = ""
-    private var newTrackerDate: Date = Date()
     private var newTrackerDays: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
     
     // MARK: - Mutable properties

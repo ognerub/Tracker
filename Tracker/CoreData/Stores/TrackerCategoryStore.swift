@@ -138,6 +138,16 @@ final class TrackerCategoryStore: NSObject {
         let objects = try? context.fetch(request)
         return objects
     }
+    
+    func deleteAll() throws {
+        guard let objects = fetchAllCategories(with: context) else {
+            return
+        }
+        for object in objects {
+            context.delete(object)
+        }
+        try context.save()
+    }
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

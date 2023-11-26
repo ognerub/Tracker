@@ -14,13 +14,13 @@ protocol TrackerCategoryViewControllerDelegate: AnyObject {
 
 final class TrackerCategoryViewController: UIViewController {
     
+    // MARK: - MVVM property:
+    private var viewModel: TrackerCategoryViewModel?
+    
+    // MARK: - Delegate property:
     weak var delegate: TrackerCategoryViewControllerDelegate?
     
-    // MARK: - Properties for CoreData
-    private let trackerCategoryStore = TrackerCategoryStore()
-    
     // MARK: - Mutable properties:
-    
     private let titleBackground: UIView = {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -111,17 +111,22 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
-        categoriesNames = getCategoriesNamesFromStore()
         computeTableViewStyle()
         tableViewConfig()
-                
+        
+        viewModel = TrackerCategoryViewModel()
+        viewModel?.$categories.bind { [weak self] _ in
+            guard let self = self else { return }
+            self.categoriesNames = self.getCategoriesNamesFromStore()
+        }
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if trackerCategoryStore.categories.isEmpty {
+        guard let viewModel = viewModel else { return }
+        if viewModel.categories.isEmpty {
             showEmptyCategoriesInfo()
         } else {
             hideEmptyCategoriesInfo()
@@ -129,7 +134,8 @@ final class TrackerCategoryViewController: UIViewController {
     }
     
     private func getCategoriesNamesFromStore() -> [String] {
-        let categoriesFromStore = trackerCategoryStore.getSortedCategories()
+        guard let viewModel = viewModel else { return [] }
+        let categoriesFromStore = viewModel.getSortedCategories()
         var categoriesNamesFromStore: [String] = []
         categoriesFromStore.forEach { categoriesFromStore in
             categoriesNamesFromStore.append(categoriesFromStore.name)
@@ -214,7 +220,6 @@ final class TrackerCategoryViewController: UIViewController {
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
     func dismissTrackerCategoryNameViewController() {
         dismiss(animated: true, completion: { })
-        categoriesNames = getCategoriesNamesFromStore()
         clearTableViewSelection()
         hideEmptyCategoriesInfo()
     }
