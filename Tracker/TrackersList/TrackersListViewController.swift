@@ -151,13 +151,10 @@ extension TrackersListViewController {
         let filterWeekDay = datePicker.date.dayOfWeek()
         let filterText = (searchBar.text ?? "").lowercased()
 
-        var notEmptyCategories: [TrackerCategory] = []
-        for category in 0 ..< trackerCategoryStore.categories.count {
-            if trackerCategoryStore.categories[category].trackers.count != 0 {
-                notEmptyCategories.append(trackerCategoryStore.categories[category])
-            }
-        }
-        visibleCategories = notEmptyCategories.map { category in
+        
+        var filteredCategories: [TrackerCategory] = []
+        
+        filteredCategories = trackerCategoryStore.categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty ||
                 tracker.name.lowercased().contains(filterText)
@@ -169,7 +166,11 @@ extension TrackersListViewController {
             return TrackerCategory(
                 name: category.name,
                 trackers: trackers)
+            
         }
+        
+        visibleCategories = filteredCategories.filter { $0.trackers.count != 0 }
+        
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
@@ -178,11 +179,7 @@ extension TrackersListViewController {
         if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
         } else {
-            if visibleCategories[0].trackers.count == 0 {
-                showEmptyTrackersInfo()
-            } else {
-                hideEmptyTrackersInfo()
-            }
+            hideEmptyTrackersInfo()
         }
     }
     
@@ -190,6 +187,7 @@ extension TrackersListViewController {
     @objc
     func didTapPlusButton() {
         let vc = TrackerTypeViewController()
+        vc.delegate = self
         present(vc, animated: true)
     }
 }
@@ -198,7 +196,7 @@ extension TrackersListViewController {
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
         
-        try? trackerStore.addNewTracker(newTracker)
+        try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
         
         dismiss(animated: true)
     }

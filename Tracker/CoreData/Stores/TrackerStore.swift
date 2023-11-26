@@ -130,21 +130,32 @@ final class TrackerStore: NSObject {
         return weekDays
     }
     
-    func addNewTracker(_ tracker: Tracker) throws {
+    func addNewTracker(_ tracker: Tracker, selectedCategoryRow: Int?) throws {
         let trackerCoreData = TrackerCoreData(context: context)
-        updateExistingTracker(trackerCoreData, with: tracker)
+        updateExistingTracker(trackerCoreData, with: tracker, selectedCategoryRow: selectedCategoryRow)
         try context.save()
     }
     
-    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
+    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker, selectedCategoryRow: Int?) {
         trackerCoreData.id = trackerForCoreData(from: tracker).id
         trackerCoreData.name = trackerForCoreData(from: tracker).name
         trackerCoreData.color = trackerForCoreData(from: tracker).color
         trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
         trackerCoreData.schedule = trackerForCoreData(from: tracker).schedule
         
-        let category = fetchCategory(with: context)
+        var selected: Int = 0
+        if let selectedCategoryRow = selectedCategoryRow {
+            selected = selectedCategoryRow
+        }
+        let category = fetchSelectedCategory(with: context, selectedCategoryRow: selected)
         trackerCoreData.category = category
+    }
+    
+    private func fetchSelectedCategory(with context: NSManagedObjectContext, selectedCategoryRow: Int) -> TrackerCategoryCoreData? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "%K == %ld", #keyPath(TrackerCategoryCoreData.categoryId), selectedCategoryRow)
+        let object = try? context.fetch(request).first
+        return object
     }
     
     private func fetchCategory(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
