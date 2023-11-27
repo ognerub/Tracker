@@ -111,14 +111,16 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
-        computeTableViewStyle()
-        tableViewConfig()
-        
         viewModel = TrackerCategoryViewModel()
+        categoriesNames = getCategoriesNamesFromStore()               
+        
         viewModel?.$categories.bind { [weak self] _ in
             guard let self = self else { return }
             self.categoriesNames = self.getCategoriesNamesFromStore()
         }
+        
+        computeTableViewStyle()
+        tableViewConfig()
         
     }
     
