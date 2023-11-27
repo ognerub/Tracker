@@ -1,0 +1,53 @@
+/*
+  Localizable.strings
+  Tracker
+
+  Created by Admin on 11/27/23.
+  
+*/
+
+// TabBarController
+"tabBar.titles.first" = "Трекеры";
+"tabBar.titles.second" = "Статистика";
+// TrackersListViewController
+"emptyTrackersLabel" = "What we will watch?";
+"trackersLabel" = "Trackers";
+"searchBar.placeholder" = "Search...";
+"plusButton" = "PlusButton";
+// Statistics
+"emptyStatisticsLabel" = "Nothing to analize";
+"statisticsLabel" = "Statistics";
+// TrackerTypeViewController
+"trackerType.title" = "Creation of tracker";
+"regularTrackerButton" = "Regular";
+"unregularTrackerButton" = "Unregular";
+// TrackerCardViewController
+"categoryButtonTitle" = "Category";
+"scheduleButtonTitle" = "Schedule";
+"trackerCard.titles.first" = "New habit";
+"trackerCard.titles.second" = "New unregular tracker";
+"trackerCard.cancelButton" = "Cancel";
+"trackerCard.createNewTrackerButton" = "Create";
+"trackerCard.scheduleButtonTitleText.allCases" = "Everyday";
+"trackerCard.scheduleButtonTitleText.weekDays" = "WeekDays";
+"trackerCard.scheduleButtonTitleText.allCases" = "Weekends";
+"trackerCard.collectionView.titles.first" = "Emoji";
+"trackerCard.collectionView.titles.first" = "Color";
+// TrackerCategoryViewController
+"trackerCategory.title" = "Category";
+"trackerCategory.addNewCategoryButton" = "Add new category";
+"trackerCategory.emptyCategoriesLabel" = "Habits and unregular events \n can be combined by meaning";
+// TrackerCategoryNameViewController
+"trackerCategoryName.title" = "New category";
+"createNewCategoryButton" = "OK";
+
+// enum WeekDay
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+"empty" = "";
+
