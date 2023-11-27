@@ -6,6 +6,11 @@
   
 */
 
+
+// OnboardingViewController
+"mainLabel.text.first" = "Track only what you want!";
+"mainLabel.text.second" = "Even if it`s not liters of water and yoga!";
+"actionButton.title" = "Wow, amazing technologies!";
 // TabBarController
 "tabBar.titles.first" = "Trackers";
 "tabBar.titles.second" = "Statistics";

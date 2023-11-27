@@ -108,12 +108,6 @@ final class TrackersListViewController: UIViewController {
         trackerStore.delegate = self
         trackerCategoryStore.delegate = self
         trackerRecordStore.delegate = self
-        
-        // TODO: - 16 Sprint - Replace mock category
-//        if trackerCategoryStore.categories.isEmpty {
-//            let mockCategory = TrackerCategory(name: "New mock category", trackers: [])
-//            try? trackerCategoryStore.addNewTrackerCategory(mockCategory)
-//        }
 
         reloadVisibleCategories()
     }
@@ -122,15 +116,14 @@ final class TrackersListViewController: UIViewController {
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         reloadVisibleCategories()
-        // TODO: - 16 Sprint - PerformBatchUpdates
-        //collectionViewPerformBatchUpdates(using: update)
+        // TODO: - PerformBatchUpdates
     }
 }
 
 extension TrackersListViewController: TrackerCategoryStoreDelegate {
 
     func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
-        // TODO: - 16 Sprint - Categories update
+        // TODO: - Categories update
     }
 }
 

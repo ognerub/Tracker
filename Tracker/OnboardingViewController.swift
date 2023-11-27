@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class OnboardingViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+final class OnboardingViewController: UIPageViewController {
     
     private let userDefaults: UserDefaults = .standard
     
@@ -15,7 +15,6 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         let page = UIViewController()
         let imageView = UIImageView(image: UIImage(named: "On First"))
         page.view.addSubview(imageView)
-        page.view.contentMode = .scaleToFill
         return page
     }()
     
@@ -23,7 +22,6 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         let page = UIViewController()
         let imageView = UIImageView(image: UIImage(named: "On Second"))
         page.view.addSubview(imageView)
-        page.view.contentMode = .scaleToFill
         return page
     }()
     
@@ -49,7 +47,7 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
             target: self,
             action: #selector(didTapActionButton(sender: ))
         )
-        button.setTitle("Wow, amazing technologies!", for: .normal)
+        button.setTitle(NSLocalizedString("actionButton.title", comment: "Action button title"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -62,10 +60,10 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         let label = UILabel()
         label.textAlignment = .center
         label.textColor = UIColor(named: "YP Black")
-        label.text = "Track only what \n you want!"
         label.numberOfLines = 2
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.adjustsFontSizeToFitWidth = true
         return label
     }()
     
@@ -88,6 +86,16 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         if let first = pages.first {
             setViewControllers([first], direction: .forward, animated: true, completion: nil)
         }
+        
+        switchMainTitleText()
+    }
+    
+    private func switchMainTitleText() {
+        if pageControl.currentPage == 0 {
+            mainLabel.text = NSLocalizedString("mainLabel.text.first", comment: "First info text for onboarding")
+        } else {
+            mainLabel.text = NSLocalizedString("mainLabel.text.second", comment: "Second info text for onboarding")
+        }
     }
     
     // MARK: - Objective-C functions
@@ -104,9 +112,8 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
     }
 }
 
-//MARK: - UIPageViewController DataSource & Deleagate
-extension OnboardingViewController {
-    // MARK: - UIPageViewControllerDataSource
+//MARK: - UIPageViewControllerDataSource
+extension OnboardingViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = pages.firstIndex(of: viewController) else {
             return nil
@@ -134,8 +141,10 @@ extension OnboardingViewController {
         
         return pages[nextIndex]
     }
-    
-    // MARK: - UIPageViewControllerDelegate
+}
+
+// MARK: - UIPageViewControllerDelegate
+extension OnboardingViewController: UIPageViewControllerDelegate {
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         
         if let currentViewController = pageViewController.viewControllers?.first,
@@ -143,12 +152,7 @@ extension OnboardingViewController {
             pageControl.currentPage = currentIndex
         }
         
-        
-        if pageControl.currentPage == 0 {
-            mainLabel.text = "Track only what \n you want!"
-        } else {
-            mainLabel.text = "Even if it`s not \n liters of water and yoga!"
-        }
+        switchMainTitleText()
     }
 }
 
@@ -161,6 +165,8 @@ extension OnboardingViewController {
         
         NSLayoutConstraint.activate([
             mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            mainLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            mainLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             mainLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -304),
             pageControl.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -168),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),

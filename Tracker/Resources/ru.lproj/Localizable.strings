@@ -6,6 +6,10 @@
   
 */
 
+// OnboardingViewController
+"mainLabel.text.first" = "Отслеживайте только то, что хотите!";
+"mainLabel.text.second" = "Даже если это не литры воды и йога!";
+"actionButton.title" = "Вот это технологии!";
 // TabBarController
 "tabBar.titles.first" = "Трекеры";
 "tabBar.titles.second" = "Статистика";
