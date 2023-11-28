@@ -13,7 +13,6 @@
 		8414C4D32AC883BE00AC0AD1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8414C4D22AC883BE00AC0AD1 /* AppDelegate.swift */; };
 		8414C4D52AC883BE00AC0AD1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8414C4D42AC883BE00AC0AD1 /* SceneDelegate.swift */; };
 		8414C4DC2AC883C000AC0AD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8414C4DB2AC883C000AC0AD1 /* Assets.xcassets */; };
-		8414C4DF2AC883C000AC0AD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8414C4DD2AC883C000AC0AD1 /* LaunchScreen.storyboard */; };
 		8414C4E92AC9643000AC0AD1 /* TrackersListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8414C4E82AC9643000AC0AD1 /* TrackersListCollectionViewCell.swift */; };
 		8414C4EB2AC97F9D00AC0AD1 /* SupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8414C4EA2AC97F9D00AC0AD1 /* SupplementaryView.swift */; };
 		8418F9F12B08ECFC0045574E /* UIColorMarshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8418F9F02B08ECFC0045574E /* UIColorMarshalling.swift */; };
@@ -25,6 +24,8 @@
 		8458C2E42AF7C52B00E8930D /* TrackerCardCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8458C2E32AF7C52B00E8930D /* TrackerCardCollectionViewCell.swift */; };
 		8458C2E62AF8E75B00E8930D /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8458C2E52AF8E75B00E8930D /* UIViewController.swift */; };
 		8458C2E82AF8FE3F00E8930D /* TrackerCardCollectionViewSecondCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8458C2E72AF8FE3F00E8930D /* TrackerCardCollectionViewSecondCell.swift */; };
+		846242042B15E42700097BFD /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 846242062B15E42700097BFD /* Localizable.stringsdict */; };
+		8462420C2B15ED2F00097BFD /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8462420E2B15ED2F00097BFD /* Localizable.strings */; };
 		8464B2942AFF72440000FA8F /* UIColorValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8464B2932AFF72440000FA8F /* UIColorValueTransformer.swift */; };
 		8464B2E32B00D9A50000FA8F /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8464B2E22B00D9A50000FA8F /* TrackerStore.swift */; };
 		8464B2E52B00D9D40000FA8F /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8464B2E42B00D9D40000FA8F /* TrackerCategoryStore.swift */; };
@@ -35,7 +36,6 @@
 		848432A62ADECF15007A3BDC /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848432A52ADECF15007A3BDC /* UITextField.swift */; };
 		849344022B139028006C2427 /* TrackerCategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849344012B139028006C2427 /* TrackerCategoryViewModel.swift */; };
 		849344042B13A3C3006C2427 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849344032B13A3C3006C2427 /* Observable.swift */; };
-		849344292B1492CB006C2427 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8493442B2B1492CB006C2427 /* Localizable.strings */; };
 		84A81F9B2ADA965200BA23A3 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A81F9A2ADA965200BA23A3 /* UIImage.swift */; };
 		84A81F9E2ADA97D900BA23A3 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A81F9D2ADA97D900BA23A3 /* Tracker.swift */; };
 		84A81FA02ADA97E600BA23A3 /* TrackerCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A81F9F2ADA97E600BA23A3 /* TrackerCategory.swift */; };
@@ -58,7 +58,6 @@
 		8414C4D22AC883BE00AC0AD1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8414C4D42AC883BE00AC0AD1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		8414C4DB2AC883C000AC0AD1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8414C4DE2AC883C000AC0AD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8414C4E02AC883C000AC0AD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8414C4E82AC9643000AC0AD1 /* TrackersListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersListCollectionViewCell.swift; sourceTree = "<group>"; };
 		8414C4EA2AC97F9D00AC0AD1 /* SupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupplementaryView.swift; sourceTree = "<group>"; };
@@ -71,6 +70,10 @@
 		8458C2E32AF7C52B00E8930D /* TrackerCardCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCardCollectionViewCell.swift; sourceTree = "<group>"; };
 		8458C2E52AF8E75B00E8930D /* UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		8458C2E72AF8FE3F00E8930D /* TrackerCardCollectionViewSecondCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCardCollectionViewSecondCell.swift; sourceTree = "<group>"; };
+		846242052B15E42700097BFD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		846242072B15E72200097BFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		8462420D2B15ED2F00097BFD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8462420F2B15ED3500097BFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8464B2932AFF72440000FA8F /* UIColorValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorValueTransformer.swift; sourceTree = "<group>"; };
 		8464B2E22B00D9A50000FA8F /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		8464B2E42B00D9D40000FA8F /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
@@ -81,8 +84,6 @@
 		848432A52ADECF15007A3BDC /* UITextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		849344012B139028006C2427 /* TrackerCategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryViewModel.swift; sourceTree = "<group>"; };
 		849344032B13A3C3006C2427 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
-		8493442A2B1492CB006C2427 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		8493442C2B1492E3006C2427 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		84A81F9A2ADA965200BA23A3 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		84A81F9D2ADA97D900BA23A3 /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
 		84A81F9F2ADA97E600BA23A3 /* TrackerCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategory.swift; sourceTree = "<group>"; };
@@ -138,7 +139,6 @@
 				84A81F9C2ADA97BF00BA23A3 /* ViewModels */,
 				844B9EF12ADA769C00193175 /* Extensions */,
 				8493440B2B146B00006C2427 /* Resources */,
-				8414C4DD2AC883C000AC0AD1 /* LaunchScreen.storyboard */,
 				8414C4DB2AC883C000AC0AD1 /* Assets.xcassets */,
 				8414C4E02AC883C000AC0AD1 /* Info.plist */,
 			);
@@ -258,7 +258,8 @@
 		8493440B2B146B00006C2427 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8493442B2B1492CB006C2427 /* Localizable.strings */,
+				846242062B15E42700097BFD /* Localizable.stringsdict */,
+				8462420E2B15ED2F00097BFD /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -334,7 +335,6 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				ru,
 			);
 			mainGroup = 8414C4C62AC883BE00AC0AD1;
@@ -352,9 +352,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8414C4DF2AC883C000AC0AD1 /* LaunchScreen.storyboard in Resources */,
-				849344292B1492CB006C2427 /* Localizable.strings in Resources */,
 				8414C4DC2AC883C000AC0AD1 /* Assets.xcassets in Resources */,
+				8462420C2B15ED2F00097BFD /* Localizable.strings in Resources */,
+				846242042B15E42700097BFD /* Localizable.stringsdict in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,19 +409,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		8414C4DD2AC883C000AC0AD1 /* LaunchScreen.storyboard */ = {
+		846242062B15E42700097BFD /* Localizable.stringsdict */ = {
 			isa = PBXVariantGroup;
 			children = (
-				8414C4DE2AC883C000AC0AD1 /* Base */,
+				846242052B15E42700097BFD /* en */,
+				846242072B15E72200097BFD /* ru */,
 			);
-			name = LaunchScreen.storyboard;
+			name = Localizable.stringsdict;
 			sourceTree = "<group>";
 		};
-		8493442B2B1492CB006C2427 /* Localizable.strings */ = {
+		8462420E2B15ED2F00097BFD /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				8493442A2B1492CB006C2427 /* en */,
-				8493442C2B1492E3006C2427 /* ru */,
+				8462420D2B15ED2F00097BFD /* en */,
+				8462420F2B15ED3500097BFD /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

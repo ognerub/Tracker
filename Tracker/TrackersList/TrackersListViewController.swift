@@ -44,7 +44,7 @@ final class TrackersListViewController: UIViewController {
     }()
     private let emptyTrackersLabel: UILabel = {
         var label = UILabel()
-        label.text = "What we will watch?"
+        label.text = NSLocalizedString("emptyTrackersLabel", comment: "Info text")
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +63,7 @@ final class TrackersListViewController: UIViewController {
     }()
     private var trackersLabel: UILabel = {
         var label = UILabel()
-        label.text = "Trackers"
+        label.text = NSLocalizedString("trackersLabel", comment: "Trackers")
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -76,7 +76,7 @@ final class TrackersListViewController: UIViewController {
     private lazy var searchBar: UISearchBar = {
         var searchBar = UISearchBar()
         searchBar.searchBarStyle = UISearchBar.Style.default
-        searchBar.placeholder = "Search..."
+        searchBar.placeholder = NSLocalizedString("searchBar.placeholder", comment: "SearchBar placeholder")
         searchBar.sizeToFit()
         searchBar.isTranslucent = true
         searchBar.backgroundImage = UIImage()

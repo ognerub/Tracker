@@ -42,7 +42,6 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     
     private let cellTrackerLabel: UILabel = {
        var label = UILabel()
-        label.text = "Something that user printed is shown here"
         label.font = UIFont.systemFont(ofSize: 12)
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 2
@@ -112,21 +111,14 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         cellPlusButton.backgroundColor = tracker.color
         cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
         
-        let wordDays = pluralizeDays(completedDays)
-        cellDaysCounterLabel.text = wordDays
+        let daysString = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Number of completed days"),
+            completedDays
+        )
+        
+        cellDaysCounterLabel.text = daysString
         
         changeCellPlussButtonImage(changeValue: isCompletedToday)
-    }
-    
-    private func pluralizeDays(_ completedDays: Int) -> String {
-        switch completedDays {
-            case 0:
-            return "0 days"
-        case 1:
-            return "1 day"
-        default:
-            return "\(completedDays) days"
-        }
     }
     
     override func prepareForReuse() {

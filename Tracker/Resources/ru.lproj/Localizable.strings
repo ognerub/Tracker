@@ -6,6 +6,7 @@
   
 */
 
+
 // OnboardingViewController
 "mainLabel.text.first" = "Отслеживайте только то, что хотите!";
 "mainLabel.text.second" = "Даже если это не литры воды и йога!";
@@ -14,13 +15,12 @@
 "tabBar.titles.first" = "Трекеры";
 "tabBar.titles.second" = "Статистика";
 // TrackersListViewController
-"emptyTrackersLabel" = "What we will watch?";
-"trackersLabel" = "Trackers";
-"searchBar.placeholder" = "Search...";
-"plusButton" = "PlusButton";
+"emptyTrackersLabel" = "Что будем отслеживать?";
+"trackersLabel" = "Трекеры";
+"searchBar.placeholder" = "Поиск...";
 // Statistics
-"emptyStatisticsLabel" = "Nothing to analize";
-"statisticsLabel" = "Statistics";
+"emptyStatisticsLabel" = "Анализировать пока нечего";
+"statisticsLabel" = "Статистика";
 // TrackerTypeViewController
 "trackerType.title" = "Creation of tracker";
 "regularTrackerButton" = "Regular";
