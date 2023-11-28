@@ -29,7 +29,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Category"
+        label.text = NSLocalizedString("trackerCategory.title", comment: "Category")
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +54,7 @@ final class TrackerCategoryViewController: UIViewController {
             target: self,
             action: #selector(didTapAddNewCategoryButton)
         )
-        button.setTitle("Add new category", for: .normal)
+        button.setTitle(NSLocalizedString("trackerCategory.addNewCategoryButton", comment: "Add new category"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -86,7 +86,7 @@ final class TrackerCategoryViewController: UIViewController {
     }()
     private let emptyCategoriesLabel: UILabel = {
         var label = UILabel()
-        label.text = "Habits and unregular events \n can be combined by meaning"
+        label.text = NSLocalizedString("trackerCategory.emptyCategoriesLabel", comment: "Info text if categories is empty")
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

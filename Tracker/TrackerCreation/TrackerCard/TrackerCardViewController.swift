@@ -16,8 +16,8 @@ final class TrackerCardViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
-    private let categoryButtonTitle = "Category"
-    private let scheduleButtonTitle = "Schedule"
+    private let categoryButtonTitle = NSLocalizedString("categoryButtonTitle", comment: "Categoty button title")
+    private let scheduleButtonTitle = NSLocalizedString("scheduleButtonTitle", comment: "Schedule button title")
     
     
     // MARK: - Category properties
@@ -97,7 +97,7 @@ final class TrackerCardViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = regularTracker ? "New habit" : "New unregular tracker"
+        label.text = regularTracker ? NSLocalizedString("trackerCard.titles.first", comment: "TrackerCard title for regular tracker") : NSLocalizedString("trackerCard.titles.second", comment: "TrackerCard title for unregular tracker")
         return label
     }()
     
@@ -202,7 +202,7 @@ final class TrackerCardViewController: UIViewController {
             target: self,
             action: #selector(didTapCancelButton)
         )
-        button.setTitle("Cancel", for: .normal)
+        button.setTitle(NSLocalizedString("trackerCard.cancelButton", comment: "Title for cancel button"), for: .normal)
         button.setTitleColor(UIColor(named: "YP Red"), for: .normal)
         button.backgroundColor = UIColor(named: "YP White")
         button.layer.borderWidth = 1
@@ -220,7 +220,7 @@ final class TrackerCardViewController: UIViewController {
             target: self,
             action: #selector(didTapCreateNewTrackerButton)
         )
-        button.setTitle("Create", for: .normal)
+        button.setTitle(NSLocalizedString("trackerCard.createNewTrackerButton", comment: "Title for creation button"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Grey")
         button.layer.masksToBounds = true
@@ -319,18 +319,25 @@ extension TrackerCardViewController {
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
         case WeekDay.allCases:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Everyday"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.allCases", comment: "Schedule all cases - everyday"))"
         case weekDays:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekdays"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.weekDays", comment: "Schedule all cases - week days"))"
         case weekEnds:
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n Weekends"
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.weekEnds", comment: "Schedule all cases - week ends"))"
         case empty:
             scheduleButtonTitleText = scheduleButtonTitle
         default:
             let filteredAndShuffledArray = stringArray.filter({ $0 != "" })
             let prefixedArray = filteredAndShuffledArray.map { $0.prefix(3) }
             let joinedString = prefixedArray.joined(separator: ", ")
-            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(joinedString)"
+            let replacedStringMon = joinedString.replacingOccurrences(of: "Mon", with: NSLocalizedString("mondayPrefixed", comment: "Monday prefixed"))
+            let replacedStringTue = replacedStringMon.replacingOccurrences(of: "Tue", with: NSLocalizedString("tuesdayPrefixed", comment: "Tuesday prefixed"))
+            let replacedStringWed = replacedStringTue.replacingOccurrences(of: "Wed", with: NSLocalizedString("wednesdayPrefixed", comment: "Wednesday prefixed"))
+            let replacedStringThu = replacedStringWed.replacingOccurrences(of: "Thu", with: NSLocalizedString("thursdayPrefixed", comment: "Thursday prefixed"))
+            let replacedStringFri = replacedStringThu.replacingOccurrences(of: "Fri", with: NSLocalizedString("fridayPrefixed", comment: "Friday prefixed"))
+            let replacedStringSat = replacedStringFri.replacingOccurrences(of: "Sat", with: NSLocalizedString("saturdayPrefixed", comment: "Saturday prefixed"))
+            let replacedStringSun = replacedStringSat.replacingOccurrences(of: "Sun", with: NSLocalizedString("sundayPrefixed", comment: "Sunday prefixed"))
+            scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(replacedStringSun)"
         }
         let mutableString = createMutableString(from: scheduleButtonTitleText, forButtonWithTitle: scheduleButtonTitle)
         scheduleButton.setAttributedTitle(mutableString, for: .normal)
@@ -564,7 +571,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? SupplementaryView else {
             return UICollectionReusableView()
         }
-        view.changeTitle(title: indexPath.section == 0 ? "Emoji" : "Color")
+        view.changeTitle(title: indexPath.section == 0 ? NSLocalizedString("trackerCard.collectionView.titles.first", comment: "Emoji title") : NSLocalizedString("trackerCard.collectionView.titles.second", comment: "Color title"))
         return view
     }
 }
@@ -664,6 +671,14 @@ private extension TrackerCardViewController {
             categoryButton.heightAnchor.constraint(equalToConstant: 75)
         ])
         categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        
+        categoryButton.addSubview(categoryButtonArrowImageView)
+        NSLayoutConstraint.activate([
+            categoryButtonArrowImageView.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -12),
+            categoryButtonArrowImageView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
+            categoryButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
+            categoryButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
+        ])
     }
     
     func verticalStackViewConfig() {

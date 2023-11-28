@@ -31,7 +31,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     
     var titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "New category"
+        label.text = NSLocalizedString("trackerCategoryName.title", comment: "Category title")
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +54,7 @@ final class TrackerCategoryNameViewController: UIViewController {
             target: self,
             action: #selector(didTapCreateNewCategoryButton)
         )
-        button.setTitle("OK", for: .normal)
+        button.setTitle( NSLocalizedString("createNewCategoryButton", comment: "Category creation button title"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16

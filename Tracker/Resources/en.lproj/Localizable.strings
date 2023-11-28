@@ -34,9 +34,9 @@
 "trackerCard.createNewTrackerButton" = "Create";
 "trackerCard.scheduleButtonTitleText.allCases" = "Everyday";
 "trackerCard.scheduleButtonTitleText.weekDays" = "WeekDays";
-"trackerCard.scheduleButtonTitleText.allCases" = "Weekends";
+"trackerCard.scheduleButtonTitleText.weekEnds" = "Weekends";
 "trackerCard.collectionView.titles.first" = "Emoji";
-"trackerCard.collectionView.titles.first" = "Color";
+"trackerCard.collectionView.titles.second" = "Color";
 // TrackerCategoryViewController
 "trackerCategory.title" = "Category";
 "trackerCategory.addNewCategoryButton" = "Add new category";
@@ -44,6 +44,9 @@
 // TrackerCategoryNameViewController
 "trackerCategoryName.title" = "New category";
 "createNewCategoryButton" = "OK";
+// TrackerScheduleViewController
+"trackerSchedule.title" = "Schedule";
+"acceptScheduleButton" = "OK";
 
 // enum WeekDay
 "monday" = "Monday";
@@ -53,5 +56,11 @@
 "friday" = "Friday";
 "saturday" = "Saturday";
 "sunday" = "Sunday";
-"empty" = "";
 
+"mondayPrefixed" = "Mon";
+"tuesdayPrefixed" = "Tue";
+"wednesdayPrefixed" = "Wed";
+"thursdayPrefixed" = "Thu";
+"fridayPrefixed" = "Fri";
+"saturdayPrefixed" = "Sat";
+"sundayPrefixed" = "Sun";

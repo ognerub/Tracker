@@ -36,7 +36,7 @@ final class TrackerScheduleViewController: UIViewController {
     
     private var titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Schedule"
+        label.text = NSLocalizedString("trackerSchedule.title", comment: "Schedule title")
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +60,7 @@ final class TrackerScheduleViewController: UIViewController {
             target: self,
             action: #selector(didTapAcceptScheduleButton)
         )
-        button.setTitle("Accept", for: .normal)
+        button.setTitle(NSLocalizedString("acceptScheduleButton", comment: "Accept schedule button title"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -110,7 +110,16 @@ extension TrackerScheduleViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         TrackerScheduleTableViewCell.delegate = self
-        TrackerScheduleTableViewCell.configCell(at: indexPath, array: newWeekDaysNamesArray)
+        let localizedArray: [String] = [
+            WeekDay.monday.description,
+            WeekDay.tuesday.description,
+            WeekDay.wednesday.description,
+            WeekDay.thursday.description,
+            WeekDay.friday.description,
+            WeekDay.saturday.description,
+            WeekDay.sunday.description,
+        ]
+        TrackerScheduleTableViewCell.configCell(at: indexPath, array: newWeekDaysNamesArray, localizedArray: localizedArray)
         return TrackerScheduleTableViewCell
     }
     
