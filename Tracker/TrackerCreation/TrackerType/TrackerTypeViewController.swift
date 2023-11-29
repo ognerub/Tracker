@@ -14,8 +14,6 @@ final class TrackerTypeViewController: UIViewController {
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
-    private var categories: [TrackerCategory]?
-    
     // MARK: - Mutable properties
     private var titleBackground: UIView = {
         var background = UIView()
@@ -25,7 +23,7 @@ final class TrackerTypeViewController: UIViewController {
     
     private var titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Creation of tracker"
+        label.text = NSLocalizedString("trackerType.title", comment: "Tracker creation title")
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -38,7 +36,7 @@ final class TrackerTypeViewController: UIViewController {
             target: self,
             action: #selector(didTapRegularTrackerButton)
         )
-        button.setTitle("Regular", for: .normal)
+        button.setTitle(NSLocalizedString("regularTrackerButton", comment: "Regular button title"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -53,7 +51,7 @@ final class TrackerTypeViewController: UIViewController {
             target: self,
             action: #selector(didTapUnregularTrackerButton)
         )
-        button.setTitle("Unregular", for: .normal)
+        button.setTitle(NSLocalizedString("unregularTrackerButton", comment: "Unregular button title"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -96,19 +94,8 @@ final class TrackerTypeViewController: UIViewController {
     private func regularOrUnregularTrackersChoosen(type: Bool) {
         let vc = TrackerCardViewController()
         vc.delegate = self.delegate
-        vc.categories = self.categories
-        if type {
-            vc.titleLabel.text  = "New habit"
-        } else {
-            vc.titleLabel.text  = "New unregular tracker"
-        }
+        vc.regularTracker = type
         present(vc, animated: true)
-    }
-}
-
-extension TrackerTypeViewController: TrackersListViewControllerDelegate {
-    func sendCategoriesToTrackerCardViewController(_ categories: [TrackerCategory]) {
-        self.categories = categories
     }
 }
 

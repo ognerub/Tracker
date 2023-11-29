@@ -32,6 +32,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return configuration
     }
     
+    // MARK: - Core Data Persistent Container
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "DataModel")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in

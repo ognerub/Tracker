@@ -46,9 +46,10 @@ final class TrackerCategoryStore: NSObject {
     private var movedIndexes: Set<TrackerCategoryStoreUpdate.Move>?
     
     var categories: [TrackerCategory] {
-        guard
-            let objects = self.fetchedResultsController?.fetchedObjects,
-            let categories = try? objects.map({ try self.category(from: $0) })
+        guard let objects = self.fetchedResultsController?.fetchedObjects
+        else { return []}
+        let sortedObjects = objects.sorted(by: { $0.categoryId > $1.categoryId } )
+        guard let categories = try? sortedObjects.map({ try self.category(from: $0) })
         else { return [] }
         return categories
     }
@@ -118,7 +119,35 @@ final class TrackerCategoryStore: NSObject {
             trackers: trackerCategory.trackers
         )
         trackerCategoryCoreData.name = category.name
-    }    
+        trackerCategoryCoreData.categoryId = Int32(categories.count)
+    }
+    
+    func getSortedCategories() -> [TrackerCategory]{
+        guard let objects = fetchAllCategories(with: context)
+        else { return [] }
+        let sortedObjects = objects.sorted(by: { $0.categoryId < $1.categoryId } )
+        guard let categories = try? sortedObjects.map({ try self.category(from: $0) })
+        else { return [] }
+        return categories
+    }
+    
+    private func fetchAllCategories(with context: NSManagedObjectContext) -> [TrackerCategoryCoreData]? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.returnsObjectsAsFaults = false
+        request.sortDescriptors = [NSSortDescriptor(key: "categoryId", ascending: false)]
+        let objects = try? context.fetch(request)
+        return objects
+    }
+    
+    func deleteAll() throws {
+        guard let objects = fetchAllCategories(with: context) else {
+            return
+        }
+        for object in objects {
+            context.delete(object)
+        }
+        try context.save()
+    }
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

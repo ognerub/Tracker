@@ -42,7 +42,6 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     
     private let cellTrackerLabel: UILabel = {
        var label = UILabel()
-        label.text = "Something that user printed is shown here"
         label.font = UIFont.systemFont(ofSize: 12)
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 2
@@ -112,21 +111,14 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         cellPlusButton.backgroundColor = tracker.color
         cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
         
-        let wordDays = pluralizeDays(completedDays)
-        cellDaysCounterLabel.text = wordDays
+        let daysString = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Number of completed days"),
+            completedDays
+        )
+        
+        cellDaysCounterLabel.text = daysString
         
         changeCellPlussButtonImage(changeValue: isCompletedToday)
-    }
-    
-    private func pluralizeDays(_ completedDays: Int) -> String {
-        switch completedDays {
-            case 0:
-            return "0 days"
-        case 1:
-            return "1 day"
-        default:
-            return "\(completedDays) days"
-        }
     }
     
     override func prepareForReuse() {
@@ -174,19 +166,20 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
             cellBackgroundSquare.heightAnchor.constraint(equalToConstant: 90),
             cellBackgroundSquare.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellBackgroundSquare.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            cellBackgroundSquare.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
             cellBackgroundRound.widthAnchor.constraint(equalToConstant: 24),
             cellBackgroundRound.heightAnchor.constraint(equalToConstant: 24),
             cellBackgroundRound.topAnchor.constraint(equalTo: cellBackgroundSquare.topAnchor, constant: 12),
             cellBackgroundRound.leadingAnchor.constraint(equalTo: cellBackgroundSquare.leadingAnchor, constant: 12),
-            
+
             cellEmojiLabel.widthAnchor.constraint(equalToConstant: 16),
             cellEmojiLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.centerXAnchor, constant: -8),
             cellEmojiLabel.heightAnchor.constraint(equalToConstant: 22),
             cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -11),
             
-            cellTrackerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            cellTrackerLabel.widthAnchor.constraint(equalToConstant: contentView.frame.width - 12),
+            cellTrackerLabel.leadingAnchor.constraint(equalTo: cellBackgroundSquare.leadingAnchor, constant: 12),
+            cellTrackerLabel.trailingAnchor.constraint(equalTo: cellBackgroundSquare.trailingAnchor, constant: -12),
             cellTrackerLabel.topAnchor.constraint(equalTo: cellBackgroundRound.bottomAnchor, constant: 8),
             
             cellPlusButton.topAnchor.constraint(equalTo: cellBackgroundSquare.bottomAnchor, constant: 4),

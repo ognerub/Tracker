@@ -9,15 +9,18 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
 }
 
 final class TrackerCategoryViewController: UIViewController {
     
+    // MARK: - MVVM property:
+    private var viewModel: TrackerCategoryViewModel?
+    
+    // MARK: - Delegate property:
     weak var delegate: TrackerCategoryViewControllerDelegate?
     
     // MARK: - Mutable properties:
-    
     private let titleBackground: UIView = {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -26,7 +29,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         var label = UILabel()
-        label.text = "Category"
+        label.text = NSLocalizedString("trackerCategory.title", comment: "Category")
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -51,7 +54,7 @@ final class TrackerCategoryViewController: UIViewController {
             target: self,
             action: #selector(didTapAddNewCategoryButton)
         )
-        button.setTitle("Add new category", for: .normal)
+        button.setTitle(NSLocalizedString("trackerCategory.addNewCategoryButton", comment: "Add new category"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
         button.layer.cornerRadius = 16
@@ -83,7 +86,7 @@ final class TrackerCategoryViewController: UIViewController {
     }()
     private let emptyCategoriesLabel: UILabel = {
         var label = UILabel()
-        label.text = "Habits and unregular events \n can be combined by meaning"
+        label.text = NSLocalizedString("trackerCategory.emptyCategoriesLabel", comment: "Info text if categories is empty")
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -108,23 +111,44 @@ final class TrackerCategoryViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
+        viewModel = TrackerCategoryViewModel()
+        categoriesNames = getCategoriesNamesFromStore()               
+        
+        viewModel?.$categories.bind { [weak self] _ in
+            guard let self = self else { return }
+            self.categoriesNames = self.getCategoriesNamesFromStore()
+        }
+        
         computeTableViewStyle()
         tableViewConfig()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if categoriesNames.count == 0 {
+        
+        guard let viewModel = viewModel else { return }
+        if viewModel.categories.isEmpty {
             showEmptyCategoriesInfo()
         } else {
             hideEmptyCategoriesInfo()
         }
     }
     
+    private func getCategoriesNamesFromStore() -> [String] {
+        guard let viewModel = viewModel else { return [] }
+        let categoriesFromStore = viewModel.getSortedCategories()
+        var categoriesNamesFromStore: [String] = []
+        categoriesFromStore.forEach { categoriesFromStore in
+            categoriesNamesFromStore.append(categoriesFromStore.name)
+        }
+        return categoriesNamesFromStore
+    }
+    
     // MARK: - Objective-C functions
     @objc
     func didTapAddNewCategoryButton() {
-        let vc = TrackerCategoryNameViewController(currentCategoriesNames: self.categoriesNames)
+        let vc = TrackerCategoryNameViewController()
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -188,7 +212,7 @@ final class TrackerCategoryViewController: UIViewController {
     /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
     private func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
-            self.delegate?.sendCategoriesNamesToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
+            self.delegate?.sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
         }
     }
     
@@ -196,10 +220,9 @@ final class TrackerCategoryViewController: UIViewController {
 
 // MARK: - TrackerCategoryNameViewControllerDelegate
 extension TrackerCategoryViewController: TrackerCategoryNameViewControllerDelegate {
-    func sendCategoryNameToTrackerCategoryViewController(categoryName: String) {
+    func dismissTrackerCategoryNameViewController() {
         dismiss(animated: true, completion: { })
         clearTableViewSelection()
-        categoriesNames.append("\(categoryName)")
         hideEmptyCategoriesInfo()
     }
 }
