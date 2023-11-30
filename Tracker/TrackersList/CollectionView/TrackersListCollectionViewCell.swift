@@ -16,7 +16,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     
     weak var delegate: TrackersListCollectionViewCellDelegate?
     
-    private let cellBackgroundSquare: UIView = {
+    let cellBackgroundSquare: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
@@ -150,16 +150,13 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     
     
     // MARK: - Configure Constraints
-    func addSubviews() {
+    private func addSubviews() {
         addSubview(cellBackgroundSquare)
-        addSubview(cellBackgroundRound)
-        addSubview(cellEmojiLabel)
-        addSubview(cellTrackerLabel)
         addSubview(cellPlusButton)
         addSubview(cellDaysCounterLabel)
     }
     
-    func configureConstraints() {
+    private func configureConstraints() {
         
         NSLayoutConstraint.activate([
             cellBackgroundSquare.widthAnchor.constraint(equalToConstant: contentView.frame.width),
@@ -167,23 +164,46 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
             cellBackgroundSquare.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellBackgroundSquare.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellBackgroundSquare.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            
-            cellBackgroundRound.widthAnchor.constraint(equalToConstant: 24),
-            cellBackgroundRound.heightAnchor.constraint(equalToConstant: 24),
-            cellBackgroundRound.topAnchor.constraint(equalTo: cellBackgroundSquare.topAnchor, constant: 12),
-            cellBackgroundRound.leadingAnchor.constraint(equalTo: cellBackgroundSquare.leadingAnchor, constant: 12),
+        ])
+        
+        configureInsideElements(
+            backgroundView: cellBackgroundSquare,
+            roundView: cellBackgroundRound,
+            emojiLabel: cellEmojiLabel,
+            trackerLabel: cellTrackerLabel
+        )
+        
+        configureOutsideElements(backgroundView: cellBackgroundSquare)
+        
+    }
+    
+    func configureInsideElements(backgroundView: UIView, roundView: UIView, emojiLabel: UILabel, trackerLabel: UILabel) {
+        
+        backgroundView.addSubview(roundView)
+        backgroundView.addSubview(emojiLabel)
+        backgroundView.addSubview(trackerLabel)
+        
+        NSLayoutConstraint.activate([
+            roundView.widthAnchor.constraint(equalToConstant: 24),
+            roundView.heightAnchor.constraint(equalToConstant: 24),
+            roundView.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 12),
+            roundView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 12),
 
-            cellEmojiLabel.widthAnchor.constraint(equalToConstant: 16),
-            cellEmojiLabel.leadingAnchor.constraint(equalTo: cellBackgroundRound.centerXAnchor, constant: -8),
-            cellEmojiLabel.heightAnchor.constraint(equalToConstant: 22),
-            cellEmojiLabel.topAnchor.constraint(equalTo: cellBackgroundRound.centerYAnchor, constant: -11),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 16),
+            emojiLabel.leadingAnchor.constraint(equalTo: roundView.centerXAnchor, constant: -8),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 22),
+            emojiLabel.topAnchor.constraint(equalTo: roundView.centerYAnchor, constant: -11),
             
-            cellTrackerLabel.leadingAnchor.constraint(equalTo: cellBackgroundSquare.leadingAnchor, constant: 12),
-            cellTrackerLabel.trailingAnchor.constraint(equalTo: cellBackgroundSquare.trailingAnchor, constant: -12),
-            cellTrackerLabel.topAnchor.constraint(equalTo: cellBackgroundRound.bottomAnchor, constant: 8),
-            
-            cellPlusButton.topAnchor.constraint(equalTo: cellBackgroundSquare.bottomAnchor, constant: 4),
-            cellPlusButton.trailingAnchor.constraint(equalTo: cellBackgroundSquare.trailingAnchor, constant: -8),
+            trackerLabel.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 12),
+            trackerLabel.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -12),
+            trackerLabel.topAnchor.constraint(equalTo: roundView.bottomAnchor, constant: 8)
+        ])
+    }
+    
+    private func configureOutsideElements(backgroundView: UIView) {
+        NSLayoutConstraint.activate([
+            cellPlusButton.topAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: 4),
+            cellPlusButton.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -8),
             cellPlusButton.widthAnchor.constraint(equalToConstant: 42),
             cellPlusButton.heightAnchor.constraint(equalToConstant: 42),
             
@@ -191,4 +211,6 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
             cellDaysCounterLabel.centerYAnchor.constraint(equalTo: cellPlusButton.centerYAnchor)
         ])
     }
+    
+    
 }

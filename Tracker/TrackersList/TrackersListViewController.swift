@@ -13,6 +13,7 @@ final class TrackersListViewController: UIViewController {
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
+    private let analyticsService = AnalyticsService()
     
     //MARK: - Properties for CollectionView
     private var trackersArray: [Tracker] = []
@@ -179,6 +180,9 @@ extension TrackersListViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
+        
+        analyticsService.report(event: "tracker_add", params: ["trackers_count" : trackerStore.trackers.count + 1])
+        
         let vc = TrackerTypeViewController()
         vc.delegate = self
         present(vc, animated: true)
@@ -302,6 +306,85 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
 
 // MARK: - CollectionViewDelegate
 extension TrackersListViewController: UICollectionViewDelegate {
+
+        
+        /// Did selecet cell
+    //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+    //        print("Did select cell at \(indexPath)")
+    //    }
+        
+        /// Did deselect cell
+        //    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+        //        //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        //        //cell?.titleLabel.backgroundColor = .blue
+        //        print("Did deselect cell at \(indexPath)")
+        //    }
+        
+        // Context menu configuration
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
+        
+        let identifier = NSString(string: "\(visibleCategories[indexPath.section].trackers[indexPath.row].id)")
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TrackersListCollectionViewCell else {
+            return nil
+        }
+        
+        return UITargetedPreview(view: cell.cellBackgroundSquare)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+
+        guard indexPaths.count > 0 else {
+            return nil
+        }
+        let indexPath = indexPaths[0]
+
+        let identifier = NSString(string: "\(visibleCategories[indexPath.section].trackers[indexPath.row].id)")
+
+        let config = UIContextMenuConfiguration(
+            identifier: identifier,
+            previewProvider: nil
+        ) { _ in
+
+            let open = UIAction(
+                title: "Open",
+                image: UIImage(),
+                identifier: nil,
+                discoverabilityTitle: nil,
+                state: .off
+            ) { [weak self] _ in
+                self?.editTracker(collectionView: collectionView, indexPath: indexPath)
+            }
+            
+            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
+                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
+            }
+            let attributedString = NSAttributedString(string: "Delete", attributes: [
+                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
+                NSAttributedString.Key.foregroundColor: UIColor.red
+            ])
+            deleteAction.setValue(attributedString, forKey: "attributedTitle")
+
+            return UIMenu(
+                title: "",
+                identifier: nil,
+                children: [open, deleteAction]
+            )
+        }
+        return config
+
+    }
+    
+    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+        print("edit pressed")
+    }
+    
+    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+        print("delete pressed")
+    }
     
     /// Switch between header and (footer removed)
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -335,6 +418,12 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: -16)
+        return sectionInsets
+    }
+    
     /// Set header size
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let indexPath = IndexPath(row: 0, section: section)
@@ -361,8 +450,8 @@ private extension TrackersListViewController {
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         /// Make VC a dataSource of collectionView, to config Cell
         collectionView.dataSource = self
