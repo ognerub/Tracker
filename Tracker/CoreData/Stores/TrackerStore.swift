@@ -87,7 +87,7 @@ final class TrackerStore: NSObject {
     }
     
     func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
-        guard let id = trackerCoreData.id else {
+        guard let id = trackerCoreData.trackerID else {
             throw TrackerStoreError.decodingErrorInvalidID
         }
         guard let name = trackerCoreData.name else {
@@ -137,7 +137,7 @@ final class TrackerStore: NSObject {
     }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker, selectedCategoryRow: Int?) {
-        trackerCoreData.id = trackerForCoreData(from: tracker).id
+        trackerCoreData.trackerID = trackerForCoreData(from: tracker).id
         trackerCoreData.name = trackerForCoreData(from: tracker).name
         trackerCoreData.color = trackerForCoreData(from: tracker).color
         trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
@@ -156,12 +156,6 @@ final class TrackerStore: NSObject {
         request.predicate = NSPredicate(format: "%K == %ld", #keyPath(TrackerCategoryCoreData.categoryId), selectedCategoryRow)
         let object = try? context.fetch(request).first
         return object
-    }
-    
-    private func fetchCategory(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        let objects = try? context.fetch(request).first
-        return objects
     }
     
     private func trackerForCoreData(from tracker: Tracker) -> TrackerForCoreData {
@@ -186,6 +180,50 @@ final class TrackerStore: NSObject {
         }
         return scheduleString.joined(separator: ",")
     }
+    
+    private func fetchCategory(with context: NSManagedObjectContext) -> TrackerCategoryCoreData? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        let objects = try? context.fetch(request).first
+        return objects
+    }
+    
+    func deleteSelectedTracker(with trackerID: UUID) throws {
+        guard let object = fetchSelectedTracker(with: context, trackerID: trackerID) else {
+            return
+        }
+        context.delete(object)
+        try context.save()
+    }
+    
+    private func fetchSelectedTracker(with context: NSManagedObjectContext, trackerID: UUID) -> TrackerCoreData? {
+        let request = TrackerCoreData.fetchRequest()
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.trackerID), trackerID as CVarArg)
+        let object = try? context.fetch(request).first
+        return object
+    }
+    
+    
+    func deleteSelectedTrackerRecords(with trackerID: UUID) throws {
+        guard let objects = fetchSelectedTrackerRecords(with: context, trackerID: trackerID) else {
+            return
+        }
+        for object in objects {
+            context.delete(object)
+        }
+        try context.save()
+    }
+    
+    private func fetchSelectedTrackerRecords(with context: NSManagedObjectContext, trackerID: UUID) -> [TrackerRecordCoreData]? {
+        let request = TrackerRecordCoreData.fetchRequest()
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.trackerID), trackerID as CVarArg)
+        let objects = try? context.fetch(request)
+        return objects
+    }
+    
+    
+    
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {

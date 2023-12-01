@@ -143,7 +143,8 @@ final class TrackerCategoryStore: NSObject {
         guard let objects = fetchAllCategories(with: context) else {
             return
         }
-        for object in objects {
+        let filtered = objects.filter { $0.name == "Weekdays" }
+        for object in filtered {
             context.delete(object)
         }
         try context.save()

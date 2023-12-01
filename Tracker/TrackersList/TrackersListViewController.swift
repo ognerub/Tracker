@@ -289,6 +289,7 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
         if isNotFutureDate {
             try? trackerRecordStore.addNewTrackerRecord(trackerRecord)
         } else {
+            print("impossible to complete for future date")
             return
         }
     }
@@ -326,8 +327,6 @@ extension TrackersListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
         
-        let identifier = NSString(string: "\(visibleCategories[indexPath.section].trackers[indexPath.row].id)")
-        
         guard let cell = collectionView.cellForItem(at: indexPath) as? TrackersListCollectionViewCell else {
             return nil
         }
@@ -348,9 +347,19 @@ extension TrackersListViewController: UICollectionViewDelegate {
             identifier: identifier,
             previewProvider: nil
         ) { _ in
+            
+            let pin = UIAction(
+                title: "Pin",
+                image: UIImage(),
+                identifier: nil,
+                discoverabilityTitle: nil,
+                state: .off
+            ) { [weak self] _ in
+                self?.pinTracker(collectionView: collectionView, indexPath: indexPath)
+            }
 
-            let open = UIAction(
-                title: "Open",
+            let edit = UIAction(
+                title: "Edit",
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
@@ -360,7 +369,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             }
             
             let deleteAction = UIAction(title: "Delete") { [weak self] _ in
-                self?.deleteTracker(collectionView: collectionView, indexPath: indexPath)
+                self?.deleteTracker(indexPath: indexPath)
             }
             let attributedString = NSAttributedString(string: "Delete", attributes: [
                 //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
@@ -371,18 +380,27 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return UIMenu(
                 title: "",
                 identifier: nil,
-                children: [open, deleteAction]
+                children: [pin, edit, deleteAction]
             )
         }
         return config
 
     }
     
+    private func pinTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+        print("pin pressed")
+    }
+    
+    
     private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
         print("edit pressed")
     }
     
-    private func deleteTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+    private func deleteTracker(indexPath: IndexPath) {
+        let selectedTrackerID = visibleCategories[indexPath.section].trackers[indexPath.row].id
+        try? trackerStore.deleteSelectedTracker(with: selectedTrackerID)
+        try? trackerStore.deleteSelectedTrackerRecords(with: selectedTrackerID)
+        reloadVisibleCategories()
         print("delete pressed")
     }
     
@@ -408,7 +426,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
 extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.bounds.width / 2 - 5, height: 148)
+        return CGSize(width: (collectionView.bounds.width / 2 - 5) - 16, height: 148)
     }
     /// Set layout horizontal spacing
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -420,7 +438,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: -16)
+        let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return sectionInsets
     }
     

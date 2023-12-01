@@ -196,9 +196,9 @@
 		8414C4D12AC883BE00AC0AD1 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
-				849ABB732B18CFAE00D66DD5 /* Domain */,
 				8414C4D22AC883BE00AC0AD1 /* AppDelegate.swift */,
 				8414C4D42AC883BE00AC0AD1 /* SceneDelegate.swift */,
+				849ABB732B18CFAE00D66DD5 /* Domain */,
 				843F66F42B0E782100CFFB02 /* OnboardingViewController.swift */,
 				84EF2EB92AD55A2600CC1477 /* TabBarController.swift */,
 				84398AF82AFF5CC400A8342D /* CoreData */,
