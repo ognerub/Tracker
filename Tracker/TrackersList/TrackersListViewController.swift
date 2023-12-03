@@ -111,6 +111,8 @@ final class TrackersListViewController: UIViewController {
         trackerRecordStore.delegate = self
 
         reloadVisibleCategories()
+        
+        
     }
 }
 
@@ -347,22 +349,31 @@ extension TrackersListViewController: UICollectionViewDelegate {
             return nil
         }
         let indexPath = indexPaths[0]
+        
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
 
-        let identifier = NSString(string: "\(visibleCategories[indexPath.section].trackers[indexPath.row].id)")
+        let identifier = NSString(string: "\(tracker.id)")
 
         let config = UIContextMenuConfiguration(
             identifier: identifier,
             previewProvider: nil
         ) { _ in
             
+            // TODO: - Localize context menu
+            
             let pin = UIAction(
-                title: "Pin",
+                title: tracker.isPinned ? "Unpin" : "Pin",
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
                 state: .off
             ) { [weak self] _ in
-                self?.pinTracker(collectionView: collectionView, indexPath: indexPath)
+                
+                if tracker.isPinned {
+                    self?.unpinTracker(indexPath: indexPath)
+                } else {
+                    self?.pinTracker(indexPath: indexPath)
+                }
             }
 
             let edit = UIAction(
@@ -372,7 +383,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
                 discoverabilityTitle: nil,
                 state: .off
             ) { [weak self] _ in
-                self?.editTracker(collectionView: collectionView, indexPath: indexPath)
+                self?.editTracker(indexPath: indexPath)
             }
             
             let deleteAction = UIAction(title: "Delete") { [weak self] _ in
@@ -391,16 +402,57 @@ extension TrackersListViewController: UICollectionViewDelegate {
             )
         }
         return config
-
     }
     
-    private func pinTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-        print("pin pressed")
+    private func unpinTracker(indexPath: IndexPath) {
+        let unpinnedFrom = visibleCategories[indexPath.section]
+        let trackerToUnpin = unpinnedFrom.trackers[indexPath.row]
+        let categoryName = trackerToUnpin.pinnedFrom
+        let selectedCategoryRow = trackerCategoryStore.getCategoryRow(for: categoryName ?? "")
+        let unpinnedTracker = Tracker(
+            id: trackerToUnpin.id,
+            name: trackerToUnpin.name,
+            color: trackerToUnpin.color,
+            emoji: trackerToUnpin.emoji,
+            schedule: trackerToUnpin.schedule,
+            isPinned: false,
+            pinnedFrom: nil)
+        try? trackerStore.deleteSelectedTracker(with: trackerToUnpin.id)
+        try? trackerStore.addNewTracker(unpinnedTracker, selectedCategoryRow: selectedCategoryRow ?? 0)
+    }
+    
+    private func pinTracker(indexPath: IndexPath) {
+        
+        if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: "Pinned") {
+            savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
+        } else {
+            let pinnedCategory = TrackerCategory(name: "Pinned", trackers: [])
+            try? trackerCategoryStore.addNewTrackerCategory(pinnedCategory)
+            if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: "Pinned") {
+                savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
+            }
+        }
+    }
+    
+    private func savePinnedTracker(at indexPath: IndexPath, pinnedCategoryRow: Int) {
+        let pinnedFrom = visibleCategories[indexPath.section]
+        let trackerToPin = pinnedFrom.trackers[indexPath.row]
+        let pinnedTracker = Tracker(
+            id: trackerToPin.id,
+            name: trackerToPin.name,
+            color: trackerToPin.color,
+            emoji: trackerToPin.emoji,
+            schedule: trackerToPin.schedule,
+            isPinned: true,
+            pinnedFrom: pinnedFrom.name)
+        try? trackerStore.deleteSelectedTracker(with: trackerToPin.id)
+        try? trackerStore.addNewTracker(pinnedTracker, selectedCategoryRow: pinnedCategoryRow)
     }
     
     
-    private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
+    private func editTracker(indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
+        // MARK: - uncomment if needed to return editable UI like creation
 //        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
         let isTrackerRegular = true
         
@@ -423,6 +475,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             trackerColor: trackerToEdit.color,
             trackerEmoji: trackerToEdit.emoji,
             trackerDays: trackerToEdit.schedule.days,
+            isPinned: trackerToEdit.isPinned,
             categories: categories,
             newCategoriesNames: categoriesNames,
             selectedCategoryRow: selectedCategoryRow,

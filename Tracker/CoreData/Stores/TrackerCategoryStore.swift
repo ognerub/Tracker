@@ -131,6 +131,14 @@ final class TrackerCategoryStore: NSObject {
         return categories
     }
     
+    func getCategoryRow(for categoryName: String) -> Int? {
+        let categories = getSortedCategories()
+        let row = categories.firstIndex(where: { category in
+            category.name == categoryName
+        })
+        return row
+    }
+    
     private func fetchAllCategories(with context: NSManagedObjectContext) -> [TrackerCategoryCoreData]? {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.returnsObjectsAsFaults = false

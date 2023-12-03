@@ -13,6 +13,8 @@ struct Tracker: Identifiable {
     let color: UIColor
     let emoji: String
     let schedule: Schedule
+    let isPinned: Bool
+    let pinnedFrom: String?
 }
 
 struct TrackerForCoreData: Identifiable {
@@ -21,4 +23,6 @@ struct TrackerForCoreData: Identifiable {
     let color: String
     let emoji: String
     let schedule: String
+    let isPinned: Bool
+    let pinnedFrom: String?
 }

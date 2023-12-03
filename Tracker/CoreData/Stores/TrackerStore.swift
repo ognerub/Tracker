@@ -14,6 +14,7 @@ enum TrackerStoreError: Error {
     case decodingErrorInvalidColor
     case decodingErrorInvalidEmoji
     case decodingErrorInvalidSchedule
+    case decodingErrorInvalidPinnedFrom
     case initError
 }
 
@@ -103,6 +104,9 @@ final class TrackerStore: NSObject {
         guard let scheduleString = trackerCoreData.schedule else {
             throw TrackerStoreError.decodingErrorInvalidSchedule
         }
+        let isPinned = trackerCoreData.isPinned
+        
+        let pinnedFrom = trackerCoreData.pinnedFrom
         
         let schedule = Schedule(days: weekDays(from: scheduleString))
         return Tracker(
@@ -110,8 +114,11 @@ final class TrackerStore: NSObject {
             name: name,
             color: uiColorMarshalling.color(from:color),
             emoji: emoji,
-            schedule: schedule
+            schedule: schedule,
+            isPinned: isPinned,
+            pinnedFrom: pinnedFrom
         )
+        
     }
     
     private func weekDays(from scheduleString: String) -> [WeekDay] {
@@ -143,6 +150,8 @@ final class TrackerStore: NSObject {
         trackerCoreData.color = trackerForCoreData(from: tracker).color
         trackerCoreData.emoji = trackerForCoreData(from: tracker).emoji
         trackerCoreData.schedule = trackerForCoreData(from: tracker).schedule
+        trackerCoreData.isPinned = trackerForCoreData(from: tracker).isPinned
+        trackerCoreData.pinnedFrom = trackerForCoreData(from: tracker).pinnedFrom
         
         var selected: Int = 0
         if let selectedCategoryRow = selectedCategoryRow {
@@ -166,12 +175,16 @@ final class TrackerStore: NSObject {
         let color = uiColorMarshalling.hexString(from: tracker.color)
         let emoji = tracker.emoji
         let schedule = scheduleString(from: tracker.schedule)
+        let isPinned = tracker.isPinned
+        let pinnedFrom = tracker.pinnedFrom
         return TrackerForCoreData(
             id: id,
             name: name,
             color: color,
             emoji: emoji,
-            schedule: schedule)
+            schedule: schedule,
+            isPinned: isPinned,
+            pinnedFrom: pinnedFrom)
     }
     
     private func scheduleString(from schedule: Schedule) -> String {

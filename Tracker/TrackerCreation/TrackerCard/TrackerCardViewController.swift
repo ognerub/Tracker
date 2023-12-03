@@ -283,12 +283,15 @@ extension TrackerCardViewController {
                     days: WeekDay.allCases.filter { $0 != WeekDay.empty })
                 schedule = unregularSchedule
             }
+        
             let newTracker: Tracker = Tracker(
                 id: newTrackerId,
                 name: newTrackerName,
                 color: newTrackerColor,
                 emoji: newTrackerEmoji,
-                schedule: schedule)
+                schedule: schedule,
+                isPinned: false,
+                pinnedFrom: nil)
             return newTracker
         
     }

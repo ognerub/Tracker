@@ -213,6 +213,7 @@ final class TrackerEditableCardViewController: UIViewController {
     private var trackerColor: UIColor
     private var trackerEmoji: String
     private var trackerDays: [WeekDay]
+    private var isPinned: Bool
     private var completedDays: Int
 
     init(regularTracker: Bool,
@@ -221,6 +222,7 @@ final class TrackerEditableCardViewController: UIViewController {
          trackerColor: UIColor,
          trackerEmoji: String,
          trackerDays: [WeekDay],
+         isPinned: Bool,
          categories: [TrackerCategory],
          newCategoriesNames: [String],
          selectedCategoryRow: Int,
@@ -232,6 +234,7 @@ final class TrackerEditableCardViewController: UIViewController {
         self.trackerColor = trackerColor
         self.trackerEmoji = trackerEmoji
         self.trackerDays = trackerDays
+        self.isPinned = isPinned
         self.categories = categories
         self.newCategoriesNames = newCategoriesNames
         self.selectedCategoryRow = selectedCategoryRow
@@ -320,7 +323,9 @@ extension TrackerEditableCardViewController {
                 name: trackerName,
                 color: trackerColor,
                 emoji: trackerEmoji,
-                schedule: schedule)
+                schedule: schedule,
+                isPinned: isPinned,
+                pinnedFrom: nil)
             return newTracker
     }
     
