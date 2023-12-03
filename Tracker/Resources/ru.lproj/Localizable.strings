@@ -20,6 +20,10 @@
 "searchBar.placeholder" = "Поиск...";
 "pinnedCategoryName" = "Закрепленные";
 "filterButton" = "Фильтры";
+"trackerList.pin" = "Закрепить";
+"trackerList.unpin" = "Открепить";
+"trackerList.edit" = "Редактировать";
+"trackerList.delete" = "Удалить";
 // Statistics
 "emptyStatisticsLabel" = "Анализировать пока нечего";
 "statisticsLabel" = "Статистика";

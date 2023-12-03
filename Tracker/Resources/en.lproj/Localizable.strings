@@ -20,6 +20,10 @@
 "searchBar.placeholder" = "Search...";
 "pinnedCategoryName" = "Pinned";
 "filterButton" = "Filters";
+"trackerList.pin" = "Pin";
+"trackerList.unpin" = "Unpin";
+"trackerList.edit" = "Edit";
+"trackerList.delete" = "Delete";
 // Statistics
 "emptyStatisticsLabel" = "Nothing to analize";
 "statisticsLabel" = "Statistics";

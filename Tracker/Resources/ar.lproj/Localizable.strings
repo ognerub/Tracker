@@ -20,6 +20,10 @@
 "searchBar.placeholder" = "بحث...";
 "pinnedCategoryName" = "مثبت";
 "filterButton" = "المرشحات";
+"trackerList.pin" = "دبوس";
+"trackerList.unpin" = "إزالة التثبيت";
+"trackerList.edit" = "يحرر";
+"trackerList.delete" = "يمسح";
 // إحصائيات
 "emptyStatisticsLabel" = "لا يوجد شيء لتحليله";
 "statisticsLabel" = "إحصائيات";
@@ -27,8 +31,6 @@
 "statistics.secondInfoLabel" = "أيام مثالية";
 "statistics.thirdInfoLabel" = "تم الانتهاء من أجهزة التتبع";
 "statistics.fourthInfoLabel" = "متوسط ​​القيمة";
-
-
 // TrackerTypeViewController
 "trackerType.title" = "إنشاء المتعقب";
 "regularTrackerButton" = "منتظم";

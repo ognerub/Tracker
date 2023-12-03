@@ -97,12 +97,12 @@ final class TrackersListViewController: UIViewController {
     
     private lazy var filterButton: UIButton = {
         let button = UIButton.systemButton(
-            with: UIImage(named: "Filters") ?? UIImage(),
+            with: UIImage(),
             target: self,
             action: #selector(didTapFilterButton)
         )
         button.backgroundColor = UIColor(named: "YP Blue")
-        button.setTitle("Filters", for: .normal)
+        button.setTitle(NSLocalizedString("filterButton", comment: "Filters"), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.layer.cornerRadius = 16
@@ -416,7 +416,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             // TODO: - Localize context menu
             
             let pin = UIAction(
-                title: tracker.isPinned ? "Unpin" : "Pin",
+                title: tracker.isPinned ? NSLocalizedString("trackerList.unpin", comment: "Unpin") : NSLocalizedString("trackerList.pin", comment: "Pin"),
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
@@ -431,7 +431,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             }
 
             let edit = UIAction(
-                title: "Edit",
+                title: NSLocalizedString("trackerList.edit", comment: "Edit"),
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
@@ -440,10 +440,10 @@ extension TrackersListViewController: UICollectionViewDelegate {
                 self?.editTracker(indexPath: indexPath)
             }
             
-            let deleteAction = UIAction(title: "Delete") { [weak self] _ in
+            let deleteAction = UIAction(title: NSLocalizedString("trackerList.delete", comment: "Delete")) { [weak self] _ in
                 self?.deleteTracker(indexPath: indexPath)
             }
-            let attributedString = NSAttributedString(string: "Delete", attributes: [
+            let attributedString = NSAttributedString(string: NSLocalizedString("trackerList.delete", comment: "Delete"), attributes: [
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
             deleteAction.setValue(attributedString, forKey: "attributedTitle")

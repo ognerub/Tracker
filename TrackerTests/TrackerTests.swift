@@ -13,8 +13,6 @@ final class TrackerTests: XCTestCase {
     
     func testViewController() throws {
         
-        //isRecording = true
-        
         let vc = TrackersListViewController()
         let trackerStore = TrackerStore()
         let trackerCategoryStore = TrackerCategoryStore()
