@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84071D222B1CDCB700C02C82 /* TrackersFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84071D212B1CDCB700C02C82 /* TrackersFiltersViewController.swift */; };
 		840AE9B82AF6A9D800E289FE /* TrackerScheduleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840AE9B72AF6A9D800E289FE /* TrackerScheduleTableViewCell.swift */; };
 		840AE9BA2AF6AA3C00E289FE /* ScheduleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840AE9B92AF6AA3C00E289FE /* ScheduleTableViewCell.swift */; };
 		840B266F2AEE6D900018E77E /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840B266E2AEE6D900018E77E /* Date.swift */; };
@@ -76,6 +77,7 @@
 		4DE50F88324990ED17C9AEF9 /* Pods-Tracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tracker.debug.xcconfig"; path = "Target Support Files/Pods-Tracker/Pods-Tracker.debug.xcconfig"; sourceTree = "<group>"; };
 		69286FD7243A15B540DCCED4 /* Pods_TrackerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TrackerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C236C02D52DBBB4D8B8D925 /* Pods_Tracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84071D212B1CDCB700C02C82 /* TrackersFiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersFiltersViewController.swift; sourceTree = "<group>"; };
 		840AE9B72AF6A9D800E289FE /* TrackerScheduleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerScheduleTableViewCell.swift; sourceTree = "<group>"; };
 		840AE9B92AF6AA3C00E289FE /* ScheduleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTableViewCell.swift; sourceTree = "<group>"; };
 		840B266E2AEE6D900018E77E /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 			isa = PBXGroup;
 			children = (
 				84EF2EB32AD5174A00CC1477 /* TrackersListViewController.swift */,
+				84071D212B1CDCB700C02C82 /* TrackersFiltersViewController.swift */,
 				8414C4EC2AC97FAB00AC0AD1 /* CollectionView */,
 			);
 			path = TrackersList;
@@ -606,6 +609,7 @@
 				843F66F52B0E782100CFFB02 /* OnboardingViewController.swift in Sources */,
 				848432A62ADECF15007A3BDC /* UITextField.swift in Sources */,
 				848432A42ADC5F9D007A3BDC /* TrackerCardViewController.swift in Sources */,
+				84071D222B1CDCB700C02C82 /* TrackersFiltersViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

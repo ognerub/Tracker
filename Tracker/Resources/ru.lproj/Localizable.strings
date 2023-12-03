@@ -19,6 +19,7 @@
 "trackersLabel" = "Трекеры";
 "searchBar.placeholder" = "Поиск...";
 "pinnedCategoryName" = "Закрепленные";
+"filterButton" = "Фильтры";
 // Statistics
 "emptyStatisticsLabel" = "Анализировать пока нечего";
 "statisticsLabel" = "Статистика";
@@ -50,6 +51,12 @@
 "acceptScheduleButton" = "Готово";
 // TrackerEdatableCardViewController
 "trackerCard.saveTrackerButton" = "Сохранить";
+// TrackersFiltersViewController
+"trackerFilters.titleLabel" = "Фильтры";
+"trackerFilters.all" = "Все трекеры";
+"trackerFilters.forToday" = "Трекеры на сегодня";
+"trackerFilters.completed" = "Завершенные";
+"trackerFilters.uncompleted" = "Не завершенные";
 
 // enum WeekDay
 "monday" = "Понедельник";

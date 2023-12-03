@@ -19,6 +19,7 @@
 "trackersLabel" = "أجهزة التتبع";
 "searchBar.placeholder" = "بحث...";
 "pinnedCategoryName" = "مثبت";
+"filterButton" = "المرشحات";
 // إحصائيات
 "emptyStatisticsLabel" = "لا يوجد شيء لتحليله";
 "statisticsLabel" = "إحصائيات";
@@ -50,6 +51,12 @@
 "acceptScheduleButton" = "موافق";
 // TrackerEdatableCardViewController
 "trackerCard.saveTrackerButton" = "يحفظ";
+// TrackersFiltersViewController
+"trackerFilters.titleLabel" = "المرشحات";
+"trackerFilters.all" = "جميع المتتبعات";
+"trackerFilters.forToday" = "متتبعات اليوم";
+"trackerFilters.completed" = "مكتمل";
+"trackerFilters.uncompleted" = "غير مكتمل";
 
 // enum WeekDay
 "monday" = "الاثنين";

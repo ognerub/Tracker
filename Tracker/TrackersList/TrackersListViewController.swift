@@ -111,6 +111,8 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
+    private var selectedFilterRow: Int?
+    
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -209,7 +211,16 @@ extension TrackersListViewController {
     
     @objc
     func didTapFilterButton() {
-        print("filter pressed")
+        let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow ?? 1)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+}
+
+extension TrackersListViewController: TrackersFiltersViewControllerDelegate {
+    func sendSelectedFilterToTrackersListViewController(selectedFilterRow: Int) {
+        self.selectedFilterRow = selectedFilterRow
+        dismiss(animated: true)
     }
 }
 

@@ -19,6 +19,7 @@
 "trackersLabel" = "Trackers";
 "searchBar.placeholder" = "Search...";
 "pinnedCategoryName" = "Pinned";
+"filterButton" = "Filters";
 // Statistics
 "emptyStatisticsLabel" = "Nothing to analize";
 "statisticsLabel" = "Statistics";
@@ -50,6 +51,12 @@
 "acceptScheduleButton" = "OK";
 // TrackerEdatableCardViewController
 "trackerCard.saveTrackerButton" = "Save";
+// TrackersFiltersViewController
+"trackerFilters.titleLabel" = "Filters";
+"trackerFilters.all" = "All trackers";
+"trackerFilters.forToday" = "Trackers for today";
+"trackerFilters.completed" = "Completed";
+"trackerFilters.uncompleted" = "Uncompleted";
 
 // enum WeekDay
 "monday" = "Monday";
