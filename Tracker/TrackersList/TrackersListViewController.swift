@@ -192,9 +192,15 @@ extension TrackersListViewController {
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
-        
         try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
-        
+        dismiss(animated: true)
+    }
+}
+
+// MARK: - TrackerEditableCardViewController Delegate
+extension TrackersListViewController: TrackerEditableCardViewControllerDelegate {
+    func sendEditedTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
+        print("edit over")
         dismiss(animated: true)
     }
 }
@@ -393,7 +399,35 @@ extension TrackersListViewController: UICollectionViewDelegate {
     
     
     private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
-        print("edit pressed")
+        let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
+        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
+        
+        let selectedCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
+        let categories = trackerCategoryStore.getSortedCategories()
+        let selectedCategoryRow = Int(categories.firstIndex { category in
+            category.name == selectedCategoryName
+        } ?? 0)
+        var categoriesNames: [String] = []
+        categories.forEach { category in
+            categoriesNames.append(category.name)
+        }
+        
+        let completedDays = completedTrackers.filter { $0.id == trackerToEdit.id }.count
+        
+        let vc = TrackerEditableCardViewController(
+            regularTracker: isTrackerRegular,
+            trackerID: trackerToEdit.id,
+            trackerName: trackerToEdit.name,
+            trackerColor: trackerToEdit.color,
+            trackerEmoji: trackerToEdit.emoji,
+            trackerDays: trackerToEdit.schedule.days,
+            categories: categories,
+            newCategoriesNames: categoriesNames,
+            selectedCategoryRow: selectedCategoryRow,
+            completedDays: completedDays
+        )
+        vc.delegate = self
+        present(vc, animated: true)
     }
     
     private func deleteTracker(indexPath: IndexPath) {

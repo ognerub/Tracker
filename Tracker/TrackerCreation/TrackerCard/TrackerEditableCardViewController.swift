@@ -1,27 +1,29 @@
 //
-//  TrackerCardViewController.swift
+//  TrackerEditableCardViewController.swift
 //  Tracker
 //
-//  Created by Admin on 10/15/23.
+//  Created by Admin on 12/1/23.
 //
 
 import UIKit
 
-protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
+protocol TrackerEditableCardViewControllerDelegate: AnyObject {
+    func sendEditedTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
 }
 
 // MARK: - TrackerCardViewController
-final class TrackerCardViewController: UIViewController {
+final class TrackerEditableCardViewController: UIViewController {
     
-    weak var delegate: TrackerCardViewControllerDelegate?
+    weak var delegate: TrackerEditableCardViewControllerDelegate?
+    
+    private let trackerCardViewController = TrackerCardViewController()
     
     private let categoryButtonTitle = NSLocalizedString("categoryButtonTitle", comment: "Categoty button title")
     private let scheduleButtonTitle = NSLocalizedString("scheduleButtonTitle", comment: "Schedule button title")
     
     
     // MARK: - Category properties
-    var categories: [TrackerCategory]?
+    private var categories: [TrackerCategory]?
     private var newCategoriesNames: [String]?
     private var selectedCategoryRow: Int?
     
@@ -51,53 +53,12 @@ final class TrackerCardViewController: UIViewController {
     
     private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: regularTracker ? 781 : 706)
     
-    let emojies = [
-        "🙂","😻","🌺","🐶","❤️","😱",
-        "😇","😡","🥶","🤔","🙌","🍔",
-        "🥦","🏓","🥇","🎸","🏝","😪"
-    ]
-    private var emojieSelectedAt: Int?
-    private var previousEmojiWas: Int?
-    
-    let colors: [UIColor] = [
-        UIColor(named: "CC Red") ?? .red,
-        UIColor(named: "CC Orange") ?? .orange,
-        UIColor(named: "CC Blue") ?? .blue,
-        UIColor(named: "CC Purple") ?? .purple,
-        UIColor(named: "CC Green") ?? .green,
-        UIColor(named: "CC Pink") ?? .systemPink,
-        UIColor(named: "CC SoftPink") ?? . systemPink,
-        UIColor(named: "CC LightBlue") ?? .blue,
-        UIColor(named: "CC LightGreen") ?? .green,
-        UIColor(named: "CC DarkBlue") ?? .blue,
-        UIColor(named: "CC DarkOrange") ?? .orange,
-        UIColor(named: "CC Light Pink") ?? .systemPink,
-        UIColor(named: "CC LightBrown") ?? .brown,
-        UIColor(named: "CC MiddleBlue") ?? .blue,
-        UIColor(named: "CC MiddlePurple") ?? .purple,
-        UIColor(named: "CC DarkPink") ?? .systemPink,
-        UIColor(named: "CC LightPurple") ?? .purple,
-        UIColor(named: "CC MiddleGreen") ?? .green
-    ]
-    private var colorSelectedAt: Int?
-    private var previousColorWas: Int?
-    
-    private var newTrackerIdArray: [Int] = []
-    private var newTrackerName: String = ""
-    private var newTrackerColor: UIColor = .clear
-    private var newTrackerEmoji: String = ""
-    private var newTrackerDays: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-    
-    // MARK: - Mutable properties
-    
-    var regularTracker: Bool = false
-    
     private lazy var titleLabel: UILabel = {
         var label = UILabel()
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = regularTracker ? NSLocalizedString("trackerCard.titles.first", comment: "TrackerCard title for regular tracker") : NSLocalizedString("trackerCard.titles.second", comment: "TrackerCard title for unregular tracker")
+        label.text = "Tracker Edit"
         return label
     }()
     
@@ -105,6 +66,14 @@ final class TrackerCardViewController: UIViewController {
         var background = UIView()
         background.translatesAutoresizingMaskIntoConstraints = false
         return background
+    }()
+    
+    private var daysCounterTextLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        textLabel.textAlignment = .center
+        return textLabel
     }()
     
     private var textField: UITextField = {
@@ -214,11 +183,11 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
-    private lazy var createNewTrackerButton: UIButton = {
+    private lazy var saveTrackerButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(),
             target: self,
-            action: #selector(didTapCreateNewTrackerButton)
+            action: #selector(didTapSaveTrackerButton)
         )
         button.setTitle(NSLocalizedString("trackerCard.createNewTrackerButton", comment: "Title for creation button"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
@@ -231,6 +200,49 @@ final class TrackerCardViewController: UIViewController {
         return button
     }()
     
+    private var emojieSelectedAt: Int?
+    private var previousEmojiWas: Int?
+    
+    private var colorSelectedAt: Int?
+    private var previousColorWas: Int?
+    
+    private var regularTracker: Bool
+    
+    private var trackerID: UUID
+    private var trackerName: String
+    private var trackerColor: UIColor
+    private var trackerEmoji: String
+    private var trackerDays: [WeekDay]
+    private var completedDays: Int
+
+    init(regularTracker: Bool,
+         trackerID: UUID,
+         trackerName: String,
+         trackerColor: UIColor,
+         trackerEmoji: String,
+         trackerDays: [WeekDay],
+         categories: [TrackerCategory],
+         newCategoriesNames: [String],
+         selectedCategoryRow: Int,
+         completedDays: Int
+    ) {
+        self.regularTracker = regularTracker
+        self.trackerID = trackerID
+        self.trackerName = trackerName
+        self.trackerColor = trackerColor
+        self.trackerEmoji = trackerEmoji
+        self.trackerDays = trackerDays
+        self.categories = categories
+        self.newCategoriesNames = newCategoriesNames
+        self.selectedCategoryRow = selectedCategoryRow
+        self.completedDays = completedDays
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -242,9 +254,26 @@ final class TrackerCardViewController: UIViewController {
         textFieldConfig()
         textField.delegate = self
         collectionView.delegate = self
+        
+        emojieSelectedAt = trackerCardViewController.emojies.firstIndex(of: trackerEmoji)
+        trackerCardViewController.colors.forEach { color in
+            if color.isEqual(color: trackerColor) {
+                colorSelectedAt = trackerCardViewController.colors.firstIndex(of: color)
+            }
+        }
+        
+        textField.text = trackerName
+        
+        let daysString = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Number of completed days"),
+            completedDays
+        )
+        daysCounterTextLabel.text = daysString
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
@@ -258,36 +287,37 @@ final class TrackerCardViewController: UIViewController {
         categoryButtonTitleTextConfig()
         collectionViewConfig()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setSelectedEmoji()
+        setSelectedColor()
+    }
 }
 
-extension TrackerCardViewController {
-    // MARK: - CreateNewTracker
-    private func createNewTracker() -> Tracker {
-        let newTrackerId = UUID()
-        newTrackerIdArray.append(0)
+extension TrackerEditableCardViewController {
+    // MARK: - SaveTracker
+    private func saveTracker() -> Tracker {
+        
         if let emojieSelectedAt = emojieSelectedAt {
-            newTrackerEmoji = emojies[emojieSelectedAt]
+            trackerEmoji = trackerCardViewController.emojies[emojieSelectedAt]
         } else {
-            newTrackerEmoji = emojies.randomElement() ?? "X"
+            trackerEmoji = trackerCardViewController.emojies.randomElement() ?? "X"
         }
         
         if let colorSelectedAt = colorSelectedAt {
-            newTrackerColor = colors[colorSelectedAt]
+            trackerColor = trackerCardViewController.colors[colorSelectedAt]
         } else {
-            newTrackerColor = colors.randomElement() ?? .black
+            trackerColor = trackerCardViewController.colors.randomElement() ?? .black
         }
-            var schedule = Schedule(
-                days: newTrackerDays)
-            if !regularTracker {
-                let unregularSchedule = Schedule(
-                    days: WeekDay.allCases.filter { $0 != WeekDay.empty })
-                schedule = unregularSchedule
-            }
-            let newTracker: Tracker = Tracker(
-                id: newTrackerId,
-                name: newTrackerName,
-                color: newTrackerColor,
-                emoji: newTrackerEmoji,
+        
+        let schedule = Schedule(days: trackerDays)
+        
+        let newTracker: Tracker = Tracker(
+                id: trackerID,
+                name: trackerName,
+                color: trackerColor,
+                emoji: trackerEmoji,
                 schedule: schedule)
             return newTracker
         
@@ -307,8 +337,8 @@ extension TrackerCardViewController {
     private func scheduleButtonTitleTextConfig() {
         
         var stringArray: [String] = []
-        for item in 0..<newTrackerDays.count {
-            let value = newTrackerDays[item].rawValue
+        for item in 0..<trackerDays.count {
+            let value = trackerDays[item].rawValue
             stringArray.append(value)
         }
         
@@ -317,7 +347,7 @@ extension TrackerCardViewController {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
         
         var scheduleButtonTitleText: String = ""
-        switch newTrackerDays {
+        switch trackerDays {
         case WeekDay.allCases:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.allCases", comment: "Schedule all cases - everyday"))"
         case weekDays:
@@ -376,7 +406,7 @@ extension TrackerCardViewController {
     
     @objc
     func didTapScheduleButton() {
-        let vc = TrackerScheduleViewController(newWeekDaysNamesArray: newTrackerDays)
+        let vc = TrackerScheduleViewController(newWeekDaysNamesArray: trackerDays)
         vc.delegate = self
         self.present(vc, animated: true, completion: nil)
     }
@@ -387,14 +417,46 @@ extension TrackerCardViewController {
     }
     
     @objc
-    func didTapCreateNewTrackerButton() {
-        let newTracker = createNewTracker()
-        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
+    func didTapSaveTrackerButton() {
+        let newTracker = saveTracker()
+        self.delegate?.sendEditedTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
+    }
+    
+    func saveTrackerButtonIsActive(_ bool: Bool) {
+        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
+        if bool && trackerDays != empty || !regularTracker {
+            saveTrackerButton.isEnabled = true
+            saveTrackerButton.backgroundColor = UIColor(named: "YP Black")
+        } else {
+            saveTrackerButton.isEnabled = false
+            saveTrackerButton.backgroundColor = UIColor(named: "YP Grey")
+        }
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackerEditableCardViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
+        guard let updatedString = updatedString else { return false }
+        trackerName = updatedString
+        saveTrackerButtonIsActive(trackerName.count > 0)
+        return true
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        saveTrackerButtonIsActive(false)
+        textField.text = ""
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.endEditing(true)
     }
 }
 
 // MARK: - TrackerCard Delegate
-extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
+extension TrackerEditableCardViewController: TrackerCategoryViewControllerDelegate {
     func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
         /// if current categories array is nil we need to set categories names
         if self.newCategoriesNames == nil {
@@ -429,48 +491,16 @@ extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
 }
 
 // MARK: - TrackerSchedule Delegate
-extension TrackerCardViewController: TrackerScheduleViewControllerDelegate {
+extension TrackerEditableCardViewController: TrackerScheduleViewControllerDelegate {
     func sendScheduleToTrackerCardViewController(array: [WeekDay]) {
-        newTrackerDays = array
+        trackerDays = array
         scheduleButtonTitleTextConfig()
-        createNewTrackerButtonIsActive(newTrackerName.count > 0)
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension TrackerCardViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-        guard let updatedString = updatedString else { return false }
-        newTrackerName = updatedString
-        createNewTrackerButtonIsActive(newTrackerName.count > 0)
-        return true
-    }
-    
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        createNewTrackerButtonIsActive(false)
-        textField.text = ""
-        return true
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.endEditing(true)
-    }
-    
-    func createNewTrackerButtonIsActive(_ bool: Bool) {
-        let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        if bool && newTrackerDays != empty || !regularTracker {
-            createNewTrackerButton.isEnabled = true
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Black")
-        } else {
-            createNewTrackerButton.isEnabled = false
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Grey")
-        }
+        saveTrackerButtonIsActive(trackerDays.count > 0)
     }
 }
 
 // MARK: - CollectionViewDataSource
-extension TrackerCardViewController: UICollectionViewDataSource {
+extension TrackerEditableCardViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
@@ -482,6 +512,7 @@ extension TrackerCardViewController: UICollectionViewDataSource {
     
     /// Cell for item
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         if indexPath.section == 0 {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackerCardCollectionViewCell else {
                 return UICollectionViewCell()
@@ -489,9 +520,13 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             
             cell.configure(
                 indexPath: indexPath,
-                emojiLabel: emojies[indexPath.row],
+                emojiLabel: trackerCardViewController.emojies[indexPath.row],
                 backgroundColor: UIColor(named: "YP White") ?? .white
             )
+            if indexPath.row == emojieSelectedAt {
+                trackerEmoji = trackerCardViewController.emojies[indexPath.row]
+                cell.changeCellBackgroundColor(color: UIColor(named: "YP LightGrey") ?? .gray)
+            }
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: secondCellIdentifier, for: indexPath) as? TrackerCardCollectionViewSecondCell else {
@@ -499,25 +534,47 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             }
             cell.configure(
                 indexPath: indexPath,
-                color: colors[indexPath.row],
+                color: trackerCardViewController.colors[indexPath.row],
                 borderWidth: 0,
                 alpha: 0
             )
+            if indexPath.row == colorSelectedAt {
+                trackerColor = trackerCardViewController.colors[indexPath.row]
+                cell.changeCellBackground(borderWidth: 3, alpha: 0.3)
+            }
             return cell
         }
+    }
+    
+    private func setSelectedEmoji() {
+        /// get selected emoji index and set it to colletion view
+        guard let emojieSelectedAt = emojieSelectedAt else { return }
+        let firstIndexPath = IndexPath(row: emojieSelectedAt, section: 0)
+        setSelectedEmoji(for: firstIndexPath)
+    }
+    
+    private func setSelectedColor() {
+        guard let colorSelectedAt = colorSelectedAt else { return }
+        let secondIndexPath = IndexPath(row: colorSelectedAt, section: 0)
+        setSelectedColor(for: secondIndexPath)
     }
 }
 
 // MARK: - UICollectionViewDelegate
-extension TrackerCardViewController: UICollectionViewDelegate {
+extension TrackerEditableCardViewController: UICollectionViewDelegate {
     
     /// Did selecet cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         if indexPath.section == 0 {
-            
+            setSelectedEmoji(for: indexPath)
+        } else {
+            setSelectedColor(for: indexPath)
+        }
+    }
+    
+    private func setSelectedEmoji(for indexPath: IndexPath) {
             guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewCell else {
-                assertionFailure("No cell while didSelectItemAt")
+                //assertionFailure("No cell")
                 return
             }
             if emojieSelectedAt == nil {
@@ -532,31 +589,30 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                     collectionView.reloadItems(at: [previousIndexPath])
                 }
             }
-            newTrackerEmoji = emojies[indexPath.row]
+            trackerEmoji = trackerCardViewController.emojies[indexPath.row]
             cell.changeCellBackgroundColor(color: UIColor(named: "YP LightGrey") ?? .gray)
-            
-        } else {
-            
-            guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewSecondCell else {
-                assertionFailure("No cell while didSelectItemAt")
-                return
-            }
-            
-            if colorSelectedAt == nil {
-                previousColorWas = indexPath.row
-                colorSelectedAt = indexPath.row
-            } else {
-                previousColorWas = colorSelectedAt
-                colorSelectedAt = indexPath.row
-                if previousColorWas != colorSelectedAt {
-                    guard let previousColorWas = previousColorWas else { return }
-                    let previousIndexPath = IndexPath(row: previousColorWas, section: 1)
-                    collectionView.reloadItems(at: [previousIndexPath])
-                }
-            }
-            newTrackerColor = colors[indexPath.row]
-            cell.changeCellBackground(borderWidth: 3, alpha: 0.3)
+    }
+    
+    private func setSelectedColor(for indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCardCollectionViewSecondCell else {
+            //assertionFailure("No cell")
+            return
         }
+        
+        if colorSelectedAt == nil {
+            previousColorWas = indexPath.row
+            colorSelectedAt = indexPath.row
+        } else {
+            previousColorWas = colorSelectedAt
+            colorSelectedAt = indexPath.row
+            if previousColorWas != colorSelectedAt {
+                guard let previousColorWas = previousColorWas else { return }
+                let previousIndexPath = IndexPath(row: previousColorWas, section: 1)
+                collectionView.reloadItems(at: [previousIndexPath])
+            }
+        }
+        trackerColor = trackerCardViewController.colors[indexPath.row]
+        cell.changeCellBackground(borderWidth: 3, alpha: 0.3)
     }
     
     /// Switch between header and (footer removed)
@@ -577,7 +633,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
 }
 
 // MARK: - CollectionViewDelegateFlowLayout
-extension TrackerCardViewController: UICollectionViewDelegateFlowLayout {
+extension TrackerEditableCardViewController: UICollectionViewDelegateFlowLayout {
     /// Set layout width and height
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width / 6 - 5, height: 52)
@@ -609,18 +665,25 @@ extension TrackerCardViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - Constraints configuration
-private extension TrackerCardViewController {
+private extension TrackerEditableCardViewController {
     func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
             titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
             titleBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            titleBackground.heightAnchor.constraint(equalToConstant: 57)
+            titleBackground.heightAnchor.constraint(equalToConstant: 159)
+        ])
+        titleBackground.addSubview(daysCounterTextLabel)
+        NSLayoutConstraint.activate([
+            daysCounterTextLabel.bottomAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: -40),
+            daysCounterTextLabel.leadingAnchor.constraint(equalTo: titleBackground.leadingAnchor),
+            daysCounterTextLabel.trailingAnchor.constraint(equalTo: titleBackground.trailingAnchor),
+            daysCounterTextLabel.heightAnchor.constraint(equalToConstant: 38)
         ])
         titleBackground.addSubview(titleLabel)
         NSLayoutConstraint.activate([
-            titleLabel.bottomAnchor.constraint(equalTo: titleBackground.bottomAnchor, constant: -14),
+            titleLabel.bottomAnchor.constraint(equalTo: daysCounterTextLabel.topAnchor, constant: -38),
             titleLabel.widthAnchor.constraint(equalToConstant: view.frame.width),
             titleLabel.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: -view.frame.width/2)
         ])
@@ -635,7 +698,7 @@ private extension TrackerCardViewController {
             horizontalStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
         horizontalStackView.addArrangedSubview(cancelButton)
-        horizontalStackView.addArrangedSubview(createNewTrackerButton)
+        horizontalStackView.addArrangedSubview(saveTrackerButton)
     }
     
     func scrollViewConfig() {
@@ -742,3 +805,4 @@ private extension TrackerCardViewController {
         collectionView.allowsMultipleSelection = false
     }
 }
+

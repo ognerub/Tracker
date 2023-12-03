@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="Tracker/Resources/en.lproj/InfoPlist.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="14.2" build-num="14C18"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleDisplayName" xml:space="preserve">
+        <source>Tracker</source>
+        <target>Tracker</target>
+        <note>InfoPlist.strings
+  Tracker
+
+  Created by Admin on 11/28/23.</note>
+      </trans-unit>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>Tracker</source>
+        <target>Tracker</target>
+        <note>Bundle name</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Tracker/Resources/en.lproj/Localizable.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="14.2" build-num="14C18"/>
+    </header>
+    <body>
+      <trans-unit id="actionButton.title" xml:space="preserve">
+        <source>Wow, amazing technologies!</source>
+        <target>Wow, amazing technologies!</target>
+        <note>Action button title</note>
+      </trans-unit>
+      <trans-unit id="categoryButtonTitle" xml:space="preserve">
+        <source>Category</source>
+        <target>Category</target>
+        <note>TrackerCardViewController</note>
+      </trans-unit>
+      <trans-unit id="createNewCategoryButton" xml:space="preserve">
+        <source>OK</source>
+        <target>OK</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="empty" xml:space="preserve">
+        <source/>
+        <target/>
+        <note/>
+      </trans-unit>
+      <trans-unit id="emptyStatisticsLabel" xml:space="preserve">
+        <source>Nothing to analize</source>
+        <target>Nothing to analize</target>
+        <note>Statistics</note>
+      </trans-unit>
+      <trans-unit id="emptyTrackersLabel" xml:space="preserve">
+        <source>What we will watch?</source>
+        <target>What we will watch?</target>
+        <note>TrackersListViewController</note>
+      </trans-unit>
+      <trans-unit id="friday" xml:space="preserve">
+        <source>Friday</source>
+        <target>Friday</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mainLabel.text.first" xml:space="preserve">
+        <source>Track only what you want!</source>
+        <target>Track only what you want!</target>
+        <note>OnboardingViewController</note>
+      </trans-unit>
+      <trans-unit id="mainLabel.text.second" xml:space="preserve">
+        <source>Even if it`s not liters of water and yoga!</source>
+        <target>Even if it`s not liters of water and yoga!</target>
+        <note>Second info text for onboarding</note>
+      </trans-unit>
+      <trans-unit id="monday" xml:space="preserve">
+        <source>Monday</source>
+        <target>Monday</target>
+        <note>enum WeekDay</note>
+      </trans-unit>
+      <trans-unit id="numberOfDays" translate="no" xml:space="preserve">
+        <source>numberOfDays</source>
+        <target>numberOfDays</target>
+        <note>Number of completed days (Key in .stringsdict)</note>
+      </trans-unit>
+      <trans-unit id="regularTrackerButton" xml:space="preserve">
+        <source>Regular</source>
+        <target>Regular</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="saturday" xml:space="preserve">
+        <source>Saturday</source>
+        <target>Saturday</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="scheduleButtonTitle" xml:space="preserve">
+        <source>Schedule</source>
+        <target>Schedule</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="searchBar.placeholder" xml:space="preserve">
+        <source>Search...</source>
+        <target>Search...</target>
+        <note>SearchBar placeholder</note>
+      </trans-unit>
+      <trans-unit id="statisticsLabel" xml:space="preserve">
+        <source>Statistics</source>
+        <target>Statistics</target>
+        <note>Statistics Label</note>
+      </trans-unit>
+      <trans-unit id="sunday" xml:space="preserve">
+        <source>Sunday</source>
+        <target>Sunday</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tabBar.titles.first" xml:space="preserve">
+        <source>Trackers</source>
+        <target>Trackers</target>
+        <note>TabBarController</note>
+      </trans-unit>
+      <trans-unit id="tabBar.titles.second" xml:space="preserve">
+        <source>Statistics</source>
+        <target>Statistics</target>
+        <note>Statistics</note>
+      </trans-unit>
+      <trans-unit id="thursday" xml:space="preserve">
+        <source>Thursday</source>
+        <target>Thursday</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.cancelButton" xml:space="preserve">
+        <source>Cancel</source>
+        <target>Cancel</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.collectionView.titles.first" xml:space="preserve">
+        <source>Color</source>
+        <target>Color</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.createNewTrackerButton" xml:space="preserve">
+        <source>Create</source>
+        <target>Create</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.scheduleButtonTitleText.allCases" xml:space="preserve">
+        <source>Weekends</source>
+        <target>Weekends</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.scheduleButtonTitleText.weekDays" xml:space="preserve">
+        <source>WeekDays</source>
+        <target>WeekDays</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.titles.first" xml:space="preserve">
+        <source>New habit</source>
+        <target>New habit</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCard.titles.second" xml:space="preserve">
+        <source>New unregular tracker</source>
+        <target>New unregular tracker</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCategory.addNewCategoryButton" xml:space="preserve">
+        <source>Add new category</source>
+        <target>Add new category</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCategory.emptyCategoriesLabel" xml:space="preserve">
+        <source>Habits and unregular events 
+ can be combined by meaning</source>
+        <target>Habits and unregular events 
+ can be combined by meaning</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="trackerCategory.title" xml:space="preserve">
+        <source>Category</source>
+        <target>Category</target>
+        <note>TrackerCategoryViewController</note>
+      </trans-unit>
+      <trans-unit id="trackerCategoryName.title" xml:space="preserve">
+        <source>New category</source>
+        <target>New category</target>
+        <note>TrackerCategoryNameViewController</note>
+      </trans-unit>
+      <trans-unit id="trackerType.title" xml:space="preserve">
+        <source>Creation of tracker</source>
+        <target>Creation of tracker</target>
+        <note>TrackerTypeViewController</note>
+      </trans-unit>
+      <trans-unit id="trackersLabel" xml:space="preserve">
+        <source>Trackers</source>
+        <target>Trackers</target>
+        <note>Trackers</note>
+      </trans-unit>
+      <trans-unit id="tuesday" xml:space="preserve">
+        <source>Tuesday</source>
+        <target>Tuesday</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="unregularTrackerButton" xml:space="preserve">
+        <source>Unregular</source>
+        <target>Unregular</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="wednesday" xml:space="preserve">
+        <source>Wednesday</source>
+        <target>Wednesday</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Tracker/Resources/en.lproj/Localizable.stringsdict" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="14.2" build-num="14C18"/>
+    </header>
+    <body>
+      <trans-unit id="/numberOfDays:dict/NSStringLocalizedFormatKey:dict/:string" xml:space="preserve">
+        <source>%#@days@</source>
+        <target>%#@days@</target>
+        <note>Number of completed days</note>
+      </trans-unit>
+      <trans-unit id="/numberOfDays:dict/days:dict/one:dict/:string" xml:space="preserve">
+        <source>%d day</source>
+        <target>%d day</target>
+        <note>Number of completed days</note>
+      </trans-unit>
+      <trans-unit id="/numberOfDays:dict/days:dict/other:dict/:string" xml:space="preserve">
+        <source>%d days</source>
+        <target>%d days</target>
+        <note>Number of completed days</note>
+      </trans-unit>
+      <trans-unit id="/numberOfDays:dict/days:dict/zero:dict/:string" xml:space="preserve">
+        <source>%d days</source>
+        <target>%d days</target>
+        <note>Number of completed days</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

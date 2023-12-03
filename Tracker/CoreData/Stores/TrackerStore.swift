@@ -195,6 +195,13 @@ final class TrackerStore: NSObject {
         try context.save()
     }
     
+    func getSelectedTrackerCategoryName(with trackerID: UUID) -> String {
+        guard let fetchedTracker = fetchSelectedTracker(with: context, trackerID: trackerID) else {
+            return ""
+        }
+        return fetchedTracker.category?.name ?? ""
+    }
+    
     private func fetchSelectedTracker(with context: NSManagedObjectContext, trackerID: UUID) -> TrackerCoreData? {
         let request = TrackerCoreData.fetchRequest()
         request.returnsObjectsAsFaults = false
