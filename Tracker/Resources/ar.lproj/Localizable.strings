@@ -23,6 +23,12 @@
 // إحصائيات
 "emptyStatisticsLabel" = "لا يوجد شيء لتحليله";
 "statisticsLabel" = "إحصائيات";
+"statistics.firstInfoLabel" = "أفضل فترة";
+"statistics.secondInfoLabel" = "أيام مثالية";
+"statistics.thirdInfoLabel" = "تم الانتهاء من أجهزة التتبع";
+"statistics.fourthInfoLabel" = "متوسط ​​القيمة";
+
+
 // TrackerTypeViewController
 "trackerType.title" = "إنشاء المتعقب";
 "regularTrackerButton" = "منتظم";

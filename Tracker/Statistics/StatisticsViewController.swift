@@ -9,6 +9,9 @@ import UIKit
 
 final class StatisticsViewController: UIViewController {
     
+    private let trackerStore = TrackerStore()
+    private let trackerRecordStore = TrackerRecordStore()
+
     private let emptyStatisticsImageView: UIImageView = {
         var image = UIImage(named: "StatisticsEmpty")
         var imageView = UIImageView(image: image)
@@ -69,8 +72,13 @@ final class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "StatisticsViewController"
         self.toggleAppearance(isDark: TabBarController().isDark)
-        //showEmptyStatisticsInfo()
-        verticalStackViewConfig()
+        
+        if trackerStore.trackers.count == 0 {
+            showEmptyStatisticsInfo()
+        } else {
+            verticalStackViewConfig()
+            configureTextForLabels()
+        }
         
         // NavBar
         view.addSubview(navBar)
@@ -93,6 +101,17 @@ final class StatisticsViewController: UIViewController {
         secondGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
         thirdGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
         fourthGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
+    }
+    
+    private func configureTextForLabels() {
+        firstInfoLabel.text = NSLocalizedString("statistics.firstInfoLabel", comment: "Best period")
+        secondInfoLabel.text = NSLocalizedString("statistics.secondInfoLabel", comment: "Ideal days")
+        thirdInfoLabel.text = NSLocalizedString("statistics.thirdInfoLabel", comment: "Trackers completed")
+        fourthInfoLabel.text = NSLocalizedString("statistics.fourthInfoLabel", comment: "Average value")
+        
+        thirdCounterLabel.text = "\(trackerRecordStore.completedTrackers.count)"
+        
+        
     }
     
     private func createUIViewForGradient() -> UIView {

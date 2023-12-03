@@ -23,6 +23,10 @@
 // Statistics
 "emptyStatisticsLabel" = "Анализировать пока нечего";
 "statisticsLabel" = "Статистика";
+"statistics.firstInfoLabel" = "Лучший период";
+"statistics.secondInfoLabel" = "Идеальные дни";
+"statistics.thirdInfoLabel" = "Трекеров завершено";
+"statistics.fourthInfoLabel" = "Среднее значение";
 // TrackerTypeViewController
 "trackerType.title" = "Создание трекера";
 "regularTrackerButton" = "Привычка";

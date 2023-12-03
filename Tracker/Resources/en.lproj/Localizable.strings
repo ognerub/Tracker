@@ -23,6 +23,10 @@
 // Statistics
 "emptyStatisticsLabel" = "Nothing to analize";
 "statisticsLabel" = "Statistics";
+"statistics.firstInfoLabel" = "Best period";
+"statistics.secondInfoLabel" = "Ideal days";
+"statistics.thirdInfoLabel" = "Trackers completed";
+"statistics.fourthInfoLabel" = "Average value";
 // TrackerTypeViewController
 "trackerType.title" = "Creation of tracker";
 "regularTrackerButton" = "Regular";
