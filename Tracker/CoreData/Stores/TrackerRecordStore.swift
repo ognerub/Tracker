@@ -84,6 +84,12 @@ final class TrackerRecordStore: NSObject {
         try? controller.performFetch()
     }
     
+    func deleteAll() throws {
+        let objects = fetchedResultsController?.fetchedObjects ?? []
+           for object in objects { context.delete(object) }
+        try context.save()
+    }
+    
     func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard let id = trackerRecordCoreData.trackerID else {
             throw TrackerRecordStoreError.decodingErrorInvalidID

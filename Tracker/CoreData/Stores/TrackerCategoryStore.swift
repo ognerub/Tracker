@@ -84,6 +84,17 @@ final class TrackerCategoryStore: NSObject {
         try? controller.performFetch()
     }
     
+    func deleteAll() throws {
+        let objects = fetchedResultsController?.fetchedObjects ?? []
+           for object in objects { context.delete(object) }
+        try context.save()
+    }
+    
+    func createMockCategory() -> TrackerCategory {
+        let category = TrackerCategory(name: "New mock category", trackers: [])
+        return category
+    }
+    
     private func category(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
         guard let name = trackerCategoryCoreData.name else {
             throw TrackerCategoryStoreError.decodingErrorInvalidName
@@ -145,17 +156,6 @@ final class TrackerCategoryStore: NSObject {
         request.sortDescriptors = [NSSortDescriptor(key: "categoryId", ascending: false)]
         let objects = try? context.fetch(request)
         return objects
-    }
-    
-    func deleteAll() throws {
-        guard let objects = fetchAllCategories(with: context) else {
-            return
-        }
-        let filtered = objects.filter { $0.name == "Weekdays" }
-        for object in filtered {
-            context.delete(object)
-        }
-        try tryToSaveContext()
     }
     
     func tryToSaveContext() throws {

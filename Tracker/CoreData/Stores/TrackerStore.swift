@@ -217,6 +217,24 @@ final class TrackerStore: NSObject {
         try tryToSaveContext(from: "deleteSelectedTracker")
     }
     
+    func deleteAll() throws {
+        let objects = fetchedResultsController?.fetchedObjects ?? []
+           for object in objects { context.delete(object) }
+        try context.save()
+    }
+    
+    func createMockTracker() -> Tracker {
+        let tracker = Tracker(
+            id: UUID(),
+            name: "Some string",
+            color: UIColor(named: "CC Blue") ?? .black,
+            emoji: "X",
+            schedule: Schedule(days: WeekDay.allCases.filter { $0 != WeekDay.empty}),
+            isPinned: false,
+            pinnedFrom: nil)
+        return tracker
+    }
+    
     private func fetchSelectedTracker(with context: NSManagedObjectContext, trackerID: UUID) -> TrackerCoreData? {
         let request = TrackerCoreData.fetchRequest()
         request.returnsObjectsAsFaults = false
@@ -248,10 +266,10 @@ final class TrackerStore: NSObject {
         do {
             try context.save()
         } catch {
-            //print("TrackerStore \(funcName). Error to save")
+            print("TrackerStore \(funcName). Error to save")
             return
         }
-        //print("TrackerStore \(funcName). Save success")
+        print("TrackerStore \(funcName). Save success")
     }
     
 }

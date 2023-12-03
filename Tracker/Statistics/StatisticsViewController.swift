@@ -77,7 +77,6 @@ final class StatisticsViewController: UIViewController {
             showEmptyStatisticsInfo()
         } else {
             verticalStackViewConfig()
-            configureTextForLabels()
         }
         
         // NavBar
@@ -93,6 +92,7 @@ final class StatisticsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        configureTextForLabels()
     }
     
     override func viewDidAppear(_ animated: Bool) {
