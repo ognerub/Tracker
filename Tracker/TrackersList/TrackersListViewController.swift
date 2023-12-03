@@ -181,7 +181,7 @@ extension TrackersListViewController {
     @objc
     func didTapPlusButton() {
         
-        analyticsService.report(event: "tracker_add", params: ["trackers_count" : trackerStore.trackers.count + 1])
+//        analyticsService.report(event: "tracker_add", params: ["trackers_count" : trackerStore.trackers.count + 1])
         
         let vc = TrackerTypeViewController()
         vc.delegate = self
@@ -200,7 +200,8 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
 // MARK: - TrackerEditableCardViewController Delegate
 extension TrackersListViewController: TrackerEditableCardViewControllerDelegate {
     func sendEditedTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
-        print("edit over")
+        try? trackerStore.deleteSelectedTracker(with: newTracker.id)
+        try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
         dismiss(animated: true)
     }
 }
@@ -400,7 +401,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
     
     private func editTracker(collectionView: UICollectionView, indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
-        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
+//        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
+        let isTrackerRegular = true
         
         let selectedCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
         let categories = trackerCategoryStore.getSortedCategories()
@@ -432,9 +434,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
     
     private func deleteTracker(indexPath: IndexPath) {
         let selectedTrackerID = visibleCategories[indexPath.section].trackers[indexPath.row].id
-        try? trackerStore.deleteSelectedTracker(with: selectedTrackerID)
         try? trackerStore.deleteSelectedTrackerRecords(with: selectedTrackerID)
-        reloadVisibleCategories()
+        try? trackerStore.deleteSelectedTracker(with: selectedTrackerID)
         print("delete pressed")
     }
     

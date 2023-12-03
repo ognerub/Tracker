@@ -37,6 +37,7 @@ protocol TrackerStoreDelegate: AnyObject {
 
 final class TrackerStore: NSObject {
     
+    private let trackerRecordStore = TrackerRecordStore()
     private let uiColorMarshalling = UIColorMarshalling()
     
     private let context: NSManagedObjectContext
@@ -133,7 +134,7 @@ final class TrackerStore: NSObject {
     func addNewTracker(_ tracker: Tracker, selectedCategoryRow: Int?) throws {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker, selectedCategoryRow: selectedCategoryRow)
-        try context.save()
+        try tryToSaveContext(from: "addNewTracker")
     }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker, selectedCategoryRow: Int?) {
@@ -153,6 +154,7 @@ final class TrackerStore: NSObject {
     
     private func fetchSelectedCategory(with context: NSManagedObjectContext, selectedCategoryRow: Int) -> TrackerCategoryCoreData? {
         let request = TrackerCategoryCoreData.fetchRequest()
+        //request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "%K == %ld", #keyPath(TrackerCategoryCoreData.categoryId), selectedCategoryRow)
         let object = try? context.fetch(request).first
         return object
@@ -187,19 +189,19 @@ final class TrackerStore: NSObject {
         return objects
     }
     
-    func deleteSelectedTracker(with trackerID: UUID) throws {
-        guard let object = fetchSelectedTracker(with: context, trackerID: trackerID) else {
-            return
-        }
-        context.delete(object)
-        try context.save()
-    }
-    
     func getSelectedTrackerCategoryName(with trackerID: UUID) -> String {
         guard let fetchedTracker = fetchSelectedTracker(with: context, trackerID: trackerID) else {
             return ""
         }
         return fetchedTracker.category?.name ?? ""
+    }
+    
+    func deleteSelectedTracker(with trackerID: UUID) throws {
+        guard let object = fetchSelectedTracker(with: context, trackerID: trackerID) else {
+            return
+        }
+        context.delete(object)
+        try tryToSaveContext(from: "deleteSelectedTracker")
     }
     
     private func fetchSelectedTracker(with context: NSManagedObjectContext, trackerID: UUID) -> TrackerCoreData? {
@@ -218,7 +220,7 @@ final class TrackerStore: NSObject {
         for object in objects {
             context.delete(object)
         }
-        try context.save()
+        try tryToSaveContext(from: "deleteSelectedTrackerRecords")
     }
     
     private func fetchSelectedTrackerRecords(with context: NSManagedObjectContext, trackerID: UUID) -> [TrackerRecordCoreData]? {
@@ -229,7 +231,15 @@ final class TrackerStore: NSObject {
         return objects
     }
     
-    
+    func tryToSaveContext(from funcName: String) throws {
+        do {
+            try context.save()
+        } catch {
+            //print("TrackerStore \(funcName). Error to save")
+            return
+        }
+        //print("TrackerStore \(funcName). Save success")
+    }
     
 }
 

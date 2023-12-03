@@ -47,6 +47,8 @@
 // TrackerScheduleViewController
 "trackerSchedule.title" = "Расписание";
 "acceptScheduleButton" = "Готово";
+// TrackerEdatableCardViewController
+"trackerCard.saveTrackerButton" = "Сохранить";
 
 // enum WeekDay
 "monday" = "Понедельник";

@@ -84,7 +84,7 @@ final class TrackerRecordStore: NSObject {
         try? controller.performFetch()
     }
     
-    private func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
+    func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard let id = trackerRecordCoreData.trackerID else {
             throw TrackerRecordStoreError.decodingErrorInvalidID
         }
@@ -99,7 +99,7 @@ final class TrackerRecordStore: NSObject {
     func addNewTrackerRecord(_ trackerRecord: TrackerRecord) throws {
         let trackerRecordCoreData = TrackerRecordCoreData(context: context)
         updateExistingTrackerRecord(trackerRecordCoreData, with: trackerRecord)
-        try context.save()
+        try tryToSaveContext()
     }
 
     private func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
@@ -125,13 +125,23 @@ final class TrackerRecordStore: NSObject {
         guard let recordToDelete = records?.first(where: {$0.trackerID == trackerRecord.id && $0.date == trackerRecord.date} ) else { return }
         
         context.delete(recordToDelete)
-        try context.save()
+        try tryToSaveContext()
     }
     
     private func fetchRecords(with context: NSManagedObjectContext) -> [TrackerRecordCoreData]? {
         let request = TrackerRecordCoreData.fetchRequest()
         let objects = try? context.fetch(request)
         return objects
+    }
+    
+    func tryToSaveContext() throws {
+        do {
+            try context.save()
+        } catch {
+            print("TrackerRecordStore. Error to save")
+            return
+        }
+        print("TrackerRecordStore. Save success")
     }
     
 }

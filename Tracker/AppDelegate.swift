@@ -14,7 +14,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        AnalyticsService.activate()
+//        AnalyticsService.activate()
         DaysValueTransformer.register()
         UIColorValueTransformer.register()
         return true

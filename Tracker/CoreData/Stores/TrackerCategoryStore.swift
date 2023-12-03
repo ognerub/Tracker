@@ -110,7 +110,7 @@ final class TrackerCategoryStore: NSObject {
     func addNewTrackerCategory(_ trackerCategory: TrackerCategory) throws {
         let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
         updateExistingTrackerCategories(trackerCategoryCoreData, with: trackerCategory)
-        try context.save()
+        try tryToSaveContext()
     }
 
     private func updateExistingTrackerCategories(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
@@ -147,7 +147,17 @@ final class TrackerCategoryStore: NSObject {
         for object in filtered {
             context.delete(object)
         }
-        try context.save()
+        try tryToSaveContext()
+    }
+    
+    func tryToSaveContext() throws {
+        do {
+            try context.save()
+        } catch {
+            print("TrackerCategoryStore. Error to save")
+            return
+        }
+        print("TrackerCategoryStore. Save success")
     }
 }
 

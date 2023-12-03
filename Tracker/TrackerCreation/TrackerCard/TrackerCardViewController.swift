@@ -318,7 +318,7 @@ extension TrackerCardViewController {
         
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
-        case WeekDay.allCases:
+        case WeekDay.allCases.filter { $0 != WeekDay.empty }:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.allCases", comment: "Schedule all cases - everyday"))"
         case weekDays:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.weekDays", comment: "Schedule all cases - week days"))"

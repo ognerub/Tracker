@@ -189,7 +189,7 @@ final class TrackerEditableCardViewController: UIViewController {
             target: self,
             action: #selector(didTapSaveTrackerButton)
         )
-        button.setTitle(NSLocalizedString("trackerCard.createNewTrackerButton", comment: "Title for creation button"), for: .normal)
+        button.setTitle(NSLocalizedString("trackerCard.saveTrackerButton", comment: "Title for creation button"), for: .normal)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Grey")
         button.layer.masksToBounds = true
@@ -264,6 +264,8 @@ final class TrackerEditableCardViewController: UIViewController {
         
         textField.text = trackerName
         
+        saveTrackerButtonIsActive(trackerName.count > 0)
+        
         let daysString = String.localizedStringWithFormat(
             NSLocalizedString("numberOfDays", comment: "Number of completed days"),
             completedDays
@@ -320,7 +322,6 @@ extension TrackerEditableCardViewController {
                 emoji: trackerEmoji,
                 schedule: schedule)
             return newTracker
-        
     }
     
     // MARK: - Set category and schedule buttons titles
@@ -348,7 +349,7 @@ extension TrackerEditableCardViewController {
         
         var scheduleButtonTitleText: String = ""
         switch trackerDays {
-        case WeekDay.allCases:
+        case WeekDay.allCases.filter { $0 != WeekDay.empty }:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.allCases", comment: "Schedule all cases - everyday"))"
         case weekDays:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.weekDays", comment: "Schedule all cases - week days"))"
