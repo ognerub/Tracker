@@ -111,7 +111,11 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    private var selectedFilterRow: Int?
+    private var selectedFilterRow: Int = 1 {
+        didSet {
+            reloadVisibleCategories()
+        }
+    }
     
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
@@ -163,20 +167,27 @@ extension TrackersListViewController {
         
         completedTrackers = trackerRecordStore.completedTrackers
         
-        let filterWeekDay = datePicker.date.dayOfWeek()
+        
         let filterText = (searchBar.text ?? "").lowercased()
-
         
         var filteredCategories: [TrackerCategory] = []
+        
+        var completedTrackersIDs: [UUID] = []
+        trackerRecordStore.completedTrackers.forEach { record in
+            let isSameDayAs = Calendar.current.isDate(record.date, inSameDayAs: datePicker.date)
+            if isSameDayAs {
+                completedTrackersIDs.append(record.id)
+            }
+        }
+        let uniqueIDs = Array(Set(completedTrackersIDs))
         
         filteredCategories = trackerCategoryStore.categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty ||
                 tracker.name.lowercased().contains(filterText)
-                let dateCondition = tracker.schedule.days.contains { WeekDay in
-                    WeekDay.rawValue == filterWeekDay
-                }
-                return textCondition && dateCondition
+                let filterCondition = filterCondition(for: tracker, completedIDs: uniqueIDs)
+                
+                return textCondition && filterCondition
             }
             return TrackerCategory(
                 name: category.name,
@@ -188,6 +199,30 @@ extension TrackersListViewController {
         
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
+    }
+    
+    private func filterCondition(for tracker: Tracker, completedIDs: [UUID]) -> Bool {
+        
+        let filterWeekDay = datePicker.date.dayOfWeek()
+        
+        let dateCondition = tracker.schedule.days.contains { weekDay in
+            weekDay.rawValue == filterWeekDay
+        }
+        
+        let completeCondition = completedIDs.contains(where: { trackerID in
+            trackerID == tracker.id
+        })
+        
+        switch selectedFilterRow {
+        case 1:
+            return dateCondition
+        case 2:
+            return completeCondition && dateCondition
+        case 3:
+            return !completeCondition && dateCondition
+        default:
+            return true
+        }
     }
     
     private func showOrHideEmptyTrackersInfo() {
