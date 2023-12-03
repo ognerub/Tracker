@@ -95,6 +95,22 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
+    private lazy var filterButton: UIButton = {
+        let button = UIButton.systemButton(
+            with: UIImage(named: "Filters") ?? UIImage(),
+            target: self,
+            action: #selector(didTapFilterButton)
+        )
+        button.backgroundColor = UIColor(named: "YP Blue")
+        button.setTitle("Filters", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -103,6 +119,7 @@ final class TrackersListViewController: UIViewController {
         view.backgroundColor = .white
         addTopBar()
         collectionViewConfig()
+        addFilterButton()
         
         // MARK: - CoreData
         
@@ -188,6 +205,11 @@ extension TrackersListViewController {
         let vc = TrackerTypeViewController()
         vc.delegate = self
         present(vc, animated: true)
+    }
+    
+    @objc
+    func didTapFilterButton() {
+        print("filter pressed")
     }
 }
 
@@ -624,5 +646,15 @@ private extension TrackersListViewController {
         emptyTrackersBackground.removeFromSuperview()
         emptyTrackersImageView.removeFromSuperview()
         emptyTrackersLabel.removeFromSuperview()
+    }
+    
+    func addFilterButton() {
+        view.addSubview(filterButton)
+        NSLayoutConstraint.activate([
+            filterButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 130),
+            filterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -130),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
 }
