@@ -9,7 +9,7 @@ import UIKit
 
 final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    private var selectedTabBar: Int = 0
+    private var selectedTabBar: Int = 1
     
     var isDark = true { didSet { setNeedsStatusBarAppearanceUpdate() }}
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -46,8 +46,6 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
         } else {
             selectedTabBar = 1
         }
-        
-        print("Did select viewController: \(viewController.accessibilityLabel ?? "") /n selectedTabBar = \(selectedTabBar)")
     }
     
 }

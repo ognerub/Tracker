@@ -111,7 +111,7 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    private var selectedFilterRow: Int = 1 {
+    private var selectedFilterRow: Int = 0 {
         didSet {
             reloadVisibleCategories()
         }
@@ -246,7 +246,7 @@ extension TrackersListViewController {
     
     @objc
     func didTapFilterButton() {
-        let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow ?? 1)
+        let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow)
         vc.delegate = self
         present(vc, animated: true)
     }
@@ -386,21 +386,6 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
 // MARK: - CollectionViewDelegate
 extension TrackersListViewController: UICollectionViewDelegate {
 
-        
-        /// Did selecet cell
-    //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-    //        print("Did select cell at \(indexPath)")
-    //    }
-        
-        /// Did deselect cell
-        //    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        //        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-        //        //cell?.titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        //        //cell?.titleLabel.backgroundColor = .blue
-        //        print("Did deselect cell at \(indexPath)")
-        //    }
-        
         // Context menu configuration
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
@@ -594,7 +579,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: section == (visibleCategories.count-1) ? 100 : 0, right: 16)
         return sectionInsets
     }
     
