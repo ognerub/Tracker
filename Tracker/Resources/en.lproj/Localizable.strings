@@ -18,6 +18,7 @@
 "emptyTrackersLabel" = "What we will watch?";
 "trackersLabel" = "Trackers";
 "searchBar.placeholder" = "Search...";
+"pinnedCategoryName" = "Pinned";
 // Statistics
 "emptyStatisticsLabel" = "Nothing to analize";
 "statisticsLabel" = "Statistics";

@@ -32,6 +32,13 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         return view
     }()
     
+    private let cellPinnedImageView: UIImageView = {
+        let image = UIImage(named: "Pinned")
+        let imageView = UIImageView(image: image)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     private let cellEmojiLabel: UILabel = {
        var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12)
@@ -99,7 +106,8 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         with tracker: Tracker,
         isCompletedToday: Bool,
         completedDays: Int,
-        indexPath: IndexPath
+        indexPath: IndexPath,
+        isPinned: Bool
     ) {
         self.trackerId = tracker.id
         self.isCompletedToday = isCompletedToday
@@ -110,6 +118,8 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         cellBackgroundSquare.backgroundColor = tracker.color
         cellPlusButton.backgroundColor = tracker.color
         cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
+        
+        cellPinnedImageView.alpha = isPinned ? 1 : 0
         
         let daysString = String.localizedStringWithFormat(
             NSLocalizedString("numberOfDays", comment: "Number of completed days"),
@@ -170,18 +180,20 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
             backgroundView: cellBackgroundSquare,
             roundView: cellBackgroundRound,
             emojiLabel: cellEmojiLabel,
-            trackerLabel: cellTrackerLabel
+            trackerLabel: cellTrackerLabel,
+            pinnedImageViw: cellPinnedImageView
         )
         
         configureOutsideElements(backgroundView: cellBackgroundSquare)
         
     }
     
-    func configureInsideElements(backgroundView: UIView, roundView: UIView, emojiLabel: UILabel, trackerLabel: UILabel) {
+    func configureInsideElements(backgroundView: UIView, roundView: UIView, emojiLabel: UILabel, trackerLabel: UILabel, pinnedImageViw: UIImageView) {
         
         backgroundView.addSubview(roundView)
         backgroundView.addSubview(emojiLabel)
         backgroundView.addSubview(trackerLabel)
+        backgroundView.addSubview(pinnedImageViw)
         
         NSLayoutConstraint.activate([
             roundView.widthAnchor.constraint(equalToConstant: 24),
@@ -196,7 +208,12 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
             
             trackerLabel.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 12),
             trackerLabel.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -12),
-            trackerLabel.topAnchor.constraint(equalTo: roundView.bottomAnchor, constant: 8)
+            trackerLabel.topAnchor.constraint(equalTo: roundView.bottomAnchor, constant: 8),
+            
+            pinnedImageViw.widthAnchor.constraint(equalToConstant: 24),
+            pinnedImageViw.heightAnchor.constraint(equalToConstant: 24),
+            pinnedImageViw.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 12),
+            pinnedImageViw.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -4)
         ])
     }
     

@@ -268,7 +268,8 @@ extension TrackersListViewController: UICollectionViewDataSource {
             with: tracker,
             isCompletedToday: isCompletedToday,
             completedDays: completedDays,
-            indexPath: indexPath
+            indexPath: indexPath,
+            isPinned: tracker.isPinned
         )
         
         return cell
@@ -390,7 +391,6 @@ extension TrackersListViewController: UICollectionViewDelegate {
                 self?.deleteTracker(indexPath: indexPath)
             }
             let attributedString = NSAttributedString(string: "Delete", attributes: [
-                //NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
             deleteAction.setValue(attributedString, forKey: "attributedTitle")
@@ -422,13 +422,13 @@ extension TrackersListViewController: UICollectionViewDelegate {
     }
     
     private func pinTracker(indexPath: IndexPath) {
-        
-        if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: "Pinned") {
+        let pinned = NSLocalizedString("pinnedCategoryName", comment: "Pinned category name")
+        if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: pinned) {
             savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
         } else {
-            let pinnedCategory = TrackerCategory(name: "Pinned", trackers: [])
+            let pinnedCategory = TrackerCategory(name: pinned, trackers: [])
             try? trackerCategoryStore.addNewTrackerCategory(pinnedCategory)
-            if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: "Pinned") {
+            if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: pinned) {
                 savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
             }
         }

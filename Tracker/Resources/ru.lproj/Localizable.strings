@@ -18,6 +18,7 @@
 "emptyTrackersLabel" = "Что будем отслеживать?";
 "trackersLabel" = "Трекеры";
 "searchBar.placeholder" = "Поиск...";
+"pinnedCategoryName" = "Закрепленные";
 // Statistics
 "emptyStatisticsLabel" = "Анализировать пока нечего";
 "statisticsLabel" = "Статистика";

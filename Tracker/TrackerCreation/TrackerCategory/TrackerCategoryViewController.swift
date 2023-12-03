@@ -169,7 +169,6 @@ final class TrackerCategoryViewController: UIViewController {
             selectionArray.insert(1.0, at: selectedCategoryRow)
         }
         self.selectionArray = selectionArray
-        
         cornersArray = getCornersArray(categoriesCount: categoriesNames.count)
     }
     

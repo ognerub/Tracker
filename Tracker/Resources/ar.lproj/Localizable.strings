@@ -18,6 +18,7 @@
 "emptyTrackersLabel" = "ما الذي سنشاهده؟";
 "trackersLabel" = "أجهزة التتبع";
 "searchBar.placeholder" = "بحث...";
+"pinnedCategoryName" = "مثبت";
 // إحصائيات
 "emptyStatisticsLabel" = "لا يوجد شيء لتحليله";
 "statisticsLabel" = "إحصائيات";
