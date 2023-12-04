@@ -120,6 +120,7 @@ final class TrackersListViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         self.toggleAppearance(isDark: TabBarController().isDark)
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = .white
@@ -134,8 +135,6 @@ final class TrackersListViewController: UIViewController {
         trackerRecordStore.delegate = self
 
         reloadVisibleCategories()
-        
-        
     }
 }
 
@@ -237,7 +236,7 @@ extension TrackersListViewController {
     @objc
     func didTapPlusButton() {
         
-//        analyticsService.report(event: "tracker_add", params: ["trackers_count" : trackerStore.trackers.count + 1])
+        analyticsService.report(event: "click", params: ["add_track" : trackerStore.trackers.count + 1])
         
         let vc = TrackerTypeViewController()
         vc.delegate = self
@@ -246,6 +245,11 @@ extension TrackersListViewController {
     
     @objc
     func didTapFilterButton() {
+        
+        let filterReport: [String] = ["All trackers", "Trackers for today", "Completed", "Uncompleted"]
+        
+        analyticsService.report(event: "click", params: ["filter" : filterReport[selectedFilterRow]])
+        
         let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow)
         vc.delegate = self
         present(vc, animated: true)
@@ -358,6 +362,8 @@ extension TrackersListViewController: UICollectionViewDataSource {
 extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
         
+        analyticsService.report(event: "click", params: ["track" : trackerRecordStore.completedTrackers.count + 1])
+        
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
         let isNotFutureDate: Bool = (
@@ -373,6 +379,8 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
     }
     
     func uncompleteTracker(id: UUID, at indexPath: IndexPath) {
+        
+        analyticsService.report(event: "click", params: ["track" : trackerRecordStore.completedTrackers.count - 1])
         
         completedTrackers.enumerated().forEach { (index, trackerRecord) in
             if isSameTrackerRecord(trackerRecord: trackerRecord, id: id) {
@@ -505,7 +513,10 @@ extension TrackersListViewController: UICollectionViewDelegate {
     
     private func editTracker(indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
-        // MARK: - uncomment if needed to return editable UI like creation
+        
+        analyticsService.report(event: "click", params: ["edit": trackerToEdit.name])
+        
+        /// uncomment if needed to return editable UI like creation screen
 //        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
         let isTrackerRegular = true
         
@@ -539,9 +550,12 @@ extension TrackersListViewController: UICollectionViewDelegate {
     }
     
     private func deleteTracker(indexPath: IndexPath) {
-        let selectedTrackerID = visibleCategories[indexPath.section].trackers[indexPath.row].id
-        try? trackerStore.deleteSelectedTrackerRecords(with: selectedTrackerID)
-        try? trackerStore.deleteSelectedTracker(with: selectedTrackerID)
+        let selectedTracker = visibleCategories[indexPath.section].trackers[indexPath.row]
+        
+        analyticsService.report(event: "click", params: ["delete": selectedTracker.name])
+        
+        try? trackerStore.deleteSelectedTrackerRecords(with: selectedTracker.id)
+        try? trackerStore.deleteSelectedTracker(with: selectedTracker.id)
         print("delete pressed")
     }
     

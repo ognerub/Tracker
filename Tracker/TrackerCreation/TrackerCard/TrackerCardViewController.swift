@@ -234,6 +234,7 @@ final class TrackerCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
