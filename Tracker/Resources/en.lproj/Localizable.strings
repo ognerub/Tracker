@@ -16,6 +16,7 @@
 "tabBar.titles.second" = "Statistics";
 // TrackersListViewController
 "emptyTrackersLabel" = "What we will watch?";
+"emptyTrackersLabel.nothingFound" = "Nothing found";
 "trackersLabel" = "Trackers";
 "searchBar.placeholder" = "Search...";
 "pinnedCategoryName" = "Pinned";

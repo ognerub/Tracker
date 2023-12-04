@@ -16,6 +16,7 @@
 "tabBar.titles.second" = "الإحصائيات";
 // TrackersListViewController
 "emptyTrackersLabel" = "ما الذي سنشاهده؟";
+"emptyTrackersLabel.nothingFound" = "لم يتم العثور على شيء";
 "trackersLabel" = "أجهزة التتبع";
 "searchBar.placeholder" = "بحث...";
 "pinnedCategoryName" = "مثبت";

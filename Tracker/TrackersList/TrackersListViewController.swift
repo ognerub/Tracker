@@ -133,7 +133,6 @@ final class TrackersListViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP White")
         addTopBar()
         collectionViewConfig()
-        addFilterButton()
         
         // MARK: - CoreData
         
@@ -229,8 +228,16 @@ extension TrackersListViewController {
     private func showOrHideEmptyTrackersInfo() {
         if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
+            if trackerStore.trackers.count > 0 {
+                emptyTrackersLabel.text = NSLocalizedString("emptyTrackersLabel.nothingFound", comment: "Nothing found after filtering")
+                    addFilterButton()
+            } else {
+                emptyTrackersLabel.text = NSLocalizedString("emptyTrackersLabel", comment: "No one tracker exists")
+            }
         } else {
             hideEmptyTrackersInfo()
+            filterButton.removeFromSuperview()
+            addFilterButton()
         }
     }
     

@@ -16,6 +16,7 @@
 "tabBar.titles.second" = "Статистика";
 // TrackersListViewController
 "emptyTrackersLabel" = "Что будем отслеживать?";
+"emptyTrackersLabel.nothingFound" = "Ничего не найдено";
 "trackersLabel" = "Трекеры";
 "searchBar.placeholder" = "Поиск...";
 "pinnedCategoryName" = "Закрепленные";
