@@ -19,6 +19,5 @@ struct AnalyticsService {
         YMMYandexMetrica.reportEvent(event, parameters: params, onFailure: { error in
             print("REPORT ERROR: %@", error.localizedDescription)
         })
-        print("Success, event: \(event), params: \(params)")
     }
 }

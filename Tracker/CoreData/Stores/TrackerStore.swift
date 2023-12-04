@@ -163,7 +163,7 @@ final class TrackerStore: NSObject {
     
     private func fetchSelectedCategory(with context: NSManagedObjectContext, selectedCategoryRow: Int) -> TrackerCategoryCoreData? {
         let request = TrackerCategoryCoreData.fetchRequest()
-        //request.returnsObjectsAsFaults = false
+        request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "%K == %ld", #keyPath(TrackerCategoryCoreData.categoryId), selectedCategoryRow)
         let object = try? context.fetch(request).first
         return object
@@ -266,10 +266,8 @@ final class TrackerStore: NSObject {
         do {
             try context.save()
         } catch {
-            print("TrackerStore \(funcName). Error to save")
             return
         }
-        print("TrackerStore \(funcName). Save success")
     }
     
 }

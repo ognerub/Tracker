@@ -138,7 +138,6 @@ final class TrackersListViewController: UIViewController {
         // MARK: - CoreData
         
         trackerStore.delegate = self
-        trackerCategoryStore.delegate = self
         trackerRecordStore.delegate = self
         reloadVisibleCategories()
     }
@@ -152,14 +151,6 @@ final class TrackersListViewController: UIViewController {
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         reloadVisibleCategories()
-        // TODO: - PerformBatchUpdates
-    }
-}
-
-extension TrackersListViewController: TrackerCategoryStoreDelegate {
-
-    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
-        // TODO: - Categories update
     }
 }
 
@@ -327,7 +318,6 @@ extension TrackersListViewController: UICollectionViewDataSource {
     /// Number of sections
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return visibleCategories.count
-        //return 1
     }
     /// Number of items in section
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -385,7 +375,6 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
         if isNotFutureDate {
             try? trackerRecordStore.addNewTrackerRecord(trackerRecord)
         } else {
-            print("impossible to complete for future date")
             return
         }
     }
@@ -432,8 +421,6 @@ extension TrackersListViewController: UICollectionViewDelegate {
             identifier: identifier,
             previewProvider: nil
         ) { _ in
-            
-            // TODO: - Localize context menu
             
             let pin = UIAction(
                 title: tracker.isPinned ? NSLocalizedString("trackerList.unpin", comment: "Unpin") : NSLocalizedString("trackerList.pin", comment: "Pin"),
@@ -528,8 +515,6 @@ extension TrackersListViewController: UICollectionViewDelegate {
         
         analyticsService.report(event: "click", params: ["edit": trackerToEdit.name])
         
-        /// uncomment if needed to return editable UI like creation screen
-//        let isTrackerRegular: Bool = trackerToEdit.schedule.days != WeekDay.allCases.filter { $0 != WeekDay.empty } ? true : false
         let isTrackerRegular = true
         
         let selectedCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
@@ -568,7 +553,6 @@ extension TrackersListViewController: UICollectionViewDelegate {
         
         try? trackerStore.deleteSelectedTrackerRecords(with: selectedTracker.id)
         try? trackerStore.deleteSelectedTracker(with: selectedTracker.id)
-        print("delete pressed")
     }
     
     /// Switch between header and (footer removed)

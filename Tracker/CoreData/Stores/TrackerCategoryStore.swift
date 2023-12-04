@@ -162,10 +162,8 @@ final class TrackerCategoryStore: NSObject {
         do {
             try context.save()
         } catch {
-            print("TrackerCategoryStore. Error to save")
             return
         }
-        print("TrackerCategoryStore. Save success")
     }
 }
 

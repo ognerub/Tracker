@@ -144,10 +144,8 @@ final class TrackerRecordStore: NSObject {
         do {
             try context.save()
         } catch {
-            print("TrackerRecordStore. Error to save")
             return
         }
-        print("TrackerRecordStore. Save success")
     }
     
 }
