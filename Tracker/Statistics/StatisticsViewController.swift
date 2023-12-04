@@ -72,7 +72,6 @@ final class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         self.accessibilityLabel = "StatisticsViewController"
-        self.toggleAppearance(isDark: TabBarController().isDark)
         
         if trackerStore.trackers.count == 0 {
             showEmptyStatisticsInfo()

@@ -72,7 +72,6 @@ final class TrackerScheduleViewController: UIViewController {
     // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.toggleAppearance(isDark: TabBarController().isDark)
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         acceptScheduleButtonConfig()

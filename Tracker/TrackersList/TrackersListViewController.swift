@@ -25,6 +25,7 @@ final class TrackersListViewController: UIViewController {
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = UIColor.clear
         return collectionView
     }()
     private let cellIdentifier = "Cell"
@@ -71,6 +72,7 @@ final class TrackersListViewController: UIViewController {
     }()
     private let navBar: UINavigationBar = {
         var bar = UINavigationBar()
+        bar.layer.backgroundColor = UIColor.clear.cgColor
         bar.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 182)
         return bar
     }()
@@ -117,13 +119,18 @@ final class TrackersListViewController: UIViewController {
         }
     }
     
+    private var isDark: Bool = false {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
+    
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
-        self.toggleAppearance(isDark: TabBarController().isDark)
         self.accessibilityLabel = "TrackersViewController"
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "YP White")
         addTopBar()
         collectionViewConfig()
         addFilterButton()
@@ -133,8 +140,12 @@ final class TrackersListViewController: UIViewController {
         trackerStore.delegate = self
         trackerCategoryStore.delegate = self
         trackerRecordStore.delegate = self
-
         reloadVisibleCategories()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        isDark = self.isDarkMode
     }
 }
 
@@ -341,7 +352,8 @@ extension TrackersListViewController: UICollectionViewDataSource {
             isCompletedToday: isCompletedToday,
             completedDays: completedDays,
             indexPath: indexPath,
-            isPinned: tracker.isPinned
+            isPinned: tracker.isPinned,
+            isDark: isDark
         )
         
         return cell

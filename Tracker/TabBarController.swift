@@ -11,14 +11,8 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     private var selectedTabBar: Int = 1
     
-    var isDark = true { didSet { setNeedsStatusBarAppearanceUpdate() }}
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return isDark ? .darkContent : .lightContent
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.toggleAppearance(isDark: isDark)
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.backgroundColor = UIColor(named: "YP White")
         tabBar.layer.borderWidth = 0.3

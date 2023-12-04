@@ -35,6 +35,8 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     private let cellPinnedImageView: UIImageView = {
         let image = UIImage(named: "Pinned")
         let imageView = UIImageView(image: image)
+        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = UIColor(named: "YP White")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -69,7 +71,6 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         button.layer.cornerRadius = 21
         button.layer.masksToBounds = true
         button.layer.borderWidth = 4
-        button.layer.borderColor = UIColor(named: "YP White")?.cgColor
         button.tintColor = UIColor(named: "YP White")
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -107,7 +108,8 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         isCompletedToday: Bool,
         completedDays: Int,
         indexPath: IndexPath,
-        isPinned: Bool
+        isPinned: Bool,
+        isDark: Bool
     ) {
         self.trackerId = tracker.id
         self.isCompletedToday = isCompletedToday
@@ -118,7 +120,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         cellBackgroundSquare.backgroundColor = tracker.color
         cellPlusButton.backgroundColor = tracker.color
         cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
-        
+        cellPlusButton.layer.borderColor = UIColor(named: "YP White")?.cgColor
         cellPinnedImageView.alpha = isPinned ? 1 : 0
         
         let daysString = String.localizedStringWithFormat(
