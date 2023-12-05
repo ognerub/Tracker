@@ -713,7 +713,7 @@ extension TrackerEditableCardViewController: UICollectionViewDelegateFlowLayout 
 
 // MARK: - Constraints configuration
 private extension TrackerEditableCardViewController {
-    private func titleConfig() {
+    func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
             titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
@@ -736,7 +736,7 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    private func horizontalStackViewConfig() {
+    func horizontalStackViewConfig() {
         view.addSubview(horizontalStackView)
         NSLayoutConstraint.activate([
             horizontalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -34),
@@ -748,7 +748,7 @@ private extension TrackerEditableCardViewController {
         horizontalStackView.addArrangedSubview(saveTrackerButton)
     }
     
-    private func scrollViewConfig() {
+    func scrollViewConfig() {
         
         view.addSubview(scrollView)
         
@@ -772,7 +772,7 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    private func categoryButtonConfig() {
+    func categoryButtonConfig() {
         contentView.addSubview(categoryButton)
         NSLayoutConstraint.activate([
             categoryButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
@@ -783,7 +783,7 @@ private extension TrackerEditableCardViewController {
         categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
     }
     
-    private func addCategoryButtonArrow() {
+    func addCategoryButtonArrow() {
         categoryButton.addSubview(categoryButtonArrowImageView)
         NSLayoutConstraint.activate([
             categoryButtonArrowImageView.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -12),
@@ -793,11 +793,11 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    private func hideCategoryButtonArrow() {
+    func hideCategoryButtonArrow() {
         categoryButtonArrowImageView.removeFromSuperview()
     }
     
-    private func verticalStackViewConfig() {
+    func verticalStackViewConfig() {
         contentView.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
             verticalStackView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
@@ -833,7 +833,7 @@ private extension TrackerEditableCardViewController {
     }
     
     // MARK: - CollectionView configure
-    private func collectionViewConfig() {
+    func collectionViewConfig() {
         let bottomAnchorItem = !regularTracker ? categoryButton : verticalStackView
         /// Create collectionView with custom layout
         scrollView.addSubview(collectionView)
