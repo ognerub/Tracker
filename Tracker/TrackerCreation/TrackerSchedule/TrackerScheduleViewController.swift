@@ -51,7 +51,7 @@ final class TrackerScheduleViewController: UIViewController {
         table.allowsMultipleSelection = false
         table.isScrollEnabled = false
         table.allowsSelection = false
-        table.separatorColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        table.separatorColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
         return table
     }()
@@ -63,8 +63,8 @@ final class TrackerScheduleViewController: UIViewController {
             action: #selector(didTapAcceptScheduleButton)
         )
         button.setTitle(NSLocalizedString("acceptScheduleButton", comment: "Accept schedule button title"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypBlack
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -74,7 +74,7 @@ final class TrackerScheduleViewController: UIViewController {
     // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         acceptScheduleButtonConfig()
         tableViewConfig()

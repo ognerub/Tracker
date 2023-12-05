@@ -112,7 +112,7 @@ final class TrackerCardViewController: UIViewController {
     private var textField: UITextField = {
         let textField = TextFieldWithPadding()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        textField.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
@@ -138,8 +138,8 @@ final class TrackerCardViewController: UIViewController {
         button.setTitle(categoryButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.contentHorizontalAlignment = .left
-        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        button.setTitleColor(UIColor.gray, for: .normal)
+        button.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .leading
@@ -157,8 +157,8 @@ final class TrackerCardViewController: UIViewController {
         button.setTitle(scheduleButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.contentHorizontalAlignment = .left
-        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        button.setTitleColor(UIColor.ypGray, for: .normal)
+        button.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -184,7 +184,7 @@ final class TrackerCardViewController: UIViewController {
     
     private var buttonBottomDivider: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(named: "YP Grey")
+        view.backgroundColor = UIColor.ypGray
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -205,10 +205,10 @@ final class TrackerCardViewController: UIViewController {
             action: #selector(didTapCancelButton)
         )
         button.setTitle(NSLocalizedString("trackerCard.cancelButton", comment: "Title for cancel button"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP Red"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP White")
+        button.setTitleColor(UIColor.ypRed, for: .normal)
+        button.backgroundColor = UIColor.ypWhite
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(named: "YP Red")?.cgColor
+        button.layer.borderColor = UIColor.ypRed.cgColor
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .center
@@ -223,8 +223,8 @@ final class TrackerCardViewController: UIViewController {
             action: #selector(didTapCreateNewTrackerButton)
         )
         button.setTitle(NSLocalizedString("trackerCard.createNewTrackerButton", comment: "Title for creation button"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Grey")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypGray
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .center
@@ -236,7 +236,7 @@ final class TrackerCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         horizontalStackViewConfig()
         scrollViewConfig()
@@ -356,7 +356,7 @@ extension TrackerCardViewController {
     
     private func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
         let mutableString = NSMutableAttributedString(string: string)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
         return mutableString
     }
     
@@ -472,10 +472,10 @@ extension TrackerCardViewController: UITextFieldDelegate {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
         if bool && newTrackerDays != empty || !regularTracker {
             createNewTrackerButton.isEnabled = true
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Black")
+            createNewTrackerButton.backgroundColor = UIColor.ypBlack
         } else {
             createNewTrackerButton.isEnabled = false
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Grey")
+            createNewTrackerButton.backgroundColor = UIColor.ypGray
         }
     }
 }
@@ -501,7 +501,7 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             cell.configure(
                 indexPath: indexPath,
                 emojiLabel: emojies[indexPath.row],
-                backgroundColor: UIColor(named: "YP White") ?? .white
+                backgroundColor: UIColor.ypWhite ?? .white
             )
             return cell
         } else {
@@ -544,7 +544,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                 }
             }
             newTrackerEmoji = emojies[indexPath.row]
-            cell.changeCellBackgroundColor(color: UIColor(named: "YP LightGrey") ?? .gray)
+            cell.changeCellBackgroundColor(color: UIColor.ypLightGray ?? .gray)
             
         } else {
             

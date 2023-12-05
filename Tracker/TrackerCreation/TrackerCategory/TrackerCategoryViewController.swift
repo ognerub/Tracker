@@ -45,7 +45,7 @@ final class TrackerCategoryViewController: UIViewController {
         table.isScrollEnabled = true
         table.allowsSelection = true
         
-        table.separatorColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        table.separatorColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
         return table
     }()
@@ -57,8 +57,8 @@ final class TrackerCategoryViewController: UIViewController {
             action: #selector(didTapAddNewCategoryButton)
         )
         button.setTitle(NSLocalizedString("trackerCategory.addNewCategoryButton", comment: "Add new category"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypBlack
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ final class TrackerCategoryViewController: UIViewController {
     // MARK: - Properties for Empty Categories Page
     private let emptyCategoriesBackground: UIView = {
         var view = UIView()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -109,7 +109,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         addNewCategoryButtonConfig()
         viewModel = TrackerCategoryViewModel()

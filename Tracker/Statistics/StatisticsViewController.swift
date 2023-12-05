@@ -131,7 +131,7 @@ final class StatisticsViewController: UIViewController {
     
     private func createCounterLabel() -> UILabel {
         let label = UILabel()
-        label.textColor = UIColor(named: "YP Black")
+        label.textColor = UIColor.ypBlack
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "0"
@@ -140,7 +140,7 @@ final class StatisticsViewController: UIViewController {
     
     private func createInfoLabel() -> UILabel {
         let label = UILabel()
-        label.textColor = UIColor(named: "YP Black")
+        label.textColor = UIColor.ypBlack
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Info text for replace"
@@ -165,7 +165,7 @@ final class StatisticsViewController: UIViewController {
         emptyStatisticsImageView.removeFromSuperview()
     }
     
-    func verticalStackViewConfig() {
+    private func verticalStackViewConfig() {
         view.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
             verticalStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),

@@ -36,7 +36,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         let image = UIImage(named: "Pinned")
         let imageView = UIImageView(image: image)
         imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = UIColor(named: "YP White")
+        imageView.tintColor = UIColor.ypWhite
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -55,7 +55,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 2
         label.addInterlineSpacing(spacingValue: 6)
-        label.textColor = UIColor(named: "YP White")
+        label.textColor = UIColor.ypWhite
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -71,7 +71,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         button.layer.cornerRadius = 21
         button.layer.masksToBounds = true
         button.layer.borderWidth = 4
-        button.tintColor = UIColor(named: "YP White")
+        button.tintColor = UIColor.ypWhite
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -92,8 +92,8 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = UIColor(named: "YP White")
-        cellBackgroundRound.backgroundColor = UIColor(named: "YP White")
+        contentView.backgroundColor = UIColor.ypWhite
+        cellBackgroundRound.backgroundColor = UIColor.ypWhite
         cellBackgroundRound.alpha = 0.3
         addSubviews()
         configureConstraints()
@@ -120,7 +120,7 @@ final class TrackersListCollectionViewCell: UICollectionViewCell {
         cellBackgroundSquare.backgroundColor = tracker.color
         cellPlusButton.backgroundColor = tracker.color
         cellPlusButton.alpha = isCompletedToday ? 0.7 : 1
-        cellPlusButton.layer.borderColor = UIColor(named: "YP White")?.cgColor
+        cellPlusButton.layer.borderColor = UIColor.ypWhite.cgColor
         cellPinnedImageView.alpha = isPinned ? 1 : 0
         
         let daysString = String.localizedStringWithFormat(

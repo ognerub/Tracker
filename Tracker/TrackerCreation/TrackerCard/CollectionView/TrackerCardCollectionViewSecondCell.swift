@@ -22,7 +22,7 @@ final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
         let view = UIView()
         view.layer.cornerRadius = 8
         view.layer.borderWidth = 3
-        view.layer.borderColor = UIColor(named: "YP White")?.cgColor
+        view.layer.borderColor = UIColor.ypWhite.cgColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -31,7 +31,7 @@ final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = UIColor(named: "YP White")
+        contentView.backgroundColor = UIColor.ypWhite
         addSubviews()
         configureConstraints()
     }

@@ -34,7 +34,7 @@ final class TrackersListViewController: UIViewController {
     // MARK: - Properties for Empty Trackers Page
     private let emptyTrackersBackground: UIView = {
         var view = UIView()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -92,7 +92,7 @@ final class TrackersListViewController: UIViewController {
             target: self,
             action: #selector(didTapPlusButton)
         )
-        button.tintColor = UIColor(named: "YP Black")
+        button.tintColor = UIColor.ypBlack
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -103,10 +103,10 @@ final class TrackersListViewController: UIViewController {
             target: self,
             action: #selector(didTapFilterButton)
         )
-        button.backgroundColor = UIColor(named: "YP Blue")
+        button.backgroundColor = UIColor.ypBlue
         button.setTitle("filterButton".localized(), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -129,7 +129,7 @@ final class TrackersListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         addTopBar()
         collectionViewConfig()
         

@@ -43,7 +43,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     private var textField: UITextField = {
         let textField = TextFieldWithPadding()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        textField.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
@@ -57,8 +57,8 @@ final class TrackerCategoryNameViewController: UIViewController {
             action: #selector(didTapCreateNewCategoryButton)
         )
         button.setTitle( NSLocalizedString("createNewCategoryButton", comment: "Category creation button title"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypBlack
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -68,7 +68,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         textFieldConfig()
         textField.delegate = self
@@ -121,10 +121,10 @@ extension TrackerCategoryNameViewController: UITextFieldDelegate {
     func createNewCategoryButtonIsActive(_ bool: Bool) {
         if bool {
             createNewCategoryButton.isEnabled = true
-            createNewCategoryButton.backgroundColor = UIColor(named: "YP Black")
+            createNewCategoryButton.backgroundColor = UIColor.ypBlack
         } else {
             createNewCategoryButton.isEnabled = false
-            createNewCategoryButton.backgroundColor = UIColor(named: "YP Grey")
+            createNewCategoryButton.backgroundColor = UIColor.ypGray
         }
     }
 }

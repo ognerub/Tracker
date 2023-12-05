@@ -41,7 +41,7 @@ final class TrackersFiltersViewController: UIViewController {
         table.isScrollEnabled = true
         table.allowsSelection = true
         
-        table.separatorColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        table.separatorColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         table.separatorInset = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)
         return table
     }()
@@ -72,7 +72,7 @@ final class TrackersFiltersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         computeTableViewStyle()
         tableViewConfig()

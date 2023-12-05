@@ -39,8 +39,8 @@ final class TrackerTypeViewController: UIViewController {
             action: #selector(didTapRegularTrackerButton)
         )
         button.setTitle(NSLocalizedString("regularTrackerButton", comment: "Regular button title"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypBlack
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -54,8 +54,8 @@ final class TrackerTypeViewController: UIViewController {
             action: #selector(didTapUnregularTrackerButton)
         )
         button.setTitle(NSLocalizedString("unregularTrackerButton", comment: "Unregular button title"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypBlack
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -74,7 +74,7 @@ final class TrackerTypeViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         stackViewConfig()
     }
