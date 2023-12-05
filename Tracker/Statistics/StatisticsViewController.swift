@@ -72,13 +72,6 @@ final class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         self.accessibilityLabel = "StatisticsViewController"
-        
-        if trackerStore.trackers.count == 0 {
-            showEmptyStatisticsInfo()
-        } else {
-            verticalStackViewConfig()
-        }
-        
         // NavBar
         view.addSubview(navBar)
         
@@ -92,7 +85,15 @@ final class StatisticsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configureTextForLabels()
+        
+        if trackerStore.trackers.count == 0 {
+            verticalStackView.removeFromSuperview()
+            showEmptyStatisticsInfo()
+        } else {
+            hideEmptyStatisticsInfo()
+            verticalStackViewConfig()
+            configureTextForLabels()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -151,6 +152,11 @@ final class StatisticsViewController: UIViewController {
             emptyStatisticsLabel.widthAnchor.constraint(equalToConstant: 343),
             emptyStatisticsLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -171.5)
         ])
+    }
+    
+    private func hideEmptyStatisticsInfo() {
+        emptyStatisticsLabel.removeFromSuperview()
+        emptyStatisticsImageView.removeFromSuperview()
     }
     
     func verticalStackViewConfig() {
