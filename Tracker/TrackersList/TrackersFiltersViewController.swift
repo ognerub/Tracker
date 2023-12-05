@@ -48,10 +48,10 @@ final class TrackersFiltersViewController: UIViewController {
     private var alpha: [CGFloat] = []
     
     private var filtersNames: [String] = [
-        NSLocalizedString("trackerFilters.all", comment: "All trackers"),
-        NSLocalizedString("trackerFilters.forToday", comment: "Trackers for today"),
-        NSLocalizedString("trackerFilters.completed", comment: "Completed"),
-        NSLocalizedString("trackerFilters.uncompleted", comment: "Uncompleted")
+        "trackerFilters.all".localized(),
+        "trackerFilters.forToday".localized(),
+        "trackerFilters.completed".localized(),
+        "trackerFilters.uncompleted".localized()
     ]
     private var selectedFilterRow: Int
     

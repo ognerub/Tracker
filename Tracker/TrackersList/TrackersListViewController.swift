@@ -46,7 +46,7 @@ final class TrackersListViewController: UIViewController {
     }()
     private let emptyTrackersLabel: UILabel = {
         var label = UILabel()
-        label.text = NSLocalizedString("emptyTrackersLabel", comment: "Info text")
+        label.text = "emptyTrackersLabel".localized()
         label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +65,7 @@ final class TrackersListViewController: UIViewController {
     }()
     private var trackersLabel: UILabel = {
         var label = UILabel()
-        label.text = NSLocalizedString("trackersLabel", comment: "Trackers")
+        label.text = "trackersLabel".localized()
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -79,7 +79,7 @@ final class TrackersListViewController: UIViewController {
     private lazy var searchBar: UISearchBar = {
         var searchBar = UISearchBar()
         searchBar.searchBarStyle = UISearchBar.Style.default
-        searchBar.placeholder = NSLocalizedString("searchBar.placeholder", comment: "SearchBar placeholder")
+        searchBar.placeholder = "searchBar.placeholder".localized()
         searchBar.sizeToFit()
         searchBar.isTranslucent = true
         searchBar.backgroundImage = UIImage()
@@ -104,7 +104,7 @@ final class TrackersListViewController: UIViewController {
             action: #selector(didTapFilterButton)
         )
         button.backgroundColor = UIColor(named: "YP Blue")
-        button.setTitle(NSLocalizedString("filterButton", comment: "Filters"), for: .normal)
+        button.setTitle("filterButton".localized(), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.layer.cornerRadius = 16
@@ -113,7 +113,7 @@ final class TrackersListViewController: UIViewController {
         return button
     }()
     
-    private var selectedFilterRow: Int = 0 {
+    private var selectedFilterRow: Int = 1 {
         didSet {
             reloadVisibleCategories()
         }
@@ -128,7 +128,6 @@ final class TrackersListViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = UIColor(named: "YP White")
         addTopBar()
@@ -139,6 +138,16 @@ final class TrackersListViewController: UIViewController {
         trackerStore.delegate = self
         trackerRecordStore.delegate = self
         reloadVisibleCategories()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.main.rawValue)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.main.rawValue)
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -166,7 +175,6 @@ extension TrackersListViewController {
     private func reloadVisibleCategories() {
         
         completedTrackers = trackerRecordStore.completedTrackers
-        
         
         let filterText = (searchBar.text ?? "").lowercased()
         
@@ -213,12 +221,21 @@ extension TrackersListViewController {
             trackerID == tracker.id
         })
         
+        enum Filters: Int  {
+            case allTrackers = 0
+            case todayTrackers = 1
+            case completeTrackers = 2
+            case uncompletedTrackers = 3
+        }
+        
         switch selectedFilterRow {
-        case 1:
+        case Filters.allTrackers.rawValue:
             return dateCondition
-        case 2:
+        case Filters.todayTrackers.rawValue:
+            return dateCondition
+        case Filters.completeTrackers.rawValue:
             return completeCondition && dateCondition
-        case 3:
+        case Filters.uncompletedTrackers.rawValue:
             return !completeCondition && dateCondition
         default:
             return true
@@ -229,10 +246,10 @@ extension TrackersListViewController {
         if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
             if trackerStore.trackers.count > 0 {
-                emptyTrackersLabel.text = NSLocalizedString("emptyTrackersLabel.nothingFound", comment: "Nothing found after filtering")
+                emptyTrackersLabel.text = "emptyTrackersLabel.nothingFound".localized()
                     addFilterButton()
             } else {
-                emptyTrackersLabel.text = NSLocalizedString("emptyTrackersLabel", comment: "No one tracker exists")
+                emptyTrackersLabel.text = "emptyTrackersLabel".localized()
             }
         } else {
             hideEmptyTrackersInfo()
@@ -245,7 +262,7 @@ extension TrackersListViewController {
     @objc
     func didTapPlusButton() {
         
-        analyticsService.report(event: "click", params: ["add_track" : trackerStore.trackers.count + 1])
+        analyticsService.didTap(AnalyticsItems.add.rawValue, AnalyticsScreens.main.rawValue)
         
         let vc = TrackerTypeViewController()
         vc.delegate = self
@@ -255,9 +272,7 @@ extension TrackersListViewController {
     @objc
     func didTapFilterButton() {
         
-        let filterReport: [String] = ["All trackers", "Trackers for today", "Completed", "Uncompleted"]
-        
-        analyticsService.report(event: "click", params: ["filter" : filterReport[selectedFilterRow]])
+        analyticsService.didTap(AnalyticsItems.filter.rawValue, AnalyticsScreens.main.rawValue)
         
         let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow)
         vc.delegate = self
@@ -267,6 +282,9 @@ extension TrackersListViewController {
 
 extension TrackersListViewController: TrackersFiltersViewControllerDelegate {
     func sendSelectedFilterToTrackersListViewController(selectedFilterRow: Int) {
+        if selectedFilterRow == 1 {
+            datePicker.date = Date()
+        }
         self.selectedFilterRow = selectedFilterRow
         dismiss(animated: true)
     }
@@ -295,6 +313,9 @@ extension TrackersListViewController {
     func datePickerValueChanged(_ sender: UIDatePicker) {
         searchBar.text = ""
         searchBar.endEditing(true)
+        if !Calendar.current.isDate(sender.date, inSameDayAs: Date()) && selectedFilterRow < 2 {
+            selectedFilterRow = 0
+        }
         reloadVisibleCategories()
     }
 }
@@ -371,7 +392,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
 extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
         
-        analyticsService.report(event: "click", params: ["track" : trackerRecordStore.completedTrackers.count + 1])
+        analyticsService.didTap(AnalyticsItems.track.rawValue, AnalyticsScreens.main.rawValue)
         
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
         
@@ -388,7 +409,7 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
     
     func uncompleteTracker(id: UUID, at indexPath: IndexPath) {
         
-        analyticsService.report(event: "click", params: ["track" : trackerRecordStore.completedTrackers.count - 1])
+        analyticsService.didTap(AnalyticsItems.track.rawValue, AnalyticsScreens.main.rawValue)
         
         completedTrackers.enumerated().forEach { (index, trackerRecord) in
             if isSameTrackerRecord(trackerRecord: trackerRecord, id: id) {
@@ -430,7 +451,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
         ) { _ in
             
             let pin = UIAction(
-                title: tracker.isPinned ? NSLocalizedString("trackerList.unpin", comment: "Unpin") : NSLocalizedString("trackerList.pin", comment: "Pin"),
+                title: tracker.isPinned ? "trackerList.unpin".localized() : "trackerList.pin".localized(),
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
@@ -445,7 +466,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             }
 
             let edit = UIAction(
-                title: NSLocalizedString("trackerList.edit", comment: "Edit"),
+                title: "trackerList.edit".localized(),
                 image: UIImage(),
                 identifier: nil,
                 discoverabilityTitle: nil,
@@ -454,10 +475,10 @@ extension TrackersListViewController: UICollectionViewDelegate {
                 self?.editTracker(indexPath: indexPath)
             }
             
-            let deleteAction = UIAction(title: NSLocalizedString("trackerList.delete", comment: "Delete")) { [weak self] _ in
+            let deleteAction = UIAction(title: "trackerList.delete".localized()) { [weak self] _ in
                 self?.deleteTracker(indexPath: indexPath)
             }
-            let attributedString = NSAttributedString(string: NSLocalizedString("trackerList.delete", comment: "Delete"), attributes: [
+            let attributedString = NSAttributedString(string: "trackerList.delete".localized(), attributes: [
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
             deleteAction.setValue(attributedString, forKey: "attributedTitle")
@@ -489,7 +510,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
     }
     
     private func pinTracker(indexPath: IndexPath) {
-        let pinned = NSLocalizedString("pinnedCategoryName", comment: "Pinned category name")
+        let pinned = "pinnedCategoryName".localized()
         if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: pinned) {
             savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
         } else {
@@ -520,7 +541,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
     private func editTracker(indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
         
-        analyticsService.report(event: "click", params: ["edit": trackerToEdit.name])
+        analyticsService.didTap(AnalyticsItems.edit.rawValue, AnalyticsScreens.main.rawValue)
         
         let isTrackerRegular = true
         
@@ -556,7 +577,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
     private func deleteTracker(indexPath: IndexPath) {
         let selectedTracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         
-        analyticsService.report(event: "click", params: ["delete": selectedTracker.name])
+        analyticsService.didTap(AnalyticsItems.delete.rawValue, AnalyticsScreens.main.rawValue)
         
         try? trackerStore.deleteSelectedTrackerRecords(with: selectedTracker.id)
         try? trackerStore.deleteSelectedTracker(with: selectedTracker.id)

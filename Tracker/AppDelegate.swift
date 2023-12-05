@@ -19,15 +19,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         UIColorValueTransformer.register()
         return true
     }
-    
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        AnalyticsService().report(event: "open", params: ["screen": "Main"])
-    }
-    
-    func applicationWillTerminate(_ application: UIApplication) {
-        guard let lastViewController = UserDefaults.standard.string(forKey: "LastViewController") else { return }
-        AnalyticsService().report(event: "close", params: ["screen": lastViewController == "TrackersListViewController" ? "Main" : lastViewController])
-    }
 
     // MARK: UISceneSession Lifecycle
     func application(
@@ -39,8 +30,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         configuration.storyboard = nil
         configuration.sceneClass = UIWindowScene.self
         configuration.delegateClass = SceneDelegate.self
-        
-        applicationWillEnterForeground(application)
         
         return configuration
     }
