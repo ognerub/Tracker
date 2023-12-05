@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
+    func sendTrackerToTrackersListViewController(newTracker: Tracker, selectedCategoryName: String)
 }
 
 // MARK: - TrackerCardViewController
@@ -356,7 +356,7 @@ extension TrackerCardViewController {
     
     private func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
         let mutableString = NSMutableAttributedString(string: string)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack, range: NSRange(location: 0, length: buttonTitle.count))
         return mutableString
     }
     
@@ -400,13 +400,19 @@ extension TrackerCardViewController {
     @objc
     func didTapCreateNewTrackerButton() {
         let newTracker = createNewTracker()
-        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
+        guard let selectedCategoryRow = selectedCategoryRow,
+              let newCategoriesNames = newCategoriesNames
+        else {
+            return
+        }
+        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, selectedCategoryName: newCategoriesNames[selectedCategoryRow])
     }
 }
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int, selectedName: String) {
+        createNewTrackerButtonIsActive(newTrackerName.count > 0)
         /// if current categories array is nil we need to set categories names
         if self.newCategoriesNames == nil {
             /// create empty array with categories
@@ -454,7 +460,7 @@ extension TrackerCardViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newTrackerName = updatedString
-        createNewTrackerButtonIsActive(newTrackerName.count > 0)
+        createNewTrackerButtonIsActive(newTrackerName.count > 0 && selectedCategoryRow != nil)
         return true
     }
     
@@ -470,7 +476,7 @@ extension TrackerCardViewController: UITextFieldDelegate {
     
     func createNewTrackerButtonIsActive(_ bool: Bool) {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        if bool && newTrackerDays != empty || !regularTracker {
+        if bool && newTrackerDays != empty || bool && !regularTracker {
             createNewTrackerButton.isEnabled = true
             createNewTrackerButton.backgroundColor = UIColor.ypBlack
         } else {
@@ -501,7 +507,7 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             cell.configure(
                 indexPath: indexPath,
                 emojiLabel: emojies[indexPath.row],
-                backgroundColor: UIColor.ypWhite ?? .white
+                backgroundColor: UIColor.ypWhite
             )
             return cell
         } else {
@@ -544,7 +550,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                 }
             }
             newTrackerEmoji = emojies[indexPath.row]
-            cell.changeCellBackgroundColor(color: UIColor.ypLightGray ?? .gray)
+            cell.changeCellBackgroundColor(color: UIColor.ypLightGray)
             
         } else {
             

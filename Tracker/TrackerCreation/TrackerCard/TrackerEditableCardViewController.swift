@@ -8,13 +8,15 @@
 import UIKit
 
 protocol TrackerEditableCardViewControllerDelegate: AnyObject {
-    func sendEditedTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
+    func sendEditedTrackerToTrackersListViewController(editedTracker: Tracker, selectedCategoryName: String)
 }
 
 // MARK: - TrackerCardViewController
 final class TrackerEditableCardViewController: UIViewController {
     
     weak var delegate: TrackerEditableCardViewControllerDelegate?
+    
+    private let trackerCategoryStore = TrackerCategoryStore()
     
     private let trackerCardViewController = TrackerCardViewController()
     private let analyticsService = AnalyticsService()
@@ -215,6 +217,7 @@ final class TrackerEditableCardViewController: UIViewController {
     private var trackerEmoji: String
     private var trackerDays: [WeekDay]
     private var isPinned: Bool
+    private var pinnedFrom: String?
     private var completedDays: Int
 
     init(regularTracker: Bool,
@@ -224,8 +227,8 @@ final class TrackerEditableCardViewController: UIViewController {
          trackerEmoji: String,
          trackerDays: [WeekDay],
          isPinned: Bool,
+         pinnedFrom: String?,
          categories: [TrackerCategory],
-         newCategoriesNames: [String],
          selectedCategoryRow: Int,
          completedDays: Int
     ) {
@@ -236,8 +239,8 @@ final class TrackerEditableCardViewController: UIViewController {
         self.trackerEmoji = trackerEmoji
         self.trackerDays = trackerDays
         self.isPinned = isPinned
+        self.pinnedFrom = pinnedFrom
         self.categories = categories
-        self.newCategoriesNames = newCategoriesNames
         self.selectedCategoryRow = selectedCategoryRow
         self.completedDays = completedDays
         super.init(nibName: nil, bundle: nil)
@@ -250,6 +253,7 @@ final class TrackerEditableCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         horizontalStackViewConfig()
         scrollViewConfig()
@@ -279,6 +283,7 @@ final class TrackerEditableCardViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         analyticsService.viewWillAppear(on: AnalyticsScreens.card.rawValue)
+        newCategoriesNames = getCategoriesNamesFromStore()
         if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
@@ -291,6 +296,11 @@ final class TrackerEditableCardViewController: UIViewController {
         }
         categoryButtonTitleTextConfig()
         collectionViewConfig()
+        if isPinned {
+            hideCategoryButtonArrow()
+        } else {
+            addCategoryButtonArrow()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -302,6 +312,17 @@ final class TrackerEditableCardViewController: UIViewController {
         super.viewDidAppear(animated)
         setSelectedEmoji()
         setSelectedColor()
+    }
+    
+    private func getCategoriesNamesFromStore() -> [String] {
+        let categoriesFromStore = trackerCategoryStore.getSortedCategories()
+        var categoriesNamesFromStore: [String] = []
+        categoriesFromStore.forEach { categoriesFromStore in
+            if categoriesFromStore.name != "pinnedCategoryName".localized() {
+                categoriesNamesFromStore.append(categoriesFromStore.name)
+            }
+        }
+        return categoriesNamesFromStore
     }
 }
 
@@ -330,7 +351,7 @@ extension TrackerEditableCardViewController {
                 emoji: trackerEmoji,
                 schedule: schedule,
                 isPinned: isPinned,
-                pinnedFrom: nil)
+                pinnedFrom: pinnedFrom)
             return newTracker
     }
     
@@ -339,7 +360,11 @@ extension TrackerEditableCardViewController {
         var categoryButtonTitleText = "\(categoryButtonTitle)"
         if let selectedCategory = selectedCategoryRow,
            let newCategoriesNames = newCategoriesNames {
-            categoryButtonTitleText = "\(categoryButtonTitle)\n\(newCategoriesNames[selectedCategory])"
+            if isPinned == true {
+                categoryButtonTitleText = "\(categoryButtonTitle)\n\(pinnedFrom ?? "pinnedCategoryName".localized())"
+            } else {
+                categoryButtonTitleText = "\(categoryButtonTitle)\n\(newCategoriesNames[selectedCategory])"
+            }
         }
         let mutableString = createMutableString(from: categoryButtonTitleText, forButtonWithTitle: categoryButtonTitle)
         categoryButton.setAttributedTitle(mutableString, for: .normal)
@@ -386,7 +411,7 @@ extension TrackerEditableCardViewController {
     
     private func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
         let mutableString = NSMutableAttributedString(string: string)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack, range: NSRange(location: 0, length: buttonTitle.count))
         return mutableString
     }
     
@@ -394,25 +419,29 @@ extension TrackerEditableCardViewController {
     
     @objc
     func didTapCategoryButton() {
-        let categories = self.categories ?? []
-        var categoriesNames: [String] = []
-        if categories.count != 0 {
-            for category in 0 ..< categories.count {
-                categoriesNames.append(categories[category].name)
-            }
+        if isPinned {
+            print("tracker is pinned, impossible to edit category!")
         } else {
-            categoriesNames = []
-        }
-        if let newCategoriesNames = newCategoriesNames {
-            for item in 0 ..< newCategoriesNames.count {
-                if item > (categoriesNames.count - 1) && !categoriesNames.contains(newCategoriesNames[item]) {
-                    categoriesNames.append(newCategoriesNames[item])
+            let categories = self.categories ?? []
+            var categoriesNames: [String] = []
+            if categories.count != 0 {
+                for category in 0 ..< categories.count {
+                    categoriesNames.append(categories[category].name)
+                }
+            } else {
+                categoriesNames = []
+            }
+            if let newCategoriesNames = newCategoriesNames {
+                for item in 0 ..< newCategoriesNames.count {
+                    if item > (categoriesNames.count - 1) && !categoriesNames.contains(newCategoriesNames[item]) {
+                        categoriesNames.append(newCategoriesNames[item])
+                    }
                 }
             }
+            let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategoryRow: selectedCategoryRow ?? nil)
+            vc.delegate = self
+            self.present(vc, animated: true, completion: nil)
         }
-        let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategoryRow: selectedCategoryRow ?? nil)
-        vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
     }
     
     @objc
@@ -430,7 +459,13 @@ extension TrackerEditableCardViewController {
     @objc
     func didTapSaveTrackerButton() {
         let newTracker = saveTracker()
-        self.delegate?.sendEditedTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
+        guard let selectedCategoryRow = selectedCategoryRow,
+            let newCategoriesNames = newCategoriesNames,
+            let pinnedFrom = pinnedFrom
+    else {
+        return
+    }
+        self.delegate?.sendEditedTrackerToTrackersListViewController(editedTracker: newTracker, selectedCategoryName: isPinned ? pinnedFrom : newCategoriesNames[selectedCategoryRow])
     }
     
     func saveTrackerButtonIsActive(_ bool: Bool) {
@@ -451,7 +486,7 @@ extension TrackerEditableCardViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         trackerName = updatedString
-        saveTrackerButtonIsActive(trackerName.count > 0)
+        saveTrackerButtonIsActive(trackerName.count > 0 && selectedCategoryRow != nil)
         return true
     }
     
@@ -468,7 +503,8 @@ extension TrackerEditableCardViewController: UITextFieldDelegate {
 
 // MARK: - TrackerCard Delegate
 extension TrackerEditableCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int, selectedName: String) {
+        saveTrackerButtonIsActive(trackerName.count > 0)
         /// if current categories array is nil we need to set categories names
         if self.newCategoriesNames == nil {
             /// create empty array with categories
@@ -532,11 +568,11 @@ extension TrackerEditableCardViewController: UICollectionViewDataSource {
             cell.configure(
                 indexPath: indexPath,
                 emojiLabel: trackerCardViewController.emojies[indexPath.row],
-                backgroundColor: UIColor.ypWhite ?? .white
+                backgroundColor: UIColor.ypWhite
             )
             if indexPath.row == emojieSelectedAt {
                 trackerEmoji = trackerCardViewController.emojies[indexPath.row]
-                cell.changeCellBackgroundColor(color: UIColor.ypLightGray ?? .gray)
+                cell.changeCellBackgroundColor(color: UIColor.ypLightGray)
             }
             return cell
         } else {
@@ -601,7 +637,7 @@ extension TrackerEditableCardViewController: UICollectionViewDelegate {
                 }
             }
             trackerEmoji = trackerCardViewController.emojies[indexPath.row]
-        cell.changeCellBackgroundColor(color: UIColor.ypLightGray ?? .gray)
+        cell.changeCellBackgroundColor(color: UIColor.ypLightGray)
     }
     
     private func setSelectedColor(for indexPath: IndexPath) {
@@ -677,7 +713,7 @@ extension TrackerEditableCardViewController: UICollectionViewDelegateFlowLayout 
 
 // MARK: - Constraints configuration
 private extension TrackerEditableCardViewController {
-    func titleConfig() {
+    private func titleConfig() {
         view.addSubview(titleBackground)
         NSLayoutConstraint.activate([
             titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
@@ -700,7 +736,7 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    func horizontalStackViewConfig() {
+    private func horizontalStackViewConfig() {
         view.addSubview(horizontalStackView)
         NSLayoutConstraint.activate([
             horizontalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -34),
@@ -712,7 +748,7 @@ private extension TrackerEditableCardViewController {
         horizontalStackView.addArrangedSubview(saveTrackerButton)
     }
     
-    func scrollViewConfig() {
+    private func scrollViewConfig() {
         
         view.addSubview(scrollView)
         
@@ -726,7 +762,7 @@ private extension TrackerEditableCardViewController {
         scrollView.addSubview(contentView)
     }
     
-    func textFieldConfig() {
+    private func textFieldConfig() {
         contentView.addSubview(textField)
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
@@ -736,7 +772,7 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    func categoryButtonConfig() {
+    private func categoryButtonConfig() {
         contentView.addSubview(categoryButton)
         NSLayoutConstraint.activate([
             categoryButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
@@ -745,7 +781,9 @@ private extension TrackerEditableCardViewController {
             categoryButton.heightAnchor.constraint(equalToConstant: 75)
         ])
         categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-        
+    }
+    
+    private func addCategoryButtonArrow() {
         categoryButton.addSubview(categoryButtonArrowImageView)
         NSLayoutConstraint.activate([
             categoryButtonArrowImageView.topAnchor.constraint(equalTo: categoryButton.centerYAnchor, constant: -12),
@@ -755,7 +793,11 @@ private extension TrackerEditableCardViewController {
         ])
     }
     
-    func verticalStackViewConfig() {
+    private func hideCategoryButtonArrow() {
+        categoryButtonArrowImageView.removeFromSuperview()
+    }
+    
+    private func verticalStackViewConfig() {
         contentView.addSubview(verticalStackView)
         NSLayoutConstraint.activate([
             verticalStackView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
@@ -791,7 +833,7 @@ private extension TrackerEditableCardViewController {
     }
     
     // MARK: - CollectionView configure
-    func collectionViewConfig() {
+    private func collectionViewConfig() {
         let bottomAnchorItem = !regularTracker ? categoryButton : verticalStackView
         /// Create collectionView with custom layout
         scrollView.addSubview(collectionView)

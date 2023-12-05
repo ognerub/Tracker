@@ -292,37 +292,43 @@ extension TrackersListViewController: TrackersFiltersViewControllerDelegate {
 
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
-    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
-        let trackerDay = newTracker.schedule.days.first { $0 != WeekDay.empty}?.description.lowercased()
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let dayOfWeek = calendar.component(.weekday, from: today)
-        if let weekDays = calendar.range(of: .weekday, in: .weekOfYear, for: today) {
-            let days = (weekDays.lowerBound ..< weekDays.upperBound).compactMap {
-                calendar.date(byAdding: .day, value: $0 - dayOfWeek, to: today)
-            }.filter {
-                !calendar.isDateInWeekend($0)
-            }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            let formattedDays = days.map { day in formatter.string(from: day)}
-            if let selectedDayIndex = formattedDays.firstIndex(where: { day in
-                day.lowercased() == trackerDay
-            }) {
-                datePicker.date = days[selectedDayIndex]
+    func sendTrackerToTrackersListViewController(newTracker: Tracker, selectedCategoryName: String) {
+        changeDatePickerDateForTracker(tracker: newTracker)
+        try? trackerStore.addNewTracker(newTracker, selectedCategoryName: selectedCategoryName)
+        dismiss(animated: true)
+    }
+    
+    private func changeDatePickerDateForTracker(tracker: Tracker) {
+        if tracker.schedule.days.contains(where: { $0 == WeekDay.empty }) {
+            let trackerDay = tracker.schedule.days.first { $0 != WeekDay.empty}?.description.lowercased()
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let dayOfWeek = calendar.component(.weekday, from: today)
+            if let weekDays = calendar.range(of: .weekday, in: .weekOfYear, for: today) {
+                let days = (weekDays.lowerBound ..< weekDays.upperBound).compactMap {
+                    calendar.date(byAdding: .day, value: $0 - dayOfWeek, to: today)
+                }
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEEE"
+                let formattedDays = days.map { day in formatter.string(from: day)}
+                if let selectedDayIndex = formattedDays.firstIndex(where: { day in
+                    day.lowercased() == trackerDay
+                }) {
+                    datePicker.date = days[selectedDayIndex]
+                    selectedFilterRow = 0
+                }
             }
         }
-        
-        try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
-        dismiss(animated: true)
+
     }
 }
 
 // MARK: - TrackerEditableCardViewController Delegate
 extension TrackersListViewController: TrackerEditableCardViewControllerDelegate {
-    func sendEditedTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
-        try? trackerStore.deleteSelectedTracker(with: newTracker.id)
-        try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
+    func sendEditedTrackerToTrackersListViewController(editedTracker: Tracker, selectedCategoryName: String) {
+        changeDatePickerDateForTracker(tracker: editedTracker)
+        try? trackerStore.deleteSelectedTracker(with: editedTracker.id)
+        try? trackerStore.addNewTracker(editedTracker, selectedCategoryName: editedTracker.isPinned ? "pinnedCategoryName".localized() : selectedCategoryName)
         dismiss(animated: true)
     }
 }
@@ -515,8 +521,9 @@ extension TrackersListViewController: UICollectionViewDelegate {
     private func unpinTracker(indexPath: IndexPath) {
         let unpinnedFrom = visibleCategories[indexPath.section]
         let trackerToUnpin = unpinnedFrom.trackers[indexPath.row]
-        let categoryName = trackerToUnpin.pinnedFrom
-        let selectedCategoryRow = trackerCategoryStore.getCategoryRow(for: categoryName ?? "")
+        guard let categoryName = trackerToUnpin.pinnedFrom else {
+            return
+        }
         let unpinnedTracker = Tracker(
             id: trackerToUnpin.id,
             name: trackerToUnpin.name,
@@ -526,23 +533,23 @@ extension TrackersListViewController: UICollectionViewDelegate {
             isPinned: false,
             pinnedFrom: nil)
         try? trackerStore.deleteSelectedTracker(with: trackerToUnpin.id)
-        try? trackerStore.addNewTracker(unpinnedTracker, selectedCategoryRow: selectedCategoryRow ?? 0)
+        try? trackerStore.addNewTracker(unpinnedTracker, selectedCategoryName: categoryName)
     }
     
     private func pinTracker(indexPath: IndexPath) {
         let pinned = "pinnedCategoryName".localized()
-        if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: pinned) {
-            savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
+        if trackerCategoryStore.getCategoryRow(for: pinned) != nil {
+            savePinnedTracker(at: indexPath, pinnedCategoryName: pinned)
         } else {
             let pinnedCategory = TrackerCategory(name: pinned, trackers: [])
             try? trackerCategoryStore.addNewTrackerCategory(pinnedCategory)
-            if let pinnedCategoryRow = trackerCategoryStore.getCategoryRow(for: pinned) {
-                savePinnedTracker(at: indexPath, pinnedCategoryRow: pinnedCategoryRow)
+            if trackerCategoryStore.getCategoryRow(for: pinned) != nil {
+                savePinnedTracker(at: indexPath, pinnedCategoryName: pinned)
             }
         }
     }
     
-    private func savePinnedTracker(at indexPath: IndexPath, pinnedCategoryRow: Int) {
+    private func savePinnedTracker(at indexPath: IndexPath, pinnedCategoryName: String) {
         let pinnedFrom = visibleCategories[indexPath.section]
         let trackerToPin = pinnedFrom.trackers[indexPath.row]
         let pinnedTracker = Tracker(
@@ -554,15 +561,14 @@ extension TrackersListViewController: UICollectionViewDelegate {
             isPinned: true,
             pinnedFrom: pinnedFrom.name)
         try? trackerStore.deleteSelectedTracker(with: trackerToPin.id)
-        try? trackerStore.addNewTracker(pinnedTracker, selectedCategoryRow: pinnedCategoryRow)
+        try? trackerStore.addNewTracker(pinnedTracker, selectedCategoryName: pinnedCategoryName)
     }
-    
     
     private func editTracker(indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
         
         analyticsService.didTap(AnalyticsItems.edit.rawValue, AnalyticsScreens.main.rawValue)
-        
+        let trackerCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
         let isTrackerRegular = true
         
         let selectedCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
@@ -585,8 +591,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
             trackerEmoji: trackerToEdit.emoji,
             trackerDays: trackerToEdit.schedule.days,
             isPinned: trackerToEdit.isPinned,
+            pinnedFrom: trackerToEdit.pinnedFrom,
             categories: categories,
-            newCategoriesNames: categoriesNames,
             selectedCategoryRow: selectedCategoryRow,
             completedDays: completedDays
         )

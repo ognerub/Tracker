@@ -138,13 +138,13 @@ final class TrackerStore: NSObject {
         return weekDays
     }
     
-    func addNewTracker(_ tracker: Tracker, selectedCategoryRow: Int?) throws {
+    func addNewTracker(_ tracker: Tracker, selectedCategoryName: String?) throws {
         let trackerCoreData = TrackerCoreData(context: context)
-        updateExistingTracker(trackerCoreData, with: tracker, selectedCategoryRow: selectedCategoryRow)
+        updateExistingTracker(trackerCoreData, with: tracker, selectedCategoryName: selectedCategoryName)
         try tryToSaveContext(from: "addNewTracker")
     }
     
-    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker, selectedCategoryRow: Int?) {
+    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker, selectedCategoryName: String?) {
         trackerCoreData.trackerID = trackerForCoreData(from: tracker).id
         trackerCoreData.name = trackerForCoreData(from: tracker).name
         trackerCoreData.color = trackerForCoreData(from: tracker).color
@@ -153,18 +153,20 @@ final class TrackerStore: NSObject {
         trackerCoreData.isPinned = trackerForCoreData(from: tracker).isPinned
         trackerCoreData.pinnedFrom = trackerForCoreData(from: tracker).pinnedFrom
         
-        var selected: Int = 0
-        if let selectedCategoryRow = selectedCategoryRow {
-            selected = selectedCategoryRow
+        var selected: String = "Error category"
+        if let selectedCategoryName = selectedCategoryName {
+            selected = selectedCategoryName
         }
-        let category = fetchSelectedCategory(with: context, selectedCategoryRow: selected)
+        let category = fetchSelectedCategory(with: context, selectedCategoryName: selected)
         trackerCoreData.category = category
     }
     
-    private func fetchSelectedCategory(with context: NSManagedObjectContext, selectedCategoryRow: Int) -> TrackerCategoryCoreData? {
+    
+    
+    private func fetchSelectedCategory(with context: NSManagedObjectContext, selectedCategoryName: String) -> TrackerCategoryCoreData? {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.returnsObjectsAsFaults = false
-        request.predicate = NSPredicate(format: "%K == %ld", #keyPath(TrackerCategoryCoreData.categoryId), selectedCategoryRow)
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.name), selectedCategoryName)
         let object = try? context.fetch(request).first
         return object
     }

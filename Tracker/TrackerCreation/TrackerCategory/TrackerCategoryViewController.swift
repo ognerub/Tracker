@@ -9,7 +9,7 @@
 import UIKit
 
 protocol TrackerCategoryViewControllerDelegate: AnyObject {
-    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int)
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int, selectedName: String)
 }
 
 final class TrackerCategoryViewController: UIViewController {
@@ -146,7 +146,9 @@ final class TrackerCategoryViewController: UIViewController {
         let categoriesFromStore = viewModel.getSortedCategories()
         var categoriesNamesFromStore: [String] = []
         categoriesFromStore.forEach { categoriesFromStore in
-            categoriesNamesFromStore.append(categoriesFromStore.name)
+            if categoriesFromStore.name != "pinnedCategoryName".localized() {
+                categoriesNamesFromStore.append(categoriesFromStore.name)
+            }
         }
         return categoriesNamesFromStore
     }
@@ -217,7 +219,7 @@ final class TrackerCategoryViewController: UIViewController {
     /// if user selected category we should dismiss and send categories names and selected category to TrackerCardVC
     private func dismissTrackerCategoryViewController() {
         if let i = selectionArray.firstIndex(of: 1.0) {
-            self.delegate?.sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i)
+            self.delegate?.sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: categoriesNames, selectedCategoryRow: i, selectedName: categoriesNames[i])
         }
     }
     
