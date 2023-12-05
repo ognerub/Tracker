@@ -296,11 +296,6 @@ final class TrackerEditableCardViewController: UIViewController {
         }
         categoryButtonTitleTextConfig()
         collectionViewConfig()
-        if isPinned {
-            hideCategoryButtonArrow()
-        } else {
-            addCategoryButtonArrow()
-        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -360,11 +355,7 @@ extension TrackerEditableCardViewController {
         var categoryButtonTitleText = "\(categoryButtonTitle)"
         if let selectedCategory = selectedCategoryRow,
            let newCategoriesNames = newCategoriesNames {
-            if isPinned == true {
-                categoryButtonTitleText = "\(categoryButtonTitle)\n\(pinnedFrom ?? "pinnedCategoryName".localized())"
-            } else {
                 categoryButtonTitleText = "\(categoryButtonTitle)\n\(newCategoriesNames[selectedCategory])"
-            }
         }
         let mutableString = createMutableString(from: categoryButtonTitleText, forButtonWithTitle: categoryButtonTitle)
         categoryButton.setAttributedTitle(mutableString, for: .normal)
@@ -419,9 +410,6 @@ extension TrackerEditableCardViewController {
     
     @objc
     func didTapCategoryButton() {
-        if isPinned {
-            print("tracker is pinned, impossible to edit category!")
-        } else {
             let categories = self.categories ?? []
             var categoriesNames: [String] = []
             if categories.count != 0 {
@@ -441,7 +429,6 @@ extension TrackerEditableCardViewController {
             let vc = TrackerCategoryViewController(array: categoriesNames, selectedCategoryRow: selectedCategoryRow ?? nil)
             vc.delegate = self
             self.present(vc, animated: true, completion: nil)
-        }
     }
     
     @objc
@@ -460,12 +447,11 @@ extension TrackerEditableCardViewController {
     func didTapSaveTrackerButton() {
         let newTracker = saveTracker()
         guard let selectedCategoryRow = selectedCategoryRow,
-            let newCategoriesNames = newCategoriesNames,
-            let pinnedFrom = pinnedFrom
-    else {
-        return
-    }
-        self.delegate?.sendEditedTrackerToTrackersListViewController(editedTracker: newTracker, selectedCategoryName: isPinned ? pinnedFrom : newCategoriesNames[selectedCategoryRow])
+              let newCategoriesNames = newCategoriesNames
+        else {
+            return
+        }
+        self.delegate?.sendEditedTrackerToTrackersListViewController(editedTracker: newTracker, selectedCategoryName: newCategoriesNames[selectedCategoryRow])
     }
     
     func saveTrackerButtonIsActive(_ bool: Bool) {
@@ -781,6 +767,7 @@ private extension TrackerEditableCardViewController {
             categoryButton.heightAnchor.constraint(equalToConstant: 75)
         ])
         categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        addCategoryButtonArrow()
     }
     
     func addCategoryButtonArrow() {
@@ -791,10 +778,6 @@ private extension TrackerEditableCardViewController {
             categoryButtonArrowImageView.heightAnchor.constraint(equalToConstant: 24),
             categoryButtonArrowImageView.widthAnchor.constraint(equalToConstant: 24)
         ])
-    }
-    
-    func hideCategoryButtonArrow() {
-        categoryButtonArrowImageView.removeFromSuperview()
     }
     
     func verticalStackViewConfig() {

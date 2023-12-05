@@ -9,18 +9,30 @@ import UIKit
 
 final class TrackersListViewController: UIViewController {
     
-    // MARK: - Properties for CoreData    
-    private let trackerCategoryStore = TrackerCategoryStore()
-    private let trackerStore = TrackerStore()
-    private let trackerRecordStore = TrackerRecordStore()
+    // MARK: - MVVM property:
+    private var viewModel: TrackersListViewModel?
+    
+    // MARK: - Analytics
     private let analyticsService = AnalyticsService()
     
     //MARK: - Properties for CollectionView
-    private var trackersArray: [Tracker] = []
-    private var categories: [TrackerCategory] = []
+    private var categories: [TrackerCategory] = [] {
+        didSet {
+            reloadVisibleCategories()
+        }
+    }
+    private var trackersArray: [Tracker] = [] {
+        didSet {
+            reloadVisibleCategories()
+        }
+    }
+    private var completedTrackers: [TrackerRecord] = [] {
+        didSet {
+            reloadVisibleCategories()
+        }
+    }
     private var visibleCategories: [TrackerCategory] = []
     private var selectedCategoryRow: Int?
-    private var completedTrackers: [TrackerRecord] = []
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -130,14 +142,26 @@ final class TrackersListViewController: UIViewController {
         super.viewDidLoad()
         self.accessibilityLabel = "TrackersViewController"
         view.backgroundColor = UIColor.ypWhite
+        
         addTopBar()
         collectionViewConfig()
         
-        // MARK: - CoreData
+        viewModel = TrackersListViewModel()
+        guard let viewModel = viewModel else { return }
         
-        trackerStore.delegate = self
-        trackerRecordStore.delegate = self
-        reloadVisibleCategories()
+        self.categories = viewModel.categories
+        self.trackersArray = viewModel.trackersArray
+        self.completedTrackers = viewModel.completedTrackers
+        
+        viewModel.$categories.bind { _ in
+            self.categories = viewModel.categories
+        }
+        viewModel.$trackersArray.bind { _ in
+            self.trackersArray = viewModel.trackersArray
+        }
+        viewModel.$completedTrackers.bind { _ in
+            self.completedTrackers = viewModel.completedTrackers
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -156,32 +180,17 @@ final class TrackersListViewController: UIViewController {
     }
 }
 
-extension TrackersListViewController: TrackerStoreDelegate {
-    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
-        reloadVisibleCategories()
-    }
-}
-
-extension TrackersListViewController: TrackerRecordStoreDelegate {
-
-    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
-        reloadVisibleCategories()
-    }
-}
-
 extension TrackersListViewController {
     
     // MARK: - Reload
     private func reloadVisibleCategories() {
-        
-        completedTrackers = trackerRecordStore.completedTrackers
         
         let filterText = (searchBar.text ?? "").lowercased()
         
         var filteredCategories: [TrackerCategory] = []
         
         var completedTrackersIDs: [UUID] = []
-        trackerRecordStore.completedTrackers.forEach { record in
+        completedTrackers.forEach { record in
             let isSameDayAs = Calendar.current.isDate(record.date, inSameDayAs: datePicker.date)
             if isSameDayAs {
                 completedTrackersIDs.append(record.id)
@@ -189,7 +198,7 @@ extension TrackersListViewController {
         }
         let uniqueIDs = Array(Set(completedTrackersIDs))
         
-        filteredCategories = trackerCategoryStore.categories.compactMap { category in
+        filteredCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty ||
                 tracker.name.lowercased().contains(filterText)
@@ -245,9 +254,9 @@ extension TrackersListViewController {
     private func showOrHideEmptyTrackersInfo() {
         if visibleCategories.count == 0 {
             showEmptyTrackersInfo()
-            if trackerStore.trackers.count > 0 {
+            if trackersArray.count > 0 {
                 emptyTrackersLabel.text = "emptyTrackersLabel.nothingFound".localized()
-                    addFilterButton()
+                addFilterButton()
             } else {
                 emptyTrackersLabel.text = "emptyTrackersLabel".localized()
             }
@@ -261,7 +270,6 @@ extension TrackersListViewController {
     // MARK: - Objective-C functions
     @objc
     func didTapPlusButton() {
-        
         analyticsService.didTap(AnalyticsItems.add.rawValue, AnalyticsScreens.main.rawValue)
         
         let vc = TrackerTypeViewController()
@@ -271,7 +279,6 @@ extension TrackersListViewController {
     
     @objc
     func didTapFilterButton() {
-        
         analyticsService.didTap(AnalyticsItems.filter.rawValue, AnalyticsScreens.main.rawValue)
         
         let vc = TrackersFiltersViewController(selectedFilterRow: selectedFilterRow)
@@ -294,7 +301,8 @@ extension TrackersListViewController: TrackersFiltersViewControllerDelegate {
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func sendTrackerToTrackersListViewController(newTracker: Tracker, selectedCategoryName: String) {
         changeDatePickerDateForTracker(tracker: newTracker)
-        try? trackerStore.addNewTracker(newTracker, selectedCategoryName: selectedCategoryName)
+        guard let viewModel = viewModel else { return }
+        viewModel.addNew(tracker: newTracker, with: selectedCategoryName)
         dismiss(animated: true)
     }
     
@@ -319,7 +327,7 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
                 }
             }
         }
-
+        
     }
 }
 
@@ -327,8 +335,10 @@ extension TrackersListViewController: TrackerCardViewControllerDelegate {
 extension TrackersListViewController: TrackerEditableCardViewControllerDelegate {
     func sendEditedTrackerToTrackersListViewController(editedTracker: Tracker, selectedCategoryName: String) {
         changeDatePickerDateForTracker(tracker: editedTracker)
-        try? trackerStore.deleteSelectedTracker(with: editedTracker.id)
-        try? trackerStore.addNewTracker(editedTracker, selectedCategoryName: editedTracker.isPinned ? "pinnedCategoryName".localized() : selectedCategoryName)
+        guard let viewModel = viewModel else { return }
+        viewModel.delete(tracker: editedTracker)
+        viewModel.addNew(tracker: editedTracker, with: selectedCategoryName)
+        pin(tracker: editedTracker)
         dismiss(animated: true)
     }
 }
@@ -384,13 +394,10 @@ extension TrackersListViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? TrackersListCollectionViewCell else {
             return UICollectionViewCell()
         }
-        
         cell.delegate = self
-        
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
-        
         cell.configure(
             with: tracker,
             isCompletedToday: isCompletedToday,
@@ -399,7 +406,6 @@ extension TrackersListViewController: UICollectionViewDataSource {
             isPinned: tracker.isPinned,
             isDark: isDark
         )
-        
         return cell
     }
     
@@ -427,8 +433,10 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
             Date().distance(to: datePicker.date) < 0
         )
         if isNotFutureDate {
-            try? trackerRecordStore.addNewTrackerRecord(trackerRecord)
+            guard let viewModel = viewModel else { return }
+            viewModel.addNew(record: trackerRecord)
         } else {
+            print("impossible to complete tracker in future")
             return
         }
     }
@@ -439,7 +447,8 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
         
         completedTrackers.enumerated().forEach { (index, trackerRecord) in
             if isSameTrackerRecord(trackerRecord: trackerRecord, id: id) {
-                try? trackerRecordStore.removeTrackerRecord(trackerRecord)
+                guard let viewModel = viewModel else { return }
+                viewModel.remove(record: trackerRecord)
             }
         }
         
@@ -448,9 +457,7 @@ extension TrackersListViewController: TrackersListCollectionViewCellDelegate {
 
 // MARK: - CollectionViewDelegate
 extension TrackersListViewController: UICollectionViewDelegate {
-
-        // Context menu configuration
-    
+    // Context menu configuration
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? TrackersListCollectionViewCell else {
@@ -461,16 +468,16 @@ extension TrackersListViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-
+        
         guard indexPaths.count > 0 else {
             return nil
         }
         let indexPath = indexPaths[0]
         
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
-
+        
         let identifier = NSString(string: "\(tracker.id)")
-
+        
         let config = UIContextMenuConfiguration(
             identifier: identifier,
             previewProvider: nil
@@ -490,7 +497,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
                     self?.pinTracker(indexPath: indexPath)
                 }
             }
-
+            
             let edit = UIAction(
                 title: "trackerList.edit".localized(),
                 image: UIImage(),
@@ -508,7 +515,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
                 NSAttributedString.Key.foregroundColor: UIColor.red
             ])
             deleteAction.setValue(attributedString, forKey: "attributedTitle")
-
+            
             return UIMenu(
                 title: "",
                 identifier: nil,
@@ -532,21 +539,38 @@ extension TrackersListViewController: UICollectionViewDelegate {
             schedule: trackerToUnpin.schedule,
             isPinned: false,
             pinnedFrom: nil)
-        try? trackerStore.deleteSelectedTracker(with: trackerToUnpin.id)
-        try? trackerStore.addNewTracker(unpinnedTracker, selectedCategoryName: categoryName)
+        guard let viewModel = viewModel else { return }
+        viewModel.delete(tracker: trackerToUnpin)
+        viewModel.addNew(tracker: unpinnedTracker, with: categoryName)
     }
     
     private func pinTracker(indexPath: IndexPath) {
         let pinned = "pinnedCategoryName".localized()
-        if trackerCategoryStore.getCategoryRow(for: pinned) != nil {
+        guard let viewModel = viewModel else { return }
+        if viewModel.getCategoryRow(for: pinned) != nil {
             savePinnedTracker(at: indexPath, pinnedCategoryName: pinned)
         } else {
             let pinnedCategory = TrackerCategory(name: pinned, trackers: [])
-            try? trackerCategoryStore.addNewTrackerCategory(pinnedCategory)
-            if trackerCategoryStore.getCategoryRow(for: pinned) != nil {
+            viewModel.addNew(category: pinnedCategory)
+            if viewModel.getCategoryRow(for: pinned) != nil {
                 savePinnedTracker(at: indexPath, pinnedCategoryName: pinned)
             }
         }
+    }
+    
+    private func pin(tracker: Tracker) {
+        guard let viewModel = viewModel else { return }
+        let pinnedFrom = viewModel.getCategoryName(for: tracker)
+        let pinnedTracker = Tracker(
+            id: tracker.id,
+            name: tracker.name,
+            color: tracker.color,
+            emoji: tracker.emoji,
+            schedule: tracker.schedule,
+            isPinned: true,
+            pinnedFrom: pinnedFrom)
+        viewModel.delete(tracker: tracker)
+        viewModel.addNew(tracker: pinnedTracker, with: "pinnedCategoryName".localized())
     }
     
     private func savePinnedTracker(at indexPath: IndexPath, pinnedCategoryName: String) {
@@ -560,19 +584,21 @@ extension TrackersListViewController: UICollectionViewDelegate {
             schedule: trackerToPin.schedule,
             isPinned: true,
             pinnedFrom: pinnedFrom.name)
-        try? trackerStore.deleteSelectedTracker(with: trackerToPin.id)
-        try? trackerStore.addNewTracker(pinnedTracker, selectedCategoryName: pinnedCategoryName)
+        guard let viewModel = viewModel else { return }
+        viewModel.delete(tracker: trackerToPin)
+        viewModel.addNew(tracker: pinnedTracker, with: pinnedCategoryName)
     }
     
     private func editTracker(indexPath: IndexPath) {
         let trackerToEdit = visibleCategories[indexPath.section].trackers[indexPath.row]
         
         analyticsService.didTap(AnalyticsItems.edit.rawValue, AnalyticsScreens.main.rawValue)
-        let trackerCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
+        guard let viewModel = viewModel else { return }
+        
         let isTrackerRegular = true
         
-        let selectedCategoryName = trackerStore.getSelectedTrackerCategoryName(with: trackerToEdit.id)
-        let categories = trackerCategoryStore.getSortedCategories()
+        let selectedCategoryName = viewModel.getCategoryName(for: trackerToEdit)
+        let categories = viewModel.getSortedCetagoriesForTrackersListVC()
         let selectedCategoryRow = Int(categories.firstIndex { category in
             category.name == selectedCategoryName
         } ?? 0)
@@ -582,6 +608,11 @@ extension TrackersListViewController: UICollectionViewDelegate {
         }
         
         let completedDays = completedTrackers.filter { $0.id == trackerToEdit.id }.count
+        
+        var pinnedFromCategoryRow: Int = 0
+        if let pinnedFrom = trackerToEdit.pinnedFrom {
+            pinnedFromCategoryRow = viewModel.getCategoryRow(for: pinnedFrom) ?? 0
+        }
         
         let vc = TrackerEditableCardViewController(
             regularTracker: isTrackerRegular,
@@ -593,7 +624,7 @@ extension TrackersListViewController: UICollectionViewDelegate {
             isPinned: trackerToEdit.isPinned,
             pinnedFrom: trackerToEdit.pinnedFrom,
             categories: categories,
-            selectedCategoryRow: selectedCategoryRow,
+            selectedCategoryRow: trackerToEdit.isPinned ? pinnedFromCategoryRow : selectedCategoryRow,
             completedDays: completedDays
         )
         vc.delegate = self
@@ -605,8 +636,9 @@ extension TrackersListViewController: UICollectionViewDelegate {
         
         analyticsService.didTap(AnalyticsItems.delete.rawValue, AnalyticsScreens.main.rawValue)
         
-        try? trackerStore.deleteSelectedTrackerRecords(with: selectedTracker.id)
-        try? trackerStore.deleteSelectedTracker(with: selectedTracker.id)
+        guard let viewModel = viewModel else { return }
+        viewModel.delete(tracker: selectedTracker)
+        viewModel.deleteRecords(for: selectedTracker)
     }
     
     /// Switch between header and (footer removed)

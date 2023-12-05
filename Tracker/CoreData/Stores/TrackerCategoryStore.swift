@@ -133,7 +133,7 @@ final class TrackerCategoryStore: NSObject {
         trackerCategoryCoreData.categoryId = Int32(categories.count)
     }
     
-    func getSortedCategories() -> [TrackerCategory]{
+    func getSortedCategories() -> [TrackerCategory] {
         guard let objects = fetchAllCategories(with: context)
         else { return [] }
         let sortedObjects = objects.sorted(by: { $0.categoryId < $1.categoryId } )
