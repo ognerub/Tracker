@@ -338,7 +338,9 @@ extension TrackersListViewController: TrackerEditableCardViewControllerDelegate 
         guard let viewModel = viewModel else { return }
         viewModel.delete(tracker: editedTracker)
         viewModel.addNew(tracker: editedTracker, with: selectedCategoryName)
-        pin(tracker: editedTracker)
+        if editedTracker.isPinned {
+            pin(tracker: editedTracker)
+        }
         dismiss(animated: true)
     }
 }
