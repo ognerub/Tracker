@@ -293,6 +293,26 @@ extension TrackersListViewController: TrackersFiltersViewControllerDelegate {
 // MARK: - ThirdViewController Delegate
 extension TrackersListViewController: TrackerCardViewControllerDelegate {
     func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?) {
+        let trackerDay = newTracker.schedule.days.first { $0 != WeekDay.empty}?.description.lowercased()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dayOfWeek = calendar.component(.weekday, from: today)
+        if let weekDays = calendar.range(of: .weekday, in: .weekOfYear, for: today) {
+            let days = (weekDays.lowerBound ..< weekDays.upperBound).compactMap {
+                calendar.date(byAdding: .day, value: $0 - dayOfWeek, to: today)
+            }.filter {
+                !calendar.isDateInWeekend($0)
+            }
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            let formattedDays = days.map { day in formatter.string(from: day)}
+            if let selectedDayIndex = formattedDays.firstIndex(where: { day in
+                day.lowercased() == trackerDay
+            }) {
+                datePicker.date = days[selectedDayIndex]
+            }
+        }
+        
         try? trackerStore.addNewTracker(newTracker, selectedCategoryRow: selectedCategoryRow)
         dismiss(animated: true)
     }
