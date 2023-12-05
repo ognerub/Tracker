@@ -339,15 +339,30 @@ extension TrackerEditableCardViewController {
         
         let schedule = Schedule(days: trackerDays)
         
-        let newTracker: Tracker = Tracker(
-                id: trackerID,
-                name: trackerName,
-                color: trackerColor,
-                emoji: trackerEmoji,
-                schedule: schedule,
-                isPinned: isPinned,
-                pinnedFrom: pinnedFrom)
-            return newTracker
+        if let selectedCategoryRow = selectedCategoryRow,
+           let newCategoriesNames = newCategoriesNames {
+            let newTracker: Tracker = Tracker(
+                    id: trackerID,
+                    name: trackerName,
+                    color: trackerColor,
+                    emoji: trackerEmoji,
+                    schedule: schedule,
+                    isPinned: isPinned,
+                    pinnedFrom: newCategoriesNames[selectedCategoryRow])
+                return newTracker
+        } else {
+            let newTracker: Tracker = Tracker(
+                    id: trackerID,
+                    name: trackerName,
+                    color: trackerColor,
+                    emoji: trackerEmoji,
+                    schedule: schedule,
+                    isPinned: isPinned,
+                    pinnedFrom: pinnedFrom)
+                return newTracker
+        }
+        
+        
     }
     
     // MARK: - Set category and schedule buttons titles
