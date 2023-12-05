@@ -13,6 +13,8 @@ protocol TrackerScheduleViewControllerDelegate: AnyObject {
 
 final class TrackerScheduleViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
     var newWeekDaysNamesArray: [WeekDay]
@@ -80,6 +82,12 @@ final class TrackerScheduleViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.schedule.rawValue)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.schedule.rawValue)
     }
     
     // MARK: - Objective-C functions

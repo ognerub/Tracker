@@ -17,6 +17,7 @@ final class TrackerEditableCardViewController: UIViewController {
     weak var delegate: TrackerEditableCardViewControllerDelegate?
     
     private let trackerCardViewController = TrackerCardViewController()
+    private let analyticsService = AnalyticsService()
     
     private let categoryButtonTitle = NSLocalizedString("categoryButtonTitle", comment: "Categoty button title")
     private let scheduleButtonTitle = NSLocalizedString("scheduleButtonTitle", comment: "Schedule button title")
@@ -249,9 +250,6 @@ final class TrackerEditableCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
-        view.backgroundColor = UIColor(named: "YP White")
-        
         titleConfig()
         horizontalStackViewConfig()
         scrollViewConfig()
@@ -280,6 +278,7 @@ final class TrackerEditableCardViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.card.rawValue)
         if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
@@ -292,6 +291,11 @@ final class TrackerEditableCardViewController: UIViewController {
         }
         categoryButtonTitleTextConfig()
         collectionViewConfig()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.edit.rawValue)
     }
     
     override func viewDidAppear(_ animated: Bool) {

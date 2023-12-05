@@ -12,6 +12,8 @@ import UIKit
 // MARK: - TrackerTypeViewController
 final class TrackerTypeViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     weak var delegate: TrackerCardViewControllerDelegate?
     
     // MARK: - Mutable properties
@@ -72,15 +74,22 @@ final class TrackerTypeViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         stackViewConfig()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.type.rawValue)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.type.rawValue)
+    }
+    
     // MARK: - Objective-C functions
-    
-    
     @objc
     func didTapRegularTrackerButton() {
         regularOrUnregularTrackersChoosen(type: true)

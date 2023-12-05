@@ -13,6 +13,8 @@ protocol TrackerCategoryNameViewControllerDelegate: AnyObject {
 
 final class TrackerCategoryNameViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     // MARK: - Properties for CoreData
     private let trackerCategoryStore = TrackerCategoryStore()
     
@@ -66,9 +68,7 @@ final class TrackerCategoryNameViewController: UIViewController {
     // MARK: - View controller lifecycle methods    
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         view.backgroundColor = UIColor(named: "YP White")
-        
         titleConfig()
         textFieldConfig()
         textField.delegate = self
@@ -78,7 +78,14 @@ final class TrackerCategoryNameViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.categoryName.rawValue)
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.categoryName.rawValue)
+    }
+    
     
     // MARK: - Objective-C functions
     @objc

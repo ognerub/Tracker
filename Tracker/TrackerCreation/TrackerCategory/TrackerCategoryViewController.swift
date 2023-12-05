@@ -14,6 +14,8 @@ protocol TrackerCategoryViewControllerDelegate: AnyObject {
 
 final class TrackerCategoryViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     // MARK: - MVVM property:
     private var viewModel: TrackerCategoryViewModel?
     
@@ -107,7 +109,6 @@ final class TrackerCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
         addNewCategoryButtonConfig()
@@ -126,13 +127,18 @@ final class TrackerCategoryViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        analyticsService.viewWillAppear(on: AnalyticsScreens.category.rawValue)
         guard let viewModel = viewModel else { return }
         if viewModel.categories.isEmpty {
             showEmptyCategoriesInfo()
         } else {
             hideEmptyCategoriesInfo()
         }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.category.rawValue)
     }
     
     private func getCategoriesNamesFromStore() -> [String] {

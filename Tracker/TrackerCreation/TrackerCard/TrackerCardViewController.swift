@@ -14,6 +14,8 @@ protocol TrackerCardViewControllerDelegate: AnyObject {
 // MARK: - TrackerCardViewController
 final class TrackerCardViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     weak var delegate: TrackerCardViewControllerDelegate?
     
     private let categoryButtonTitle = NSLocalizedString("categoryButtonTitle", comment: "Categoty button title")
@@ -234,9 +236,7 @@ final class TrackerCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         view.backgroundColor = UIColor(named: "YP White")
-        
         titleConfig()
         horizontalStackViewConfig()
         scrollViewConfig()
@@ -246,6 +246,8 @@ final class TrackerCardViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.card.rawValue)
         if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
@@ -258,6 +260,11 @@ final class TrackerCardViewController: UIViewController {
         }
         categoryButtonTitleTextConfig()
         collectionViewConfig()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.card.rawValue)
     }
 }
 

@@ -17,6 +17,7 @@ enum AnalyticsScreens: String {
     case card = "Card"
     case edit = "Edit"
     case category = "Category"
+    case categoryName = "CategoryName"
     case schedule = "Schedule"
 }
 

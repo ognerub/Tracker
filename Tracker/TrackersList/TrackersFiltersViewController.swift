@@ -13,6 +13,8 @@ protocol TrackersFiltersViewControllerDelegate: AnyObject {
 
 final class TrackersFiltersViewController: UIViewController {
     
+    private let analyticsService = AnalyticsService()
+    
     // MARK: - Delegate property:
     weak var delegate: TrackersFiltersViewControllerDelegate?
     
@@ -70,13 +72,20 @@ final class TrackersFiltersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
         view.backgroundColor = UIColor(named: "YP White")
         titleConfig()
-        
         computeTableViewStyle()
         tableViewConfig()
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.filters.rawValue)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.filters.rawValue)
     }
     
     private func computeTableViewStyle() {

@@ -11,6 +11,7 @@ final class StatisticsViewController: UIViewController {
     
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
+    private let analyticsService = AnalyticsService()
 
     private let emptyStatisticsImageView: UIImageView = {
         var image = UIImage(named: "StatisticsEmpty")
@@ -67,7 +68,7 @@ final class StatisticsViewController: UIViewController {
     private lazy var fourthCounterLabel: UILabel = createCounterLabel()
     private lazy var fourthInfoLabel: UILabel = createInfoLabel()
     
-    // MARK: - ViewDidLoad()
+    // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         UserDefaults.standard.set(String(describing: type(of: self)), forKey: "LastViewController")
@@ -85,7 +86,7 @@ final class StatisticsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        analyticsService.viewWillAppear(on: AnalyticsScreens.statistics.rawValue)
         if trackerStore.trackers.count == 0 {
             verticalStackView.removeFromSuperview()
             showEmptyStatisticsInfo()
@@ -102,6 +103,11 @@ final class StatisticsViewController: UIViewController {
         secondGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
         thirdGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
         fourthGradientView.addGradientBorder(colors: [UIColor.red, UIColor.green, UIColor.blue], width: 1)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.filters.rawValue)
     }
     
     private func configureTextForLabels() {
