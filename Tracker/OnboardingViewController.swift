@@ -11,16 +11,18 @@ final class OnboardingViewController: UIPageViewController {
     
     private let userDefaults: UserDefaults = .standard
     
-    private var firstPage: UIViewController = {
+    private lazy var firstPage: UIViewController = {
         let page = UIViewController()
-        let imageView = UIImageView(image: UIImage(named: "On First"))
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        imageView.image = UIImage(named: "On First")
         page.view.addSubview(imageView)
         return page
     }()
     
-    private var secondPage: UIViewController = {
+    private lazy var secondPage: UIViewController = {
         let page = UIViewController()
-        let imageView = UIImageView(image: UIImage(named: "On Second"))
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        imageView.image = UIImage(named: "On Second")
         page.view.addSubview(imageView)
         return page
     }()
