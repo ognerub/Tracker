@@ -214,6 +214,8 @@ extension TrackersListViewController {
         
         visibleCategories = filteredCategories.filter { $0.trackers.count != 0 }
         
+        visibleCategories = visibleCategories.filter { $0.name == "pinnedCategoryName".localized()} + visibleCategories.filter { $0.name != "pinnedCategoryName".localized()}
+        
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
