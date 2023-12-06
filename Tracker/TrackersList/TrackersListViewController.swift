@@ -214,6 +214,7 @@ extension TrackersListViewController {
         
         visibleCategories = filteredCategories.filter { $0.trackers.count != 0 }
         
+        visibleCategories = visibleCategories.filter { $0.name == "pinnedCategoryName".localized()} + visibleCategories.filter { $0.name != "pinnedCategoryName".localized()}
         collectionView.reloadData()
         showOrHideEmptyTrackersInfo()
     }
@@ -613,7 +614,17 @@ extension TrackersListViewController: UICollectionViewDelegate {
         
         var pinnedFromCategoryRow: Int = 0
         if let pinnedFrom = trackerToEdit.pinnedFrom {
+            
             pinnedFromCategoryRow = viewModel.getCategoryRow(for: pinnedFrom) ?? 0
+            let categoriesFiltered = categories.filter { $0.name != "pinnedCategoryName".localized()
+            }
+            var categoriesNamesFiltered: [String] = []
+            categoriesFiltered.forEach { category in
+                categoriesNamesFiltered.append(category.name)
+            }
+            if pinnedFromCategoryRow > categoriesNamesFiltered.count-1 {
+                pinnedFromCategoryRow = selectedCategoryRow
+            }
         }
         
         let vc = TrackerEditableCardViewController(
