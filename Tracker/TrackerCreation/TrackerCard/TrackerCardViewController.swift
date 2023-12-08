@@ -8,11 +8,13 @@
 import UIKit
 
 protocol TrackerCardViewControllerDelegate: AnyObject {
-    func sendTrackerToTrackersListViewController(newTracker: Tracker, categoriesNames: [String]?, selectedCategoryRow: Int?)
+    func sendTrackerToTrackersListViewController(newTracker: Tracker, selectedCategoryName: String)
 }
 
 // MARK: - TrackerCardViewController
 final class TrackerCardViewController: UIViewController {
+    
+    private let analyticsService = AnalyticsService()
     
     weak var delegate: TrackerCardViewControllerDelegate?
     
@@ -51,7 +53,7 @@ final class TrackerCardViewController: UIViewController {
     
     private lazy var contentSize: CGSize = CGSize(width: view.frame.width, height: regularTracker ? 781 : 706)
     
-    private let emojies = [
+    let emojies = [
         "🙂","😻","🌺","🐶","❤️","😱",
         "😇","😡","🥶","🤔","🙌","🍔",
         "🥦","🏓","🥇","🎸","🏝","😪"
@@ -59,7 +61,7 @@ final class TrackerCardViewController: UIViewController {
     private var emojieSelectedAt: Int?
     private var previousEmojiWas: Int?
     
-    private let colors: [UIColor] = [
+    let colors: [UIColor] = [
         UIColor(named: "CC Red") ?? .red,
         UIColor(named: "CC Orange") ?? .orange,
         UIColor(named: "CC Blue") ?? .blue,
@@ -110,7 +112,7 @@ final class TrackerCardViewController: UIViewController {
     private var textField: UITextField = {
         let textField = TextFieldWithPadding()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        textField.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         textField.clearButtonMode = .whileEditing
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
@@ -136,8 +138,8 @@ final class TrackerCardViewController: UIViewController {
         button.setTitle(categoryButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.contentHorizontalAlignment = .left
-        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        button.setTitleColor(UIColor.gray, for: .normal)
+        button.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .leading
@@ -155,8 +157,8 @@ final class TrackerCardViewController: UIViewController {
         button.setTitle(scheduleButtonTitle, for: .normal)
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.contentHorizontalAlignment = .left
-        button.setTitleColor(UIColor(named: "YP Grey"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP LightGrey")?.withAlphaComponent(0.3)
+        button.setTitleColor(UIColor.ypGray, for: .normal)
+        button.backgroundColor = UIColor.ypLightGray.withAlphaComponent(0.3)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -182,7 +184,7 @@ final class TrackerCardViewController: UIViewController {
     
     private var buttonBottomDivider: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(named: "YP Grey")
+        view.backgroundColor = UIColor.ypGray
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -203,10 +205,10 @@ final class TrackerCardViewController: UIViewController {
             action: #selector(didTapCancelButton)
         )
         button.setTitle(NSLocalizedString("trackerCard.cancelButton", comment: "Title for cancel button"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP Red"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP White")
+        button.setTitleColor(UIColor.ypRed, for: .normal)
+        button.backgroundColor = UIColor.ypWhite
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(named: "YP Red")?.cgColor
+        button.layer.borderColor = UIColor.ypRed.cgColor
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .center
@@ -221,8 +223,8 @@ final class TrackerCardViewController: UIViewController {
             action: #selector(didTapCreateNewTrackerButton)
         )
         button.setTitle(NSLocalizedString("trackerCard.createNewTrackerButton", comment: "Title for creation button"), for: .normal)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Grey")
+        button.setTitleColor(UIColor.ypWhite, for: .normal)
+        button.backgroundColor = UIColor.ypGray
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.contentHorizontalAlignment = .center
@@ -234,8 +236,7 @@ final class TrackerCardViewController: UIViewController {
     // MARK: - View controller lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.toggleAppearance(isDark: TabBarController().isDark)
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor.ypWhite
         titleConfig()
         horizontalStackViewConfig()
         scrollViewConfig()
@@ -245,6 +246,8 @@ final class TrackerCardViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        analyticsService.viewWillAppear(on: AnalyticsScreens.card.rawValue)
         if !regularTracker {
             verticalStackView.removeFromSuperview()
             buttonBottomDivider.removeFromSuperview()
@@ -257,6 +260,11 @@ final class TrackerCardViewController: UIViewController {
         }
         categoryButtonTitleTextConfig()
         collectionViewConfig()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        analyticsService.viewWillDisappear(from: AnalyticsScreens.card.rawValue)
     }
 }
 
@@ -283,12 +291,15 @@ extension TrackerCardViewController {
                     days: WeekDay.allCases.filter { $0 != WeekDay.empty })
                 schedule = unregularSchedule
             }
+        
             let newTracker: Tracker = Tracker(
                 id: newTrackerId,
                 name: newTrackerName,
                 color: newTrackerColor,
                 emoji: newTrackerEmoji,
-                schedule: schedule)
+                schedule: schedule,
+                isPinned: false,
+                pinnedFrom: nil)
             return newTracker
         
     }
@@ -318,7 +329,7 @@ extension TrackerCardViewController {
         
         var scheduleButtonTitleText: String = ""
         switch newTrackerDays {
-        case WeekDay.allCases:
+        case WeekDay.allCases.filter { $0 != WeekDay.empty }:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.allCases", comment: "Schedule all cases - everyday"))"
         case weekDays:
             scheduleButtonTitleText = "\(scheduleButtonTitle)\n\(NSLocalizedString("trackerCard.scheduleButtonTitleText.weekDays", comment: "Schedule all cases - week days"))"
@@ -345,7 +356,7 @@ extension TrackerCardViewController {
     
     private func createMutableString(from string: String, forButtonWithTitle buttonTitle: String) -> NSAttributedString {
         let mutableString = NSMutableAttributedString(string: string)
-        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "YP Black") ?? .black, range: NSRange(location: 0, length: buttonTitle.count))
+        mutableString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.ypBlack, range: NSRange(location: 0, length: buttonTitle.count))
         return mutableString
     }
     
@@ -389,13 +400,19 @@ extension TrackerCardViewController {
     @objc
     func didTapCreateNewTrackerButton() {
         let newTracker = createNewTracker()
-        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, categoriesNames: newCategoriesNames, selectedCategoryRow: selectedCategoryRow)
+        guard let selectedCategoryRow = selectedCategoryRow,
+              let newCategoriesNames = newCategoriesNames
+        else {
+            return
+        }
+        self.delegate?.sendTrackerToTrackersListViewController(newTracker: newTracker, selectedCategoryName: newCategoriesNames[selectedCategoryRow])
     }
 }
 
 // MARK: - TrackerCard Delegate
 extension TrackerCardViewController: TrackerCategoryViewControllerDelegate {
-    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int) {
+    func sendSelectedCategoryNameToTrackerCard(arrayWithCategoriesNames: [String], selectedCategoryRow: Int, selectedName: String) {
+        createNewTrackerButtonIsActive(newTrackerName.count > 0)
         /// if current categories array is nil we need to set categories names
         if self.newCategoriesNames == nil {
             /// create empty array with categories
@@ -443,7 +460,7 @@ extension TrackerCardViewController: UITextFieldDelegate {
         let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         guard let updatedString = updatedString else { return false }
         newTrackerName = updatedString
-        createNewTrackerButtonIsActive(newTrackerName.count > 0)
+        createNewTrackerButtonIsActive(newTrackerName.count > 0 && selectedCategoryRow != nil)
         return true
     }
     
@@ -459,12 +476,12 @@ extension TrackerCardViewController: UITextFieldDelegate {
     
     func createNewTrackerButtonIsActive(_ bool: Bool) {
         let empty: [WeekDay] = [.empty, .empty, .empty, .empty, .empty, .empty, .empty]
-        if bool && newTrackerDays != empty || !regularTracker {
+        if bool && newTrackerDays != empty || bool && !regularTracker {
             createNewTrackerButton.isEnabled = true
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Black")
+            createNewTrackerButton.backgroundColor = UIColor.ypBlack
         } else {
             createNewTrackerButton.isEnabled = false
-            createNewTrackerButton.backgroundColor = UIColor(named: "YP Grey")
+            createNewTrackerButton.backgroundColor = UIColor.ypGray
         }
     }
 }
@@ -490,7 +507,7 @@ extension TrackerCardViewController: UICollectionViewDataSource {
             cell.configure(
                 indexPath: indexPath,
                 emojiLabel: emojies[indexPath.row],
-                backgroundColor: UIColor(named: "YP White") ?? .white
+                backgroundColor: UIColor.ypWhite
             )
             return cell
         } else {
@@ -533,7 +550,7 @@ extension TrackerCardViewController: UICollectionViewDelegate {
                 }
             }
             newTrackerEmoji = emojies[indexPath.row]
-            cell.changeCellBackgroundColor(color: UIColor(named: "YP LightGrey") ?? .gray)
+            cell.changeCellBackgroundColor(color: UIColor.ypLightGray)
             
         } else {
             

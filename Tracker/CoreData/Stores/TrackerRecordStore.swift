@@ -84,8 +84,14 @@ final class TrackerRecordStore: NSObject {
         try? controller.performFetch()
     }
     
-    private func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
-        guard let id = trackerRecordCoreData.id else {
+    func deleteAll() throws {
+        let objects = fetchedResultsController?.fetchedObjects ?? []
+           for object in objects { context.delete(object) }
+        try context.save()
+    }
+    
+    func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
+        guard let id = trackerRecordCoreData.trackerID else {
             throw TrackerRecordStoreError.decodingErrorInvalidID
         }
         guard let date = trackerRecordCoreData.date else {
@@ -99,17 +105,17 @@ final class TrackerRecordStore: NSObject {
     func addNewTrackerRecord(_ trackerRecord: TrackerRecord) throws {
         let trackerRecordCoreData = TrackerRecordCoreData(context: context)
         updateExistingTrackerRecord(trackerRecordCoreData, with: trackerRecord)
-        try context.save()
+        try tryToSaveContext()
     }
 
     private func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
         
-        trackerRecordCoreData.id = trackerRecord.id
+        trackerRecordCoreData.trackerID = trackerRecord.id
         trackerRecordCoreData.date = trackerRecord.date
         
         let trackers = fetchTrackers(with: context)
         
-        trackerRecordCoreData.tracker = trackers?.first(where: {$0.id == trackerRecord.id} )
+        trackerRecordCoreData.tracker = trackers?.first(where: {$0.trackerID == trackerRecord.id} )
     }
     
     private func fetchTrackers(with context: NSManagedObjectContext) -> [TrackerCoreData]? {
@@ -122,16 +128,24 @@ final class TrackerRecordStore: NSObject {
         
         let records = fetchRecords(with: context)
         
-        guard let recordToDelete = records?.first(where: {$0.id == trackerRecord.id && $0.date == trackerRecord.date} ) else { return }
+        guard let recordToDelete = records?.first(where: {$0.trackerID == trackerRecord.id && $0.date == trackerRecord.date} ) else { return }
         
         context.delete(recordToDelete)
-        try context.save()
+        try tryToSaveContext()
     }
     
     private func fetchRecords(with context: NSManagedObjectContext) -> [TrackerRecordCoreData]? {
         let request = TrackerRecordCoreData.fetchRequest()
         let objects = try? context.fetch(request)
         return objects
+    }
+    
+    func tryToSaveContext() throws {
+        do {
+            try context.save()
+        } catch {
+            return
+        }
     }
     
 }

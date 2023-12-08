@@ -9,16 +9,10 @@ import UIKit
 
 final class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    private var selectedTabBar: Int = 0
-    
-    var isDark = true { didSet { setNeedsStatusBarAppearanceUpdate() }}
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return isDark ? .darkContent : .lightContent
-    }
+    private var selectedTabBar: Int = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.toggleAppearance(isDark: isDark)
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.backgroundColor = UIColor(named: "YP White")
         tabBar.layer.borderWidth = 0.3
@@ -46,8 +40,6 @@ final class TabBarController: UITabBarController, UITabBarControllerDelegate {
         } else {
             selectedTabBar = 1
         }
-        
-        print("Did select viewController: \(viewController.accessibilityLabel ?? "") /n selectedTabBar = \(selectedTabBar)")
     }
     
 }

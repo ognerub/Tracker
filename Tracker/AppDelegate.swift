@@ -14,6 +14,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        AnalyticsService.activate()
         DaysValueTransformer.register()
         UIColorValueTransformer.register()
         return true
@@ -29,6 +30,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         configuration.storyboard = nil
         configuration.sceneClass = UIWindowScene.self
         configuration.delegateClass = SceneDelegate.self
+        
         return configuration
     }
     

@@ -16,11 +16,22 @@
 "tabBar.titles.second" = "Статистика";
 // TrackersListViewController
 "emptyTrackersLabel" = "Что будем отслеживать?";
+"emptyTrackersLabel.nothingFound" = "Ничего не найдено";
 "trackersLabel" = "Трекеры";
 "searchBar.placeholder" = "Поиск...";
+"pinnedCategoryName" = "Закрепленные";
+"filterButton" = "Фильтры";
+"trackerList.pin" = "Закрепить";
+"trackerList.unpin" = "Открепить";
+"trackerList.edit" = "Редактировать";
+"trackerList.delete" = "Удалить";
 // Statistics
 "emptyStatisticsLabel" = "Анализировать пока нечего";
 "statisticsLabel" = "Статистика";
+"statistics.firstInfoLabel" = "Лучший период";
+"statistics.secondInfoLabel" = "Идеальные дни";
+"statistics.thirdInfoLabel" = "Трекеров завершено";
+"statistics.fourthInfoLabel" = "Среднее значение";
 // TrackerTypeViewController
 "trackerType.title" = "Создание трекера";
 "regularTrackerButton" = "Привычка";
@@ -47,6 +58,14 @@
 // TrackerScheduleViewController
 "trackerSchedule.title" = "Расписание";
 "acceptScheduleButton" = "Готово";
+// TrackerEdatableCardViewController
+"trackerCard.saveTrackerButton" = "Сохранить";
+// TrackersFiltersViewController
+"trackerFilters.titleLabel" = "Фильтры";
+"trackerFilters.all" = "Все трекеры";
+"trackerFilters.forToday" = "Трекеры на сегодня";
+"trackerFilters.completed" = "Завершенные";
+"trackerFilters.uncompleted" = "Не завершенные";
 
 // enum WeekDay
 "monday" = "Понедельник";
