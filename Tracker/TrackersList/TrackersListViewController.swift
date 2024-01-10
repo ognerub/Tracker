@@ -627,6 +627,8 @@ extension TrackersListViewController: UICollectionViewDelegate {
             }
         }
         
+        
+        
         let vc = TrackerEditableCardViewController(
             regularTracker: isTrackerRegular,
             trackerID: trackerToEdit.id,

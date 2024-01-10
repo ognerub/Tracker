@@ -63,6 +63,13 @@ final class OnboardingViewController: UIPageViewController {
         return label
     }()
     
+    private var practicumLogo: UIImageView = {
+        let image = UIImage(named: "Logo")
+        let logo = UIImageView(image: image)
+        logo.translatesAutoresizingMaskIntoConstraints = false
+        return logo
+    }()
+    
     override init(transitionStyle style: UIPageViewController.TransitionStyle, navigationOrientation: UIPageViewController.NavigationOrientation, options: [UIPageViewController.OptionsKey : Any]? = nil) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     }
@@ -105,13 +112,13 @@ final class OnboardingViewController: UIPageViewController {
         if traitCollection.userInterfaceStyle == .light {
             actionButton.backgroundColor = UIColor(named: "YP Black")
             actionButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
-            mainLabel.textColor = UIColor(named: "YP Black")
+            mainLabel.textColor = UIColor(named: "YP White")
             pageControl.currentPageIndicatorTintColor = UIColor(named: "YP Black")
             pageControl.pageIndicatorTintColor = UIColor(named: "YP Black")?.withAlphaComponent(0.3)
         } else {
             actionButton.backgroundColor = UIColor(named: "YP White")
             actionButton.setTitleColor(UIColor(named: "YP Black"), for: .normal)
-            mainLabel.textColor = UIColor(named: "YP White")
+            mainLabel.textColor = UIColor(named: "YP Black")
             pageControl.currentPageIndicatorTintColor = UIColor(named: "YP White")
             pageControl.pageIndicatorTintColor = UIColor(named: "YP White")?.withAlphaComponent(0.3)
             
@@ -187,6 +194,15 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
 // MARK: - Configure constraints
 extension OnboardingViewController {
     private func configConstraints() {
+        
+        view.addSubview(practicumLogo)
+        NSLayoutConstraint.activate([
+            practicumLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            practicumLogo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+            practicumLogo.heightAnchor.constraint(equalToConstant: 94),
+            practicumLogo.widthAnchor.constraint(equalToConstant: 91)
+        ])
+        
         view.addSubview(mainLabel)
         view.addSubview(pageControl)
         view.addSubview(actionButton)
@@ -195,7 +211,7 @@ extension OnboardingViewController {
             mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             mainLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             mainLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            mainLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -304),
+            mainLabel.topAnchor.constraint(equalTo: practicumLogo.bottomAnchor, constant: 25),
             pageControl.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -168),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             actionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
