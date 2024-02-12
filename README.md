@@ -13,3 +13,29 @@
 Ссылки:
 
 [Дизайн Figma](https://www.figma.com/file/owAO4CAPTJdpM1BZU5JHv7/Tracker-(YP)?t=SZDLmkWeOPX4y6mp-0)
+
+Скриншоты:
+
+<div align="center">
+    <img src="/Screenshot/01_firstTracker.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/02_editTracker.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/03_trackerType.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/04_schedule.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/05_categories.png?raw=true" width="150px"</img><br>
+    <img src="/Screenshot/06_blackTrackers.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/07_filters.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/08_statistics.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/09_arabic.png?raw=true" width="150px"</img>
+    <img src="/Screenshot/10_arabicStat.png?raw=true" width="150px"</img>
+</div>
+
+
+
+
+
+
+
+
+
+
+
