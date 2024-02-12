@@ -22,7 +22,7 @@ final class TrackerCardCollectionViewSecondCell: UICollectionViewCell {
         let view = UIView()
         view.layer.cornerRadius = 8
         view.layer.borderWidth = 3
-        view.layer.borderColor = UIColor.ypWhite.cgColor
+        view.layer.borderColor = UIColor.clear.cgColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
